@@ -14,7 +14,6 @@ import com.pg.gajamap.databinding.ItemAnyListBinding
 
 class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.Adapter<CustomerAnyListAdapter.ViewHolder>() {
 
-
     private var selectPos :Boolean = false
     private var pos : Int = -1
 
@@ -24,8 +23,8 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
     private var itemBackground: Drawable? = null
 
     inner class ViewHolder(private val binding: ItemAnyListBinding):
-            RecyclerView.ViewHolder(binding.root){
-        fun bind(data: Client, background: Drawable?){
+            RecyclerView.ViewHolder(binding.root) {
+        fun bind(data: Client, background: Drawable?) {
             val address = data.address.mainAddress
             val filePath = data.image.filePath
             val imageUrl = GajaMapApplication.prefs.getString("imageUrlPrefix", "")
@@ -33,40 +32,15 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
             Glide.with(binding.itemProfileImg.context)
                 .load(file)
                 .fitCenter()
-                .apply(RequestOptions().override(500,500))
+                .apply(RequestOptions().override(500, 500))
                 .error(R.drawable.profile_img_origin)
                 .into(binding.itemProfileImg)
-            /*if(filePath != null){
-                Glide.with(binding.itemProfileImg.context)
-                    .load(file)
-                    .fitCenter()
-                    .apply(RequestOptions().override(500,500))
-                    .error(R.drawable.profile_img_origin)
-                    .into(binding.itemProfileImg)
-            }
-            if(imageUrl == null){
-                Glide.with(binding.itemProfileImg.context)
-                    .load(file)
-                    .fitCenter()
-                    .apply(RequestOptions().override(500,500))
-                    .error(R.drawable.profile_img_origin)
-                    .into(binding.itemProfileImg)
-            }
-            else{
-                Glide.with(binding.itemProfileImg.context)
-                    .load(R.drawable.profile_img_origin)
-                    .fitCenter()
-                    .apply(RequestOptions().override(500,500))
-                    .error(R.drawable.profile_img_origin)
-                    .into(binding.itemProfileImg)
-            }*/
             binding.itemProfileAddressDetail.text = address
             binding.itemProfileName.text = data.clientName
             binding.itemProfilePhoneDetail.text = data.phoneNumber
             itemView.background = background
-
         }
-            }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemAnyListBinding.inflate(LayoutInflater.from(parent.context), parent, false)

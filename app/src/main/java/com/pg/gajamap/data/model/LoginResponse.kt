@@ -1,6 +1,5 @@
 package com.pg.gajamap.data.model
 
-
 data class LoginRequest(
     val accessToken : String = ""
 )

@@ -70,7 +70,6 @@ interface ApiInterface {
         @Part("isBasicImage") isBasicImage : RequestBody
     ): Response<Client>
 
-
     // 다수 고객 삭제
     @POST("/api/group/{groupId}/clients/bulk-delete")
     suspend fun deleteAnyClient(@Path("groupId")groupId : Long, @Body deleteRequest: DeleteRequest) : Response<BaseResponse>
