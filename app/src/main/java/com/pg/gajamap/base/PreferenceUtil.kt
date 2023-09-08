@@ -29,11 +29,6 @@ class PreferenceUtil(context: Context) {
         prefs.edit().putString(KEY_AUTO_LOGIN_RESPONSE, json).apply()
     }
 
-    fun getAutoLoginResponse(): AutoLoginResponse? {
-        val json = prefs.getString(KEY_AUTO_LOGIN_RESPONSE, null)
-        return gson.fromJson(json, AutoLoginResponse::class.java)
-    }
-
     // SharedPreferences 초기화 메서드 추가
     fun clearAllPreferences() {
         prefs.edit().clear().apply()

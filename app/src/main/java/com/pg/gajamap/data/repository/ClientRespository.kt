@@ -35,7 +35,6 @@ class ClientRespository {
                           clientImage : MultipartBody.Part?,
                           isBasicImage: RequestBody) = clientClient.putClient(groupId, clientId, clientName,group,phoneNumber, mainAddress, detail, latitude, longitude, clientImage, isBasicImage)
 
-
     // 그룹 조회
     suspend fun checkGroup() = clientClient.checkGroup()
 

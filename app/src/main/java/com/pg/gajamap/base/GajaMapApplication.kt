@@ -25,8 +25,6 @@ class GajaMapApplication : Application() {
 
         private const val PREF_NAME = "SessionPref"
         private const val KEY_SESSION_ID = "session_id"
-
-
     }
 
     private var sessionCookie: Cookie? = null
@@ -61,8 +59,6 @@ class GajaMapApplication : Application() {
 
                 val cookie = extractSessionValue(cookies)
                 Log.d("sessioncookies", cookie.toString())
-
-
             }
 
             override fun loadForRequest(url: HttpUrl): List<Cookie> {
@@ -80,9 +76,7 @@ class GajaMapApplication : Application() {
                 } else {
                     emptyList()
                 }
-
             }
-
         }
 
         val builder = OkHttpClient().newBuilder()
@@ -122,32 +116,9 @@ class GajaMapApplication : Application() {
         }
     }
 
-    /*private fun provideOkHttpClient(interceptor: AppInterceptor): OkHttpClient
-            = OkHttpClient.Builder().run {
-        addInterceptor(interceptor)
-        build()
-    }
-
-    class AppInterceptor : Interceptor {
-        @Throws(IOException::class)
-        override fun intercept(chain: Interceptor.Chain) : Response = with(chain) {
-            val session = GajaMapApplication.prefs.getString("session","")
-            Log.d("application", session)
-            //val session = GajaMapApplication.prefs.getString("session","")
-            val newRequest = request().newBuilder()
-                .addHeader("Set-Cookie", session)
-                .build()
-            proceed(newRequest)
-        }
-
-    }*/
-
     fun extractSessionValue(cookieString: List<Cookie>): String? {
         val regex = Regex("SESSION=([A-Za-z0-9]+);")
         val matchResult = regex.find(cookieString.toString())
         return matchResult?.value
     }
-
-    
-
 }
