@@ -180,7 +180,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             clientList?.let { ListRv(it) }
 
             if (groupInfo != null) {
-                binding.spinnerSearch.text = groupInfo!!.groupName
+                binding.tvSearch.text = groupInfo!!.groupName
             }
         }
     }
@@ -200,7 +200,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             clientList?.let { ListRv(it) }
 
             if (groupInfo != null) {
-                binding.spinnerSearch.text = groupInfo!!.groupName
+                binding.tvSearch.text = groupInfo!!.groupName
             }
             Log.d("deleteupdate", clientList.toString())
         }
