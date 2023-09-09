@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pg.gajamap.BR
 import com.pg.gajamap.R
 import com.pg.gajamap.base.BaseFragment
@@ -41,6 +42,9 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
     }
 
     override fun onCreateAction() {
+
+        hideBottomNavigation(true)
+
         viewModel.checkGroup()
         viewModel.checkGroup.observe(this, Observer {
             // GroupResponse에서 GroupInfoResponse의 groupName 속성을 추출하여 리스트로 변환합니다.
@@ -216,5 +220,17 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
         val selectedCount = selectedClients.size.toString()
         binding.topTvNumber1.text = selectedCount
         Log.d("SelectedCount", "Updated to $selectedCount")
+    }
+
+    // 프래그먼트 바텀 네비게이션 뷰 숨기기
+    private fun hideBottomNavigation(bool: Boolean) {
+        val bottomNavigation = requireActivity().findViewById<BottomNavigationView>(R.id.nav_bn)
+        if (bool) bottomNavigation.visibility = View.GONE else bottomNavigation.visibility =
+            View.VISIBLE
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        hideBottomNavigation(false)
     }
 }
