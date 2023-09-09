@@ -23,6 +23,7 @@ import android.widget.AdapterView
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pg.gajamap.base.GajaMapApplication
 import com.pg.gajamap.base.UserData
 import com.pg.gajamap.data.model.Clients
@@ -59,6 +60,8 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
     }
 
     override fun onCreateAction() {
+
+        hideBottomNavigation(true)
 
         //var groupInfo = UserData.groupinfo
 
@@ -270,6 +273,18 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
 
     private fun updateSelectedClientsCount() {
         binding.topTvNumber1.text = selectedClients.size.toString()
+    }
+
+    // 프래그먼트 바텀 네비게이션 뷰 숨기기
+    private fun hideBottomNavigation(bool: Boolean) {
+        val bottomNavigation = requireActivity().findViewById<BottomNavigationView>(R.id.nav_bn)
+        if (bool) bottomNavigation.visibility = View.GONE else bottomNavigation.visibility =
+            View.VISIBLE
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        hideBottomNavigation(false)
     }
 
 }
