@@ -247,6 +247,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 sheetView!!.tvAddgroupMain.text = gname
                 pos = position
 
+
                 if (position == 0){
                     getAllClient()
                 }else{
@@ -422,6 +423,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                                 }
                                 else{
                                     specificRadius(3000, a.first, a.second, itemId)
+
                                 }
                             }
                         }

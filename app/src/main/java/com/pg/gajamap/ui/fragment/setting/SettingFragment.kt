@@ -56,6 +56,12 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
             binding.settingLevelTv.setBackgroundResource(R.color.setting_level_purple_background)
         }
 
+        val email = GajaMapApplication.prefs.getString("email", "")
+        val createDate = GajaMapApplication.prefs.getString("createdDate", "")
+
+        binding.settingEmailTv.text = email
+        binding.settingDateTv.text = createDate
+
         //문의하기
         binding.settingInquireTv.setOnClickListener {
             parentFragmentManager.beginTransaction().replace(R.id.nav_fl, InquireFragment()).addToBackStack(null).commit()

@@ -69,9 +69,14 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         binding.listRv.addItemDecoration(CustomerListVerticalItemDecoration())
 
         binding.fragmentEditBtn.setOnClickListener {
+
             // 고객 편집하기 activity로 이동
-            val intent = Intent(activity, EditListActivity::class.java)
-            startActivity(intent)
+            if(groupInfo?.groupId == -1L) {
+                Toast.makeText(requireContext(), "전체 그룹은 편집 기능을 사용하지 못합니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                val intent = Intent(activity, EditListActivity::class.java)
+                startActivity(intent)
+            }
         }
 
         //최신순은 보라색으로 시작
@@ -218,15 +223,22 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory1.setBackgroundResource(R.drawable.list_distance_purple)
 
-            customerListAdapter.updateData(it.clients)
+            customerListAdapter.updateData(it.clients.sortedBy { it.clientId }.reversed())
         }
         binding.fragmentListCategory2.setOnClickListener {view->
             binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory2.setBackgroundResource(R.drawable.list_distance_purple)
 
-            val reversedList = it.clients.reversed()
-            customerListAdapter.updateData(reversedList)
+            customerListAdapter.updateData(it.clients.sortedBy { it.clientId })
+        }
+
+        binding.fragmentListCategory3.setOnClickListener {view->
+            binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
+            binding.fragmentListCategory3.setBackgroundResource(R.drawable.list_distance_purple)
+
+            customerListAdapter.updateData(it.clients.sortedBy { it.distance })
         }
 
         //리사이클러뷰 클릭

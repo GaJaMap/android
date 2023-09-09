@@ -47,6 +47,7 @@ class CustomerListAdapter(private var dataList: List<Client>): RecyclerView.Adap
 
         fun bind(data: Client){
                     val address = data.address.mainAddress
+            Log.d("distance", data.distance.toString())
             if(data.distance.toString() == "null"){
                 val distance1 = "- " + "km"
                 binding.itemProfileDistance.text = distance1

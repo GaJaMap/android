@@ -110,7 +110,10 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                 finish()
             })
-            GajaMapApplication.prefs.setString("authority", it.authority.toString())
+            GajaMapApplication.prefs.setString("authority", it.authority)
+            GajaMapApplication.prefs.setString("email", it.email)
+            GajaMapApplication.prefs.setString("createdDate", it.createdDate)
+
         })
     }
 
