@@ -18,107 +18,87 @@
         android:layout_height="match_parent"
         android:focusable="true"
         android:focusableInTouchMode="true">
-        
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fragment_list_top"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/fragment_list_tool"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-            android:elevation="10dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/fragment_list_top_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/ic_back_btn"
-                android:layout_marginStart="18dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/top"
+            android:layout_width="match_parent"
+            android:layout_height="51dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/list_search"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginStart="16.11dp"
-                app:layout_constraintTop_toTopOf="@+id/fragment_list_top_tv"
-                app:layout_constraintBottom_toBottomOf="@+id/fragment_list_top_tv"
-                app:layout_constraintStart_toEndOf="@+id/fragment_list_top_tv"/>
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/fragment_edit_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
                 android:text="편집"
+                android:textColor="@color/main"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/main"
-                android:layout_marginEnd="15dp"
-                android:layout_marginStart="16.11dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-        
+
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fragment_list_search"
+            android:id="@+id/cl_search_whole"
             android:layout_width="match_parent"
             android:layout_height="48dp"
+            android:layout_marginHorizontal="16dp"
             android:background="@drawable/fragment_list_tool"
-            android:elevation="10dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginHorizontal="12dp"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_list_top"
+            android:elevation="15dp"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/top" >
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_search"
-                android:layout_width="wrap_content"
+                android:layout_width="138dp"
                 android:layout_height="48dp"
                 android:background="@drawable/fragment_list_search_purple"
-                app:layout_constraintStart_toStartOf="@+id/fragment_list_search"
-                app:layout_constraintTop_toTopOf="@+id/fragment_list_search"
-                app:layout_constraintBottom_toBottomOf="@+id/fragment_list_search">
+                app:layout_constraintBottom_toBottomOf="@+id/cl_search_whole"
+                app:layout_constraintStart_toStartOf="@+id/cl_search_whole"
+                app:layout_constraintTop_toTopOf="@+id/cl_search_whole">
+
                 <TextView
-                    android:id="@+id/spinner_search"
+                    android:id="@+id/tv_search"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="서울특별시"
-                    android:layout_marginStart="13dp"
+                    android:fontFamily="@font/nanumsquareneo_bold"
+                    android:text="@string/list_search_tv"
+                    android:textAlignment="center"
                     android:textColor="@color/white"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"/>
-
-                <!--<Spinner
-                    android:id="@+id/spinner_search"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/fragment_list_search_purple"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/cl_search"
+                    app:layout_constraintEnd_toStartOf="@id/iv_search_drop"
                     app:layout_constraintStart_toStartOf="@+id/cl_search"
-                    app:layout_constraintTop_toTopOf="@+id/cl_search"
-                    app:layout_constraintBottom_toBottomOf="@+id/cl_search"/>-->
+                    app:layout_constraintTop_toTopOf="@+id/cl_search" />
 
                 <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/iv_search_drop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
                     android:background="@drawable/ic_search_drop"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="13dp"
-                    app:layout_constraintStart_toEndOf="@+id/spinner_search"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_search"
                     app:layout_constraintEnd_toEndOf="@+id/cl_search"
-                    app:layout_constraintTop_toTopOf="@+id/spinner_search"
-                    app:layout_constraintBottom_toBottomOf="@+id/spinner_search"/>
+                    app:layout_constraintTop_toTopOf="@+id/tv_search" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -127,17 +107,17 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:background="@drawable/fragment_list_search_et_background"
-                app:layout_constraintStart_toEndOf="@+id/cl_search"
-                app:layout_constraintEnd_toEndOf="@+id/fragment_list_search"
-                app:layout_constraintTop_toTopOf="@+id/fragment_list_search"
-                app:layout_constraintBottom_toBottomOf="@+id/fragment_list_search"
-                android:textSize="13sp"
                 android:fontFamily="@font/nanumsquareneo_regular"
+                android:paddingStart="8dp"
                 android:textColor="@color/black"
-                android:paddingStart="8dp"/>
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="@+id/cl_search_whole"
+                app:layout_constraintEnd_toEndOf="@+id/cl_search_whole"
+                app:layout_constraintStart_toEndOf="@+id/cl_search"
+                app:layout_constraintTop_toTopOf="@+id/cl_search_whole" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-        
+
         <TextView
             android:id="@+id/fragment_list_category1"
             android:layout_width="71dp"
@@ -149,7 +129,7 @@
             android:gravity="center"
             android:layout_marginTop="10dp"
             android:layout_marginStart="17dp"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_list_search"
+            app:layout_constraintTop_toBottomOf="@+id/cl_search_whole"
             app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView
@@ -163,35 +143,22 @@
             android:gravity="center"
             android:layout_marginTop="10dp"
             android:layout_marginStart="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_list_search"
+            app:layout_constraintTop_toBottomOf="@+id/cl_search_whole"
             app:layout_constraintStart_toEndOf="@+id/fragment_list_category1"/>
 
         <TextView
             android:id="@+id/fragment_list_category3"
             android:layout_width="71dp"
             android:layout_height="26dp"
-            android:text="@string/list_category3"
-            android:textSize="12sp"
-            android:textColor="@color/gray"
+            android:layout_marginStart="8dp"
             android:background="@drawable/fragment_list_category_background"
             android:gravity="center"
+            android:text="@string/list_category3"
             android:layout_marginTop="10dp"
-            android:layout_marginStart="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_list_search"
-            app:layout_constraintStart_toEndOf="@+id/fragment_list_category2"/>
-
-        <!--<Spinner
-            android:id="@+id/radius_spinner"
-            android:layout_width="71dp"
-            android:layout_height="26dp"
-            android:spinnerMode="dropdown"
-            android:textAlignment="center"
-            android:theme="@style/SpinnerTheme"
-            android:background="@drawable/fragment_list_category_background"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_list_search"
-            app:layout_constraintStart_toEndOf="@+id/fragment_list_category3"/>-->
+            android:textColor="@color/gray"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@+id/fragment_list_category2"
+            app:layout_constraintTop_toBottomOf="@+id/cl_search_whole"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list_rv"
