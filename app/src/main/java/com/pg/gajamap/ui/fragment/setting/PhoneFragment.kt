@@ -32,7 +32,8 @@ import com.pg.gajamap.data.model.PostKakaoPhoneRequest
 import com.pg.gajamap.ui.adapter.PhoneListAdapter
 import com.pg.gajamap.viewmodel.ClientViewModel
 
-class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone) {
+class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone),
+    PhoneListAdapter.OnItemClickListener2 {
 
     // 선택된 클라이언트들을 저장하기 위한 리스트
     private var selectedClients: MutableList<Clients?> = mutableListOf()
@@ -163,7 +164,7 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
     private fun setContacts() {
         binding.topTvNumber2.text = contactsList.size.toString()
 
-        phoneListAdapter = PhoneListAdapter(contactsList)
+        phoneListAdapter = PhoneListAdapter(contactsList, this)
         binding.phoneListRv.apply {
             adapter = phoneListAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -172,6 +173,7 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
 
         //전체선택
         binding.settingPhoneCheckEvery.setOnCheckedChangeListener { _, isChecked ->
+            selectedClients.clear()
             if (isChecked) {
                 selectedClients.addAll(contactsList.map {
                     Clients(it.name, it.number)
@@ -181,8 +183,10 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
                 selectedClients.clear()
             }
             phoneListAdapter?.setAllItemsChecked(isChecked)
-            updateSelectedClientsCount()
+            binding.topTvNumber1.text = selectedClients.size.toString()
+            Log.d("allselectedClients",selectedClients.toString())
         }
+
 
         phoneListAdapter?.setOnItemClickListener(object :
             PhoneListAdapter.OnItemClickListener{
@@ -200,7 +204,7 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
                             selectedClients.remove(Clients(nickname, it.number))
                         }
                     }
-                    updateSelectedClientsCount()
+                    binding.topTvNumber1.text = selectedClients.size.toString()
                 }
                 /*val item = friends.elements?.get(position)
                 item?.let {
@@ -273,10 +277,6 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
             }
         }
 
-    private fun updateSelectedClientsCount() {
-        binding.topTvNumber1.text = selectedClients.size.toString()
-    }
-
     // 프래그먼트 바텀 네비게이션 뷰 숨기기
     private fun hideBottomNavigation(bool: Boolean) {
         val bottomNavigation = requireActivity().findViewById<BottomNavigationView>(R.id.nav_bn)
@@ -287,6 +287,25 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
     override fun onDestroyView() {
         super.onDestroyView()
         hideBottomNavigation(false)
+    }
+
+    override fun onItemClick(position: Int, isChecked: Boolean) {
+        val item = contactsList[position]
+        if (isChecked) {
+
+
+
+            selectedClients.add(Clients(item.name, item.number))
+            Log.d("selectedClients", selectedClients.toString())
+
+            binding.topTvNumber1.text = selectedClients.size.toString()
+        } else {
+            selectedClients.remove(Clients(item.name, item.number))
+            Log.d("selectedClients", selectedClients.toString())
+
+            binding.topTvNumber1.text = selectedClients.size.toString()
+
+        }
     }
 
 }
