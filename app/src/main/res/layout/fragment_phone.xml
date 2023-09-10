@@ -189,16 +189,17 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/phone_list_rv"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:nestedScrollingEnabled="false"
+        android:layout_height="0dp"
         android:layout_marginStart="27dp"
-        tools:listitem="@layout/item_phone"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        android:orientation="vertical"
         android:layout_marginTop="10dp"
+        android:nestedScrollingEnabled="false"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@+id/btn_submit"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/setting_phone_check_back"
-        app:layout_constraintStart_toStartOf="parent"/>
+        tools:listitem="@layout/item_phone" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_submit"
