@@ -1,5 +1,6 @@
 package com.pg.gajamap.ui.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,7 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pg.gajamap.databinding.ItemPhoneBinding
 import com.pg.gajamap.ui.fragment.setting.ContactsData
 
-class PhoneListAdapter(private val dataList : ArrayList<ContactsData>): RecyclerView.Adapter<PhoneListAdapter.ViewHolder>() {
+class PhoneListAdapter(private val dataList : ArrayList<ContactsData>, private val listener: OnItemClickListener2
+): RecyclerView.Adapter<PhoneListAdapter.ViewHolder>() {
 
     private val checkedPositions = mutableSetOf<Int>()
     inner class ViewHolder(private val binding: ItemPhoneBinding):
@@ -16,11 +18,8 @@ class PhoneListAdapter(private val dataList : ArrayList<ContactsData>): Recycler
                     binding.itemPhoneTv.text = data.name
                     binding.itemPhoneTv.isChecked = checkedPositions.contains(absoluteAdapterPosition)
                     binding.itemPhoneTv.setOnClickListener {
-                        if(binding.itemPhoneTv.isChecked){
-                            checkedPositions.add(absoluteAdapterPosition)
-                        }else {
-                            checkedPositions.remove(absoluteAdapterPosition)
-                        }
+                        val isChecked = binding.itemPhoneTv.isChecked
+                        listener.onItemClick(position, isChecked)
                     }
                 }
             }
@@ -44,6 +43,10 @@ class PhoneListAdapter(private val dataList : ArrayList<ContactsData>): Recycler
 
     interface OnItemClickListener {
         fun onClick(v: View, position: Int)
+    }
+
+    interface OnItemClickListener2 {
+        fun onItemClick(position: Int, isChecked: Boolean)
     }
 
     fun setOnItemClickListener(onItemClickListener: OnItemClickListener){
