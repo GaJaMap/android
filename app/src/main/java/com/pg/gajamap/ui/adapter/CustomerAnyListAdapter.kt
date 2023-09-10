@@ -16,6 +16,7 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
 
     private var selectPos :Boolean = false
     private var pos : Int = -1
+    private val selectedPositions = mutableSetOf<Int>()
 
     // 원래 배경 리소스 ID (클릭 전의 배경)
     private var originalBackgroundResource: Int = 0
@@ -54,11 +55,17 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
        holder.bind(dataList[position], itemBackground)
 
-        if(!selectPos){
-            holder.itemView.setOnClickListener{
+        holder.itemView.setOnClickListener {
+            if (selectedPositions.contains(position)) {
+                // 이미 선택된 상태일 경우 선택 해제
+                itemClickListener.onClick(it, position)
+                holder.itemView.setBackgroundResource(R.drawable.fragment_list_tool)
+                selectedPositions.remove(position) // 선택 상태를 해제
+            } else {
+                // 선택되지 않은 상태일 경우 선택
                 itemClickListener.onClick(it, position)
                 holder.itemView.setBackgroundResource(R.drawable.fragment_list_tool_purple)
-                selectPos = true
+                selectedPositions.add(position) // 선택 상태를 저장
             }
         }
 
