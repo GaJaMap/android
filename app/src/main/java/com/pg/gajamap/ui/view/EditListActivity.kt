@@ -24,7 +24,7 @@ import com.pg.gajamap.viewmodel.GetClientViewModel
 
 class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity_edit_list) {
     var selectedClientIds = mutableListOf<Long>()
-    var groupId : Long = 0
+    var groupId: Long = 0
     var client = UserData.clientListResponse
     var clientList = UserData.clientListResponse?.clients
     var groupInfo = UserData.groupinfo
@@ -37,6 +37,7 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
         binding.lifecycleOwner = this@EditListActivity
         binding.viewModel = this.viewModel
     }
+
     override fun onCreateAction() {
         // 자동 로그인 response 데이터 값 받아오기
         //val clientList = UserData.clientListResponse
@@ -66,6 +67,11 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
                         viewModel.deleteAnyClient(groupId, deleteRequest)
                         viewModel.deleteAnyClient.observe(this, Observer {
 
+                            for (id in selectedClientIds) {
+                                removeClientWithClientId(id)
+                            }
+
+
                             // 선택된 클라이언트들 삭제 후, 클라이언트 목록 업데이트
                             val newClientList = clientList?.filter { client ->
                                 client.clientId !in selectedClientIds
@@ -73,7 +79,12 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
                             Log.d("newdelete", clientList.toString())
 
                             if (newClientList != null) {
-                                val newResponse = client?.let { it1 -> GetAllClientResponse(newClientList as MutableList<Client>, it1.imageUrlPrefix) }
+                                val newResponse = client?.let { it1 ->
+                                    GetAllClientResponse(
+                                        newClientList as MutableList<Client>,
+                                        it1.imageUrlPrefix
+                                    )
+                                }
                                 if (newResponse != null) {
                                     ListRv(newResponse)
                                 }
@@ -87,7 +98,7 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
 
                             binding.topTvNumber1.text = selectedClientIds.size.toString()
 
-                            Toast.makeText(this,"삭제 완료", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "삭제 완료", Toast.LENGTH_SHORT).show()
                             finish()
                         })
                     })
@@ -100,7 +111,7 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
         }
     }
 
-    private fun ListRv(it : GetAllClientResponse){
+    private fun ListRv(it: GetAllClientResponse) {
 
         //고객 리스트
         binding.topTvNumber2.text = it.clients.size.toString()
@@ -115,23 +126,32 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
             // 선택한 모든 clientId들을 selectedClientIds 리스트에 추가 또는 삭제
             selectedClientIds.clear() // 기존 선택한 아이템들 초기화
 
-            if(isChecked){
+            if (isChecked) {
                 selectedClientIds.addAll(it.clients.map { client -> client.clientId })
                 // 배경색 변경
-                val backgroundDrawable: Drawable? by lazy {ContextCompat.getDrawable(this, R.drawable.fragment_list_tool_purple) }
+                val backgroundDrawable: Drawable? by lazy {
+                    ContextCompat.getDrawable(
+                        this,
+                        R.drawable.fragment_list_tool_purple
+                    )
+                }
                 customerAnyListAdapter.updateItemBackground(backgroundDrawable)
-            }
-            else{
+            } else {
                 // 배경색 변경
                 selectedClientIds.removeAll { true }
-                val backgroundDrawable: Drawable? by lazy { ContextCompat.getDrawable(this, R.drawable.fragment_list_tool) }
+                val backgroundDrawable: Drawable? by lazy {
+                    ContextCompat.getDrawable(
+                        this,
+                        R.drawable.fragment_list_tool
+                    )
+                }
                 customerAnyListAdapter.updateItemBackground(backgroundDrawable)
             }
         }
 
         //리사이클러뷰 클릭
         customerAnyListAdapter.setOnItemClickListener(object :
-            CustomerAnyListAdapter.OnItemClickListener{
+            CustomerAnyListAdapter.OnItemClickListener {
             override fun onClick(v: View, position: Int) {
                 val selectedClientId = it.clients[position].clientId
 
@@ -145,4 +165,22 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
             }
         })
     }
+
+    private fun removeClientWithClientId(clientIdToRemove: Long) {
+        // 자동 로그인 response 데이터 값 받아오기
+        val clientList = UserData.clientListResponse?.clients as? MutableList<Client>
+
+        if (clientList != null) {
+            val iterator = clientList.iterator()
+            while (iterator.hasNext()) {
+                val client = iterator.next()
+                if (client.clientId == clientIdToRemove) {
+                    iterator.remove()
+                    Log.d("delete", clientList.toString())
+                    break  // 원하는 클라이언트를 찾고 삭제 후 반복문 종료
+                }
+            }
+        }
+    }
+
 }
