@@ -76,6 +76,8 @@
                 app:layout_constraintTop_toTopOf="@+id/cl_search_whole"
                 app:layout_constraintBottom_toBottomOf="@+id/cl_search_whole"
                 android:textSize="13sp"
+                android:singleLine="true"
+                android:maxLines="1"
                 android:fontFamily="@font/nanumsquareneo_regular"
                 android:textColor="@color/black"
                 android:paddingStart="8dp"/>
