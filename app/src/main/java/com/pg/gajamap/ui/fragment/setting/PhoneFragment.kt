@@ -37,22 +37,24 @@ import com.pg.gajamap.data.model.PostKakaoPhoneRequest
 import com.pg.gajamap.ui.adapter.PhoneListAdapter
 import com.pg.gajamap.viewmodel.ClientViewModel
 
-class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone),
+class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone),
     PhoneListAdapter.OnItemClickListener2 {
 
     // 선택된 클라이언트들을 저장하기 위한 리스트
     private var selectedClients: MutableList<Clients?> = mutableListOf()
-    private var groupId : Long = -1
-    private var groupName : String = ""
+    private var groupId: Long = -1
+    private var groupName: String = ""
     var client = UserData.clientListResponse
     var clientList = UserData.clientListResponse?.clients
     var groupInfo = UserData.groupinfo
+    val regex = """^\d{2,3}-\d{3,4}-\d{4}$""".toRegex()
 
     companion object {
         const val PERMISSION_REQUEST_CODE = 100
     }
+
     private var contactsList = ArrayList<ContactsData>()
-    private var phoneListAdapter : PhoneListAdapter? = null
+    private var phoneListAdapter: PhoneListAdapter? = null
     private val ACCESS_FINE_LOCATION = 1000
 
 
@@ -82,22 +84,34 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
                 groupNames.add(groupInfo.groupName)
             }
             //groupNames.add(groupNames.size, "그룹 선택")
-            groupNames.add(0,"그룹 선택")
-            //그룹 스피너
-            /*val adapter = ArrayAdapter(requireActivity(), R.layout.spinner_list, groupNames)
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            binding.infoProfileGroup.adapter = adapter*/
-            val adapter = object : ArrayAdapter<String>(requireActivity(), R.layout.spinner_list, groupNames) {
+            groupNames.add(0, "그룹 선택")
+
+            val adapter = object :
+                ArrayAdapter<String>(requireActivity(), R.layout.spinner_list, groupNames) {
 
                 override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                     val textView = super.getView(position, convertView, parent) as TextView
-                    textView.setTextColor(ContextCompat.getColor(context, android.R.color.black)) // 검정색으로 변경
+                    textView.setTextColor(
+                        ContextCompat.getColor(
+                            context,
+                            android.R.color.black
+                        )
+                    ) // 검정색으로 변경
                     return textView
                 }
 
-                override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                override fun getDropDownView(
+                    position: Int,
+                    convertView: View?,
+                    parent: ViewGroup
+                ): View {
                     val textView = super.getDropDownView(position, convertView, parent) as TextView
-                    textView.setTextColor(ContextCompat.getColor(context, android.R.color.black)) // 검정색으로 변경
+                    textView.setTextColor(
+                        ContextCompat.getColor(
+                            context,
+                            android.R.color.black
+                        )
+                    ) // 검정색으로 변경
                     return textView
                 }
             }
@@ -107,25 +121,23 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
 
         })
 
-        binding.settingPhoneSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
-                //binding.result.text = data[pos] //배열이라서 []로 된다.
-                //textView를 위에서 선언한 리스트(data)와 연결. [pos]는 리스트에서 선택된 항목의 위치값.
-                // 스피너에서 선택한 아이템의 그룹 아이디를 가져옵니다.
-                //if (pos == 0) return
+        binding.settingPhoneSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
 
-                if(pos != 0){
-                    val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
-                    groupId = selectedGroupInfoResponse.groupId
-                    Log.d("groupId", groupId.toString())
-                    GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
+                    if (pos != 0) {
+                        val selectedGroupInfoResponse: GroupInfoResponse =
+                            viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
+                        groupId = selectedGroupInfoResponse.groupId
+                        Log.d("groupId", groupId.toString())
+                        GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
+                    }
+                }
+
+                override fun onNothingSelected(p0: AdapterView<*>?) {
+
                 }
             }
-
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-
-            }
-        }
 
         binding.topBackBtn.setOnClickListener {
             requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
@@ -151,10 +163,17 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
         val list = ArrayList<ContactsData>()
         contacts?.let {
             while (it.moveToNext()) {
-                val contactsId = contacts.getInt(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
-                val name = contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-                val number = contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                list.add(ContactsData(contactsId, name, number))
+                val contactsId =
+                    contacts.getInt(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+                val name =
+                    contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                val number =
+                    contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
+
+                if (regex.matches(number) && name.length <= 20) {
+                    list.add(ContactsData(contactsId, name, number))
+                }
+
             }
         }
         list.sortBy { it.name }
@@ -163,7 +182,6 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
             contactsList = list
             setContacts()
         }
-        Log.d("phonekakao", contactsList.toString())
     }
 
     // 연락처 리사이클러뷰
@@ -184,18 +202,16 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
                 selectedClients.addAll(contactsList.map {
                     Clients(it.name, it.number)
                 } ?: emptyList())
-            }
-            else {
+            } else {
                 selectedClients.clear()
             }
             phoneListAdapter?.setAllItemsChecked(isChecked)
             binding.topTvNumber1.text = selectedClients.size.toString()
-            Log.d("allselectedClients",selectedClients.toString())
         }
 
 
         phoneListAdapter?.setOnItemClickListener(object :
-            PhoneListAdapter.OnItemClickListener{
+            PhoneListAdapter.OnItemClickListener {
             override fun onClick(v: View, position: Int) {
                 // 아이템 클릭시 해당 아이템의 선택 여부를 토글하고 선택된 클라이언트 리스트 업데이트
                 val item = contactsList[position]
@@ -212,103 +228,119 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
                     }
                     binding.topTvNumber1.text = selectedClients.size.toString()
                 }
-                /*val item = friends.elements?.get(position)
-                item?.let {
-                    selectedClients = kakaoFriendAdapter.getSelectedClients().toMutableList()
-                }*/
             }
         })
         val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
-        binding.settingPhoneSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
-                //binding.result.text = data[pos] //배열이라서 []로 된다.
-                //textView를 위에서 선언한 리스트(data)와 연결. [pos]는 리스트에서 선택된 항목의 위치값.
-                // 스피너에서 선택한 아이템의 그룹 아이디를 가져옵니다.
-                //if (pos == 0) return
+        binding.settingPhoneSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
 
-                if(pos != 0){
-                    val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
-                    groupId = selectedGroupInfoResponse.groupId
-                    groupName = selectedGroupInfoResponse.groupName
+                    if (pos != 0) {
+                        val selectedGroupInfoResponse: GroupInfoResponse =
+                            viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
+                        groupId = selectedGroupInfoResponse.groupId
+                        groupName = selectedGroupInfoResponse.groupName
 
-                    Log.d("selectGroup", groupId.toString())
-                    Log.d("selectGroupName", groupName.toString())
-                    Log.d("groupId1", groupId1)
-                    Log.d("groupId.toString()", groupId.toString())
+                        binding.btnSubmit.setOnClickListener {
+                            viewModel.postKakaoPhoneClient(
+                                PostKakaoPhoneRequest(
+                                    selectedClients,
+                                    groupId.toInt()
+                                )
+                            )
+                            viewModel.postKakaoPhoneClient.observe(
+                                viewLifecycleOwner,
+                                Observer { response ->
 
-                    binding.btnSubmit.setOnClickListener {
-                        viewModel.postKakaoPhoneClient(PostKakaoPhoneRequest(selectedClients, groupId.toInt()))
-                        Log.d("select", selectedClients.toString())
-                        viewModel.postKakaoPhoneClient.observe(viewLifecycleOwner, Observer { response ->
-                            Log.d("selectRes", response.toString())
+                                    if (groupId1 == groupInfo?.groupId.toString() || groupInfo?.groupId == -1L) {
+                                        val ids = response.body() // Response에서 Int 리스트를 가져옵니다.
 
-                            if(groupId1 == groupInfo?.groupId.toString()){
-                                val ids = response.body() // Response에서 Int 리스트를 가져옵니다.
+                                        if (ids != null) {
+                                            val newClients = mutableListOf<Client>()
 
-                                if (ids != null) {
-                                    val newClients = mutableListOf<Client>()
+                                            for (i in ids.indices) {
+                                                val clientId = ids[i] // List에서 현재 순서의 Int 값을 가져옵니다.
+                                                val selectedClient =
+                                                    selectedClients.getOrNull(i) // selectedClients에서 현재 순서의 선택된 클라이언트를 가져옵니다.
 
-                                    for (i in ids.indices) {
-                                        val clientId = ids[i] // List에서 현재 순서의 Int 값을 가져옵니다.
-                                        val selectedClient = selectedClients.getOrNull(i) // selectedClients에서 현재 순서의 선택된 클라이언트를 가져옵니다.
+                                                if (selectedClient != null) {
+                                                    val newClient = Client(
+                                                        address = Address("", ""), // 적절한 값으로 대체하세요
+                                                        clientId = clientId.toLong(), // List에서 가져온 clientId 값을 할당합니다.
+                                                        clientName = selectedClient.clientName, // 선택된 클라이언트의 이름을 사용합니다
+                                                        distance = null, // 적절한 값으로 대체하세요
+                                                        groupInfo = GroupInfo(
+                                                            groupId,
+                                                            groupName
+                                                        ), // 적절한 값으로 대체하세요
+                                                        image = Image(null, null), // 적절한 값으로 대체하세요
+                                                        location = Location(
+                                                            0.0,
+                                                            0.0
+                                                        ), // 적절한 값으로 대체하세요
+                                                        phoneNumber = selectedClient.phoneNumber, // 선택된 클라이언트의 전화번호를 사용합니다
+                                                        createdAt = "" // 적절한 값으로 대체하세요
+                                                    )
+                                                    Log.d("selectNew", newClient.toString())
+                                                    newClients.add(newClient)
+                                                }
+                                            }
 
-                                        if (selectedClient != null) {
-                                            val newClient = Client(
-                                                address = Address("", ""), // 적절한 값으로 대체하세요
-                                                clientId = clientId.toLong(), // List에서 가져온 clientId 값을 할당합니다.
-                                                clientName = selectedClient.clientName, // 선택된 클라이언트의 이름을 사용합니다
-                                                distance = null, // 적절한 값으로 대체하세요
-                                                groupInfo = GroupInfo(groupId, groupName), // 적절한 값으로 대체하세요
-                                                image = Image(null, null), // 적절한 값으로 대체하세요
-                                                location = Location(0.0, 0.0), // 적절한 값으로 대체하세요
-                                                phoneNumber = selectedClient.phoneNumber, // 선택된 클라이언트의 전화번호를 사용합니다
-                                                createdAt = "" // 적절한 값으로 대체하세요
-                                            )
-                                            Log.d("selectNew", newClient.toString())
-                                            newClients.add(newClient)
+                                            // 새로운 Clients를 기존 clientList에 추가합니다.
+                                            clientList?.addAll(newClients)
+                                            Log.d("selectList", clientList.toString())
                                         }
                                     }
 
-                                    // 새로운 Clients를 기존 clientList에 추가합니다.
-                                    clientList?.addAll(newClients)
-                                    Log.d("selectList", clientList.toString())
-                                }
-                            }
+                                })
 
-                        })
-
-                        requireActivity().supportFragmentManager.beginTransaction().remove(this@PhoneFragment).commit()
-                        requireActivity().supportFragmentManager.popBackStack()
+                            requireActivity().supportFragmentManager.beginTransaction()
+                                .remove(this@PhoneFragment).commit()
+                            requireActivity().supportFragmentManager.popBackStack()
+                        }
+                        //GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
                     }
-                    //GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
+                }
+
+                override fun onNothingSelected(p0: AdapterView<*>?) {
+                    TODO("Not yet implemented")
                 }
             }
-
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-                TODO("Not yet implemented")
-            }
-        }
 
 
     }
 
     private fun onCheckContactsPermission() {
-        val permissionDenied = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_CONTACTS) == PackageManager.PERMISSION_DENIED
-                || ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_DENIED
+        val permissionDenied = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.WRITE_CONTACTS
+        ) == PackageManager.PERMISSION_DENIED
+                || ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.READ_CONTACTS
+        ) == PackageManager.PERMISSION_DENIED
         if (permissionDenied) {
             Toast.makeText(requireContext(), "권한이 거절되었습니다.", Toast.LENGTH_SHORT).show()
-        }
-         else {
+        } else {
             getContactsList()
         }
     }
 
     private fun requestPermission() {
-        requestPermissions(arrayOf(Manifest.permission.WRITE_CONTACTS, Manifest.permission.READ_CONTACTS), PERMISSION_REQUEST_CODE)
+        requestPermissions(
+            arrayOf(
+                Manifest.permission.WRITE_CONTACTS,
+                Manifest.permission.READ_CONTACTS
+            ), PERMISSION_REQUEST_CODE
+        )
     }
 
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == ACCESS_FINE_LOCATION) {
             if (checkSelfPermission(
@@ -338,9 +370,9 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
                         show()
                     }
                 }
-                }
             }
         }
+    }
 
     // 프래그먼트 바텀 네비게이션 뷰 숨기기
     private fun hideBottomNavigation(bool: Boolean) {
@@ -359,14 +391,11 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
         if (isChecked) {
 
 
-
             selectedClients.add(Clients(item.name, item.number))
-            Log.d("selectedClients", selectedClients.toString())
 
             binding.topTvNumber1.text = selectedClients.size.toString()
         } else {
             selectedClients.remove(Clients(item.name, item.number))
-            Log.d("selectedClients", selectedClients.toString())
 
             binding.topTvNumber1.text = selectedClients.size.toString()
 
