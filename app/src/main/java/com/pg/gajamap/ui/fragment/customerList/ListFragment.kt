@@ -258,8 +258,8 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 GajaMapApplication.prefs.setString("clientId", clientId.toString())
                 GajaMapApplication.prefs.setString("groupId", groupId.toString())
                 val name = it.clients[position].clientName
-                val address1 = it.clients[position].address.mainAddress
-                val address2 = it.clients[position].address.detail
+                val address1 = it.clients[position].address.mainAddress ?:""
+                val address2 = it.clients[position].address.detail ?:""
                 val phone = it.clients[position].phoneNumber
                 val latitude = it.clients[position].location.latitude
                 val longitude = it.clients[position].location.longitude

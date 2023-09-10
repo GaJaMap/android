@@ -26,8 +26,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pg.gajamap.base.GajaMapApplication
 import com.pg.gajamap.base.UserData
+import com.pg.gajamap.data.model.Address
+import com.pg.gajamap.data.model.Client
 import com.pg.gajamap.data.model.Clients
+import com.pg.gajamap.data.model.GroupInfo
 import com.pg.gajamap.data.model.GroupInfoResponse
+import com.pg.gajamap.data.model.Image
+import com.pg.gajamap.data.model.Location
 import com.pg.gajamap.data.model.PostKakaoPhoneRequest
 import com.pg.gajamap.ui.adapter.PhoneListAdapter
 import com.pg.gajamap.viewmodel.ClientViewModel
@@ -38,6 +43,7 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
     // 선택된 클라이언트들을 저장하기 위한 리스트
     private var selectedClients: MutableList<Clients?> = mutableListOf()
     private var groupId : Long = -1
+    private var groupName : String = ""
     var client = UserData.clientListResponse
     var clientList = UserData.clientListResponse?.clients
     var groupInfo = UserData.groupinfo
@@ -213,18 +219,77 @@ class PhoneFragment: BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone)
             }
         })
         val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
-        binding.btnSubmit.setOnClickListener {
-            viewModel.postKakaoPhoneClient(PostKakaoPhoneRequest(selectedClients, groupId1.toInt()))
-            Log.d("select", selectedClients.toString())
-            viewModel.postKakaoPhoneClient.observe(this, Observer {
-                if(groupId1.toString() == groupInfo?.groupId.toString()){
+        binding.settingPhoneSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
+                //binding.result.text = data[pos] //배열이라서 []로 된다.
+                //textView를 위에서 선언한 리스트(data)와 연결. [pos]는 리스트에서 선택된 항목의 위치값.
+                // 스피너에서 선택한 아이템의 그룹 아이디를 가져옵니다.
+                //if (pos == 0) return
 
+                if(pos != 0){
+                    val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
+                    groupId = selectedGroupInfoResponse.groupId
+                    groupName = selectedGroupInfoResponse.groupName
+
+                    Log.d("selectGroup", groupId.toString())
+                    Log.d("selectGroupName", groupName.toString())
+                    Log.d("groupId1", groupId1)
+                    Log.d("groupId.toString()", groupId.toString())
+
+                    binding.btnSubmit.setOnClickListener {
+                        viewModel.postKakaoPhoneClient(PostKakaoPhoneRequest(selectedClients, groupId.toInt()))
+                        Log.d("select", selectedClients.toString())
+                        viewModel.postKakaoPhoneClient.observe(viewLifecycleOwner, Observer { response ->
+                            Log.d("selectRes", response.toString())
+
+                            if(groupId1 == groupInfo?.groupId.toString()){
+                                val ids = response.body() // Response에서 Int 리스트를 가져옵니다.
+
+                                if (ids != null) {
+                                    val newClients = mutableListOf<Client>()
+
+                                    for (i in ids.indices) {
+                                        val clientId = ids[i] // List에서 현재 순서의 Int 값을 가져옵니다.
+                                        val selectedClient = selectedClients.getOrNull(i) // selectedClients에서 현재 순서의 선택된 클라이언트를 가져옵니다.
+
+                                        if (selectedClient != null) {
+                                            val newClient = Client(
+                                                address = Address("", ""), // 적절한 값으로 대체하세요
+                                                clientId = clientId.toLong(), // List에서 가져온 clientId 값을 할당합니다.
+                                                clientName = selectedClient.clientName, // 선택된 클라이언트의 이름을 사용합니다
+                                                distance = null, // 적절한 값으로 대체하세요
+                                                groupInfo = GroupInfo(groupId, groupName), // 적절한 값으로 대체하세요
+                                                image = Image(null, null), // 적절한 값으로 대체하세요
+                                                location = Location(0.0, 0.0), // 적절한 값으로 대체하세요
+                                                phoneNumber = selectedClient.phoneNumber, // 선택된 클라이언트의 전화번호를 사용합니다
+                                                createdAt = "" // 적절한 값으로 대체하세요
+                                            )
+                                            Log.d("selectNew", newClient.toString())
+                                            newClients.add(newClient)
+                                        }
+                                    }
+
+                                    // 새로운 Clients를 기존 clientList에 추가합니다.
+                                    clientList?.addAll(newClients)
+                                    Log.d("selectList", clientList.toString())
+                                }
+                            }
+
+                        })
+
+                        requireActivity().supportFragmentManager.beginTransaction().remove(this@PhoneFragment).commit()
+                        requireActivity().supportFragmentManager.popBackStack()
+                    }
+                    //GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
                 }
+            }
 
-            })
-            requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
-            requireActivity().supportFragmentManager.popBackStack()
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
         }
+
+
     }
 
     private fun onCheckContactsPermission() {
