@@ -1,9 +1,12 @@
 package com.pg.gajamap.ui.view
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import com.pg.gajamap.data.model.Client
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -53,33 +56,47 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
         }
 
         binding.topDeleteBtn.setOnClickListener {
-            val deleteRequest = DeleteRequest(selectedClientIds)
-            viewModel.deleteAnyClient(groupId, deleteRequest)
-            viewModel.deleteAnyClient.observe(this, Observer {
 
-                // 선택된 클라이언트들 삭제 후, 클라이언트 목록 업데이트
-                val newClientList = clientList?.filter { client ->
-                    client.clientId !in selectedClientIds
-                }
-                Log.d("newdelete", clientList.toString())
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("해당 고객을 삭제하시겠습니까?")
+                .setMessage("고객을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
+                .setPositiveButton("확인",
+                    DialogInterface.OnClickListener { dialog, id ->
+                        val deleteRequest = DeleteRequest(selectedClientIds)
+                        viewModel.deleteAnyClient(groupId, deleteRequest)
+                        viewModel.deleteAnyClient.observe(this, Observer {
 
-                if (newClientList != null) {
-                    val newResponse = client?.let { it1 -> GetAllClientResponse(newClientList as MutableList<Client>, it1.imageUrlPrefix) }
-                    if (newResponse != null) {
-                        ListRv(newResponse)
-                    }
-                }
+                            // 선택된 클라이언트들 삭제 후, 클라이언트 목록 업데이트
+                            val newClientList = clientList?.filter { client ->
+                                client.clientId !in selectedClientIds
+                            }
+                            Log.d("newdelete", clientList.toString())
 
-                //clientList = newClientList
-                //Log.d("newdelete", clientList.toString())
+                            if (newClientList != null) {
+                                val newResponse = client?.let { it1 -> GetAllClientResponse(newClientList as MutableList<Client>, it1.imageUrlPrefix) }
+                                if (newResponse != null) {
+                                    ListRv(newResponse)
+                                }
+                            }
 
-                // 선택된 클라이언트 아이디 목록 초기화
-                selectedClientIds.clear()
+                            //clientList = newClientList
+                            //Log.d("newdelete", clientList.toString())
 
-                binding.topTvNumber1.text = selectedClientIds.size.toString()
+                            // 선택된 클라이언트 아이디 목록 초기화
+                            selectedClientIds.clear()
 
-                finish()
-            })
+                            binding.topTvNumber1.text = selectedClientIds.size.toString()
+
+                            Toast.makeText(this,"삭제 완료", Toast.LENGTH_SHORT).show()
+                            finish()
+                        })
+                    })
+                .setNegativeButton("취소",
+                    DialogInterface.OnClickListener { dialog, id ->
+                    })
+            // 다이얼로그를 띄워주기
+            builder.show()
+
         }
     }
 
@@ -117,13 +134,14 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
             CustomerAnyListAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int) {
                 val selectedClientId = it.clients[position].clientId
-                binding.topTvNumber1.text = selectedClientIds.size.toString()
-                // 리스트에 클릭한 아이템의 clientId 추가 또는 삭제
+
                 if (selectedClientIds.contains(selectedClientId)) {
-                    //selectedClientIds.remove(selectedClientId)
+                    selectedClientIds.remove(selectedClientId)
                 } else {
                     selectedClientIds.add(selectedClientId)
                 }
+
+                binding.topTvNumber1.text = selectedClientIds.size.toString()
             }
         })
     }

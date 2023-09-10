@@ -195,6 +195,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         CoroutineScope(Dispatchers.IO).launch {
             updateData()
         }
+        Log.d("backonactivity","backonactivity")
     }
 
     private suspend fun updateData() {
