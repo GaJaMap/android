@@ -98,8 +98,8 @@ class MapViewModel: ViewModel() {
     }
 
     // 전체 고객 대상 반경 검색
-    private val _wholeRadius = MutableLiveData<RadiusResponse>()
-    val wholeRadius : LiveData<RadiusResponse>
+    private val _wholeRadius = MutableLiveData<GetAllClientResponse>()
+    val wholeRadius : LiveData<GetAllClientResponse>
         get() = _wholeRadius
 
     fun wholeRadius(radius: Int, latitude: Double, longitude: Double){
