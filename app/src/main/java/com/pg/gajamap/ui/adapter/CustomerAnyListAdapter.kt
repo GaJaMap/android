@@ -40,6 +40,12 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
             binding.itemProfileName.text = data.clientName
             binding.itemProfilePhoneDetail.text = data.phoneNumber
             itemView.background = background
+
+            if (selectedPositions.contains(adapterPosition)) {
+                itemView.setBackgroundResource(R.drawable.fragment_list_tool_purple)
+            } else {
+                itemView.setBackgroundResource(R.drawable.fragment_list_tool)
+            }
         }
     }
 

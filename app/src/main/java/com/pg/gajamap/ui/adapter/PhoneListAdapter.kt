@@ -1,6 +1,7 @@
 package com.pg.gajamap.ui.adapter
 
 import android.util.Log
+import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,14 +12,15 @@ import com.pg.gajamap.ui.fragment.setting.ContactsData
 class PhoneListAdapter(private val dataList : ArrayList<ContactsData>, private val listener: OnItemClickListener2
 ): RecyclerView.Adapter<PhoneListAdapter.ViewHolder>() {
 
-    private val checkedPositions = mutableSetOf<Int>()
+    private val checkedPositions = SparseBooleanArray()
     inner class ViewHolder(private val binding: ItemPhoneBinding):
             RecyclerView.ViewHolder(binding.root){
                 fun bind(data : ContactsData){
                     binding.itemPhoneTv.text = data.name
-                    binding.itemPhoneTv.isChecked = checkedPositions.contains(absoluteAdapterPosition)
+                    binding.itemPhoneTv.isChecked = checkedPositions[position]
                     binding.itemPhoneTv.setOnClickListener {
                         val isChecked = binding.itemPhoneTv.isChecked
+                        checkedPositions.put(position, isChecked)
                         listener.onItemClick(position, isChecked)
                     }
                 }
@@ -56,15 +58,13 @@ class PhoneListAdapter(private val dataList : ArrayList<ContactsData>, private v
     private lateinit var itemClickListener : OnItemClickListener
 
     fun setAllItemsChecked(checked: Boolean) {
-        if (checked) {
-            checkedPositions.addAll(dataList.indices)
-        } else {
-            checkedPositions.clear()
+        for (i in 0 until dataList.size) {
+            checkedPositions.put(i, checked)
         }
         notifyDataSetChanged()
     }
 
     fun isChecked(position: Int): Boolean {
-        return checkedPositions.contains(position)
+        return checkedPositions.get(position, false)
     }
 }
