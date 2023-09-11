@@ -595,6 +595,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 builder.show()
             }
             else{
+                UserData.clientListResponse = viewModel.wholeRadius.value
                 val data = viewModel.wholeRadius.value!!.clients
                 val num = data.count()
                 binding.mapView.removeAllPOIItems()
@@ -606,7 +607,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         itemName = itemdata.clientName
                         tag = itemdata.clientId.toInt()
                         mapPoint =
-                            MapPoint.mapPointWithGeoCoord(itemdata.location!!.latitude, itemdata.location.longitude)
+                            MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
                         markerType = MapPOIItem.MarkerType.BluePin
                         selectedMarkerType = MapPOIItem.MarkerType.RedPin
                     }
@@ -629,6 +630,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 builder.show()
             }
             else{
+                UserData.clientListResponse = viewModel.wholeRadius.value
                 val data = viewModel.wholeRadius.value!!.clients
                 val num = data.count()
                 binding.mapView.removeAllPOIItems()
@@ -640,7 +642,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         itemName = itemdata.clientName
                         tag = itemdata.clientId.toInt()
                         mapPoint =
-                            MapPoint.mapPointWithGeoCoord(itemdata.location!!.latitude, itemdata.location!!.longitude)
+                            MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
                         markerType = MapPOIItem.MarkerType.BluePin
                         selectedMarkerType = MapPOIItem.MarkerType.RedPin
                     }
