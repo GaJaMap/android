@@ -48,11 +48,14 @@ import com.pg.gajamap.ui.adapter.ViewPagerAdapter
 import com.pg.gajamap.ui.view.AddDirectActivity
 import com.pg.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.pg.gajamap.data.model.AutoLoginGroupInfo
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapReverseGeoCoder
 import net.daum.mf.map.api.MapReverseGeoCoder.ReverseGeoCodingResultListener
 import net.daum.mf.map.api.MapView
+import net.daum.mf.map.api.MapView.clearMapTilePersistentCache
+import net.daum.mf.map.api.MapView.setMapTilePersistentCacheEnabled
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -105,6 +108,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     @SuppressLint("ResourceAsColor")
     override fun onCreateAction() {
+        // 지도 타일 이미지 Persistent Cache 기능 : 네트워크를 통해 다운로드한 지도 이미지 데이터를 단말의 영구(persistent) 캐쉬 영역에 저장하는 기능
+        setMapTilePersistentCacheEnabled(true)
+
         val groupDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetTheme)
         sheetView = DialogAddGroupBottomSheetBinding.inflate(layoutInflater)
 
@@ -246,7 +252,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 binding.tvSearch.text = gname
                 sheetView!!.tvAddgroupMain.text = gname
                 pos = position
-
 
                 if (position == 0){
                     getAllClient()
@@ -436,11 +441,13 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         }
                         // 3km 버튼 누를 시 해당 버튼 창 없애기
                         binding.clKm.visibility = View.GONE
+
                         if(!threeCheck && !fiveCheck){
                             kmBtn = false
                             val bgShapebtn = binding.ibKm.background as GradientDrawable
                             bgShapebtn.setColor(resources.getColor(R.color.white))
                             binding.ibKm.setImageResource(R.drawable.ic_km)
+                            getGroupClient(UserData.groupinfo!!.groupId)
                         }
                     }
 
@@ -479,6 +486,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                             val bgShapebtn = binding.ibKm.background as GradientDrawable
                             bgShapebtn.setColor(resources.getColor(R.color.white))
                             binding.ibKm.setImageResource(R.drawable.ic_km)
+                            getGroupClient(UserData.groupinfo!!.groupId)
                         }
                     }
                 }else {
@@ -684,6 +692,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
             // UserData 값 갱신
             UserData.clientListResponse = viewModel.groupClients.value
+            // groupinfo 값도 변경
+            UserData.groupinfo = AutoLoginGroupInfo(groupId, num, data.get(0).groupInfo.groupName)
+
             binding.mapView.removeAllPOIItems()
             for (i in 0..num-1) {
                 val itemdata = data.get(i)
@@ -711,6 +722,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
             // UserData 값 갱신
             UserData.clientListResponse = viewModel.allClients.value
+            // groupinfo 값도 변경
+            UserData.groupinfo = AutoLoginGroupInfo(-1, num, "전체")
+
             binding.mapView.removeAllPOIItems()
             for (i in 0..num-1) {
                 val itemdata = data.get(i)
@@ -750,6 +764,13 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             plusBtnInactivation()
             clientMarker()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // 저장된 지도 타일 캐쉬 데이터를 모두 삭제
+        // MapView가 동작 중인 상태에서도 사용 가능
+        clearMapTilePersistentCache()
     }
 
     // ViewPager에 들어갈 아이템
@@ -808,8 +829,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             locationSearchList.clear()           // 리사이클러뷰 초기화
 
             binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
-            Log.d("locations", searchResult!!.documents.size.toString())
-            for (document in searchResult.documents) {
+            for (document in searchResult!!.documents) {
                 // 결과를 리사이클러뷰에 추가
                 val item = LocationSearchData(
                     document.place_name,
