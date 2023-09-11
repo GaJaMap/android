@@ -434,6 +434,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                             binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
                             binding.btn3km.setTextColor(resources.getColor(R.color.main))
                         }
+                        // 3km 버튼 누를 시 해당 버튼 창 없애기
+                        binding.clKm.visibility = View.GONE
+                        if(!threeCheck && !fiveCheck){
+                            kmBtn = false
+                            val bgShapebtn = binding.ibKm.background as GradientDrawable
+                            bgShapebtn.setColor(resources.getColor(R.color.white))
+                            binding.ibKm.setImageResource(R.drawable.ic_km)
+                        }
                     }
 
                     binding.btn5km.setOnClickListener {
@@ -462,6 +470,16 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                             binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
                             binding.btn5km.setTextColor(resources.getColor(R.color.main))
                         }
+
+                        // 5km 버튼 누를 시 해당 버튼 창 없애기
+                        binding.clKm.visibility = View.GONE
+
+                        if(!threeCheck && !fiveCheck){
+                            kmBtn = false
+                            val bgShapebtn = binding.ibKm.background as GradientDrawable
+                            bgShapebtn.setColor(resources.getColor(R.color.white))
+                            binding.ibKm.setImageResource(R.drawable.ic_km)
+                        }
                     }
                 }else {
                     // GPS가 꺼져있을 경우
@@ -469,11 +487,16 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 }
             }
             else{ // 두 번 클릭 시 원상태로 돌아오게 하기
-                kmBtn = false
-                val bgShape = binding.ibKm.background as GradientDrawable
-                bgShape.setColor(resources.getColor(R.color.white))
-                binding.ibKm.setImageResource(R.drawable.ic_km)
-                binding.clKm.visibility = View.GONE
+                if(threeCheck || fiveCheck){
+                    binding.clKm.visibility = View.VISIBLE
+                }
+                else {
+                    kmBtn = false
+                    val bgShape = binding.ibKm.background as GradientDrawable
+                    bgShape.setColor(resources.getColor(R.color.white))
+                    binding.ibKm.setImageResource(R.drawable.ic_km)
+                    binding.clKm.visibility = View.GONE
+                }
             }
         }
 

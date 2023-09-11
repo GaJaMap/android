@@ -36,7 +36,8 @@ data class Image(
 )
 
 data class GetAllClientResponse(
-    var clients: MutableList<Client>
+    var clients: MutableList<Client>,
+    var imageUrlPrefix : String?=null
 )
 
 data class Client(
