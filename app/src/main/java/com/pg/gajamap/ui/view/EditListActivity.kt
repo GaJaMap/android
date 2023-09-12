@@ -135,7 +135,8 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
                         R.drawable.fragment_list_tool_purple
                     )
                 }
-                customerAnyListAdapter.updateItemBackground(backgroundDrawable)
+                customerAnyListAdapter.addItemBackground(backgroundDrawable)
+                binding.topTvNumber1.text = selectedClientIds.size.toString()
             } else {
                 // 배경색 변경
                 selectedClientIds.removeAll { true }
@@ -145,7 +146,8 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
                         R.drawable.fragment_list_tool
                     )
                 }
-                customerAnyListAdapter.updateItemBackground(backgroundDrawable)
+                customerAnyListAdapter.deleteItemBackground(backgroundDrawable)
+                binding.topTvNumber1.text = selectedClientIds.size.toString()
             }
         }
 

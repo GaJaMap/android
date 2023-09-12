@@ -41,11 +41,6 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
             binding.itemProfilePhoneDetail.text = data.phoneNumber
             itemView.background = background
 
-            if (selectedPositions.contains(adapterPosition)) {
-                itemView.setBackgroundResource(R.drawable.fragment_list_tool_purple)
-            } else {
-                itemView.setBackgroundResource(R.drawable.fragment_list_tool)
-            }
         }
     }
 
@@ -77,8 +72,19 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
 
     }
 
-    fun updateItemBackground(background: Drawable?) {
+    fun addItemBackground(background: Drawable?) {
         itemBackground = background
+        for (i in dataList.indices) {
+            selectedPositions.add(i)
+        }
+        notifyDataSetChanged()
+    }
+
+    fun deleteItemBackground(background: Drawable?) {
+        itemBackground = background
+        for (i in dataList.indices) {
+            selectedPositions.remove(i)
+        }
         notifyDataSetChanged()
     }
 
