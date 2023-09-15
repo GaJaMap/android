@@ -63,6 +63,11 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
             customerInfoActivity!!.finish()
         }
 
+        Glide.with(this)
+            .load("https://maps.googleapis.com/maps/api/staticmap?center=Williamsburg,Brooklyn,NY&zoom=13&size=400x400&markers=color:blue%7Clabel:S%7C11211%7C11206%7C11222&key=AIzaSyA3kg7YWugGl1lTXmAmaBGPNhDW9pEh5bo&signature=9I8O8GPILKHfPkxVaNPKu-MsYX8=")
+            .error(R.drawable.location_not_found_text)
+            .into(binding.mapImage)
+
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 customerInfoActivity!!.finish()
