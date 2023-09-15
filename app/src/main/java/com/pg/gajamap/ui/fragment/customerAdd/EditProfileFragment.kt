@@ -69,10 +69,22 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         val address1 = GajaMapApplication.prefs.getString("address1", "")
         val address2 = GajaMapApplication.prefs.getString("address2", "")
         val phone = GajaMapApplication.prefs.getString("phone", "")
+        val image =  GajaMapApplication.prefs.getString("image", null)
         binding.infoProfileNameEt.setText(name)
         binding.infoProfileAddressTv1.text = address1
         binding.infoProfileAddressTv2.setText(address2)
         binding.infoProfilePhoneEt.setText(phone)
+
+        if(image != null){
+            val imageUrl = GajaMapApplication.prefs.getString("imageUrlPrefix", "")
+            val file = imageUrl + image
+            Glide.with(binding.infoProfileImg.context)
+                .load(file)
+                .fitCenter()
+                .apply(RequestOptions().override(500,500))
+                .error(R.drawable.profile_img_origin)
+                .into(binding.infoProfileImg)
+        }
 
         binding.infoProfileCameraBtn.setOnClickListener {
             selectGallery()
@@ -127,24 +139,31 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
 
     // 갤러리를 부르는 메서드
     private fun selectGallery(){
-        val writePermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        val readPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+//        val writePermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//        val readPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+//
+//        // 권한 확인
+//        if(writePermission == PackageManager.PERMISSION_DENIED || readPermission == PackageManager.PERMISSION_DENIED){
+//            // 권한 요청
+//            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
+//                EditProfileFragment.REQ_GALLERY
+//            )
+//        }else{
+//            // 권한이 있는 경우 갤러리 실행
+//            val intent = Intent(Intent.ACTION_PICK)
+//            // intent의 data와 type을 동시에 설정하는 메서드
+//            intent.setDataAndType(
+//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*"
+//            )
+//            imageResult.launch(intent)
+//        }
 
-        // 권한 확인
-        if(writePermission == PackageManager.PERMISSION_DENIED || readPermission == PackageManager.PERMISSION_DENIED){
-            // 권한 요청
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
-                EditProfileFragment.REQ_GALLERY
-            )
-        }else{
-            // 권한이 있는 경우 갤러리 실행
-            val intent = Intent(Intent.ACTION_PICK)
-            // intent의 data와 type을 동시에 설정하는 메서드
-            intent.setDataAndType(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*"
-            )
-            imageResult.launch(intent)
-        }
+        val intent = Intent(Intent.ACTION_PICK)
+        // intent의 data와 type을 동시에 설정하는 메서드
+        intent.setDataAndType(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*"
+        )
+        imageResult.launch(intent)
     }
 
     private fun sendImage(clientImage: MultipartBody.Part){
