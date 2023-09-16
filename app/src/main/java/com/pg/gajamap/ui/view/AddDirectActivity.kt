@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
@@ -112,7 +113,6 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
                     val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
                     groupId = selectedGroupInfoResponse.groupId
                     Log.d("groupId", groupId.toString())
-                    GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
                 }
             }
 
@@ -205,22 +205,29 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
     }
     // 갤러리를 부르는 메서드
     private fun selectGallery(){
-        val writePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        val readPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+//        val writePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//        val readPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+//
+//        // 권한 확인
+//        if(writePermission == PackageManager.PERMISSION_DENIED || readPermission == PackageManager.PERMISSION_DENIED){
+//            // 권한 요청
+//            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), REQ_GALLERY)
+//        }else{
+//            // 권한이 있는 경우 갤러리 실행
+//            val intent = Intent(Intent.ACTION_PICK)
+//            // intent의 data와 type을 동시에 설정하는 메서드
+//            intent.setDataAndType(
+//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*"
+//            )
+//            imageResult.launch(intent)
+//        }
 
-        // 권한 확인
-        if(writePermission == PackageManager.PERMISSION_DENIED || readPermission == PackageManager.PERMISSION_DENIED){
-            // 권한 요청
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), REQ_GALLERY)
-        }else{
-            // 권한이 있는 경우 갤러리 실행
-            val intent = Intent(Intent.ACTION_PICK)
-            // intent의 data와 type을 동시에 설정하는 메서드
-            intent.setDataAndType(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*"
-            )
-            imageResult.launch(intent)
-        }
+        val intent = Intent(Intent.ACTION_PICK)
+        // intent의 data와 type을 동시에 설정하는 메서드
+        intent.setDataAndType(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*"
+        )
+        imageResult.launch(intent)
 
     }
 
@@ -229,11 +236,11 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
         binding.btnSubmit.setOnClickListener {
             val clientName1 = binding.infoProfileNameEt.text
             val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
+            val groupId1 = groupId.toString()
             val groupId = groupId1.toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
             val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val mainAddress1 = GajaMapApplication.prefs.getString("address", "")
+            val mainAddress1 = binding.infoProfileAddressTv1.text.toString()
             val mainAddress = mainAddress1.toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
@@ -242,16 +249,22 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             val isBasicImage1 = false
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
-            viewModel.postClient.observe(this, Observer {
-                if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId){
-                    Log.d("postAddDirect", it.body().toString())
-                    viewModel.postClient.value!!.body()
-                        ?.let { it1 -> UserData.clientListResponse?.clients?.add(it1) }
-                    UserData.groupinfo!!.clientCount = UserData.groupinfo!!.clientCount + 1
-                }
-                finish()
-            })
+            if(groupId1 != "-1") {
+                viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
+                viewModel.postClient.observe(this, Observer {
+                    if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId){
+                        Log.d("postAddDirect", it.body().toString())
+                        viewModel.postClient.value!!.body()
+                            ?.let { it1 -> UserData.clientListResponse?.clients?.add(it1) }
+                        UserData.groupinfo!!.clientCount = UserData.groupinfo!!.clientCount + 1
+                    }
+                    finish()
+                })
+            } else {
+                Toast.makeText(this, "그룹을 선택해 주세요",Toast.LENGTH_SHORT).show()
+            }
+
+
         }
     }
 
@@ -260,11 +273,11 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
         binding.btnSubmit.setOnClickListener {
             val clientName1 = binding.infoProfileNameEt.text
             val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
+            val groupId1 = groupId.toString()
             val groupId = groupId1.toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
             val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val mainAddress1 = GajaMapApplication.prefs.getString("address", "")
+            val mainAddress1 = binding.infoProfileAddressTv1.text.toString()
             val mainAddress = mainAddress1.toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
@@ -276,16 +289,21 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             val isBasicImage1 = true
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
-            viewModel.postClient.observe(this, Observer {
-                if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId){
-                    Log.d("postAddDirect", it.body().toString())
-                    viewModel.postClient.value!!.body()
-                        ?.let { it1 -> UserData.clientListResponse?.clients?.add(it1) }
-                    UserData.groupinfo!!.clientCount = UserData.groupinfo!!.clientCount + 1
-                }
-                finish()
-            })
+            if(groupId1 != "-1") {
+                viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
+                viewModel.postClient.observe(this, Observer {
+                    if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId){
+                        Log.d("postAddDirect", it.body().toString())
+                        viewModel.postClient.value!!.body()
+                            ?.let { it1 -> UserData.clientListResponse?.clients?.add(it1) }
+                        UserData.groupinfo!!.clientCount = UserData.groupinfo!!.clientCount + 1
+                    }
+                    finish()
+                })
+            } else {
+                Toast.makeText(this, "그룹을 선택해 주세요",Toast.LENGTH_SHORT).show()
+            }
+
         }
     }
 }

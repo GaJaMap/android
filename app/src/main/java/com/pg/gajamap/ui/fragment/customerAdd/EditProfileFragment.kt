@@ -37,7 +37,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     override val viewModel by viewModels<ClientViewModel> {
         ClientViewModel.SettingViewModelFactory("tmp")
     }
-    var clientList =  UserData.clientListResponse?.clients as? MutableList<Client>
+    var clientList = UserData.clientListResponse?.clients
 
     private var groupId : Int = -1
     override fun initViewModel(viewModel: ViewModel) {
@@ -57,22 +57,42 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     override fun onCreateAction() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.frame_fragment, CustomerInfoFragment())
+                    .addToBackStack(null)
+                    .commit()
             }
         })
 
         binding.topBackBtn.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frame_fragment, CustomerInfoFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
-        val name = GajaMapApplication.prefs.getString("name", "")
-        val address1 = GajaMapApplication.prefs.getString("address1", "")
-        val address2 = GajaMapApplication.prefs.getString("address2", "")
-        val phone = GajaMapApplication.prefs.getString("phone", "")
+        val name = requireActivity().intent.getStringExtra("name")
+        val address1 = requireActivity().intent.getStringExtra("address1")
+        val address2 = requireActivity().intent.getStringExtra("address2")
+        val phone = requireActivity().intent.getStringExtra("phoneNumber")
+        val image = requireActivity().intent.getStringExtra("filePath")
+        val latitude = requireActivity().intent.getDoubleExtra("latitude", 0.0)
+        val longitude = requireActivity().intent.getDoubleExtra("longtitude", 0.0)
         binding.infoProfileNameEt.setText(name)
         binding.infoProfileAddressTv1.text = address1
         binding.infoProfileAddressTv2.setText(address2)
         binding.infoProfilePhoneEt.setText(phone)
+
+        if(image != null){
+            val imageUrl = UserData.imageUrlPrefix
+            val file = imageUrl + image
+            Glide.with(binding.infoProfileImg.context)
+                .load(file)
+                .fitCenter()
+                .apply(RequestOptions().override(500,500))
+                .error(R.drawable.profile_img_origin)
+                .into(binding.infoProfileImg)
+        }
 
         binding.infoProfileCameraBtn.setOnClickListener {
             selectGallery()
@@ -127,50 +147,58 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
 
     // 갤러리를 부르는 메서드
     private fun selectGallery(){
-        val writePermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        val readPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+//        val writePermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//        val readPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+//
+//        // 권한 확인
+//        if(writePermission == PackageManager.PERMISSION_DENIED || readPermission == PackageManager.PERMISSION_DENIED){
+//            // 권한 요청
+//            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
+//                EditProfileFragment.REQ_GALLERY
+//            )
+//        }else{
+//            // 권한이 있는 경우 갤러리 실행
+//            val intent = Intent(Intent.ACTION_PICK)
+//            // intent의 data와 type을 동시에 설정하는 메서드
+//            intent.setDataAndType(
+//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*"
+//            )
+//            imageResult.launch(intent)
+//        }
 
-        // 권한 확인
-        if(writePermission == PackageManager.PERMISSION_DENIED || readPermission == PackageManager.PERMISSION_DENIED){
-            // 권한 요청
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
-                EditProfileFragment.REQ_GALLERY
-            )
-        }else{
-            // 권한이 있는 경우 갤러리 실행
-            val intent = Intent(Intent.ACTION_PICK)
-            // intent의 data와 type을 동시에 설정하는 메서드
-            intent.setDataAndType(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*"
-            )
-            imageResult.launch(intent)
-        }
+        val intent = Intent(Intent.ACTION_PICK)
+        // intent의 data와 type을 동시에 설정하는 메서드
+        intent.setDataAndType(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*"
+        )
+        imageResult.launch(intent)
     }
 
     private fun sendImage(clientImage: MultipartBody.Part){
         //확인 버튼
         binding.btnSubmit.setOnClickListener {
-            val clientId = GajaMapApplication.prefs.getString("clientId", "")
+            val clientId = requireActivity().intent.getLongExtra("clientId", -1).toString()
+            Log.d("edit", clientId)
             val clientName1 = binding.infoProfileNameEt.text
             Log.d("edit", clientName1.toString())
             val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val groupId1 = GajaMapApplication.prefs.getString("groupId", "")
+            val groupId1 = requireActivity().intent.getLongExtra("groupId", -1).toString()
             Log.d("edit", groupId1)
             val groupId = groupId1.toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
             Log.d("edit", phoneNumber1.toString())
             val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val mainAddress1 = GajaMapApplication.prefs.getString("address1", "")
-            Log.d("edit", mainAddress1)
+            val mainAddress1 = requireActivity().intent.getStringExtra("address1")
+            Log.d("edit", mainAddress1!!)
             val mainAddress = mainAddress1.toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
             Log.d("edit", detail1.toString())
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val latitude1 = GajaMapApplication.prefs.getString("latitude1", "")
-            Log.d("edit", latitude1)
-            val latitude = latitude1.toRequestBody("text/plain".toMediaTypeOrNull())
-            val longitude1 = GajaMapApplication.prefs.getString("longitude1", "")
-            val longitude = longitude1.toRequestBody("text/plain".toMediaTypeOrNull())
+            val latitude1 = requireActivity().intent.getDoubleExtra("latitude", 0.0)
+            val longitude1 = requireActivity().intent.getDoubleExtra("longtitude", 0.0)
+            Log.d("edit", latitude1.toString())
+            val latitude = latitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val longitude = longitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val isBasicImage1 = false
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
@@ -179,7 +207,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 Log.d("editwhy", it.toString())
                 // 클라이언트 리스트 가져오기
                 //val clientList = UserData.clientListResponse
-                val targetClientId = GajaMapApplication.prefs.getString("clientId", "")
+                val targetClientId = requireActivity().intent.getLongExtra("clientId", -1).toString()
 
                 // 클라이언트 리스트가 null이 아니고, clients가 null이 아닌 경우에만 처리
                 clientList?.let { clients ->
@@ -215,7 +243,10 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
 
                         val customerInfoFragment = CustomerInfoFragment()
                         customerInfoFragment.arguments = bundle
-                        parentFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.frame_fragment, customerInfoFragment)
+                            .addToBackStack(null)
+                            .commit()
                     }
                 }
                 Log.d("editlist", clientList.toString())
@@ -227,27 +258,28 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     private fun sendImage1(){
         //확인 버튼
         binding.btnSubmit.setOnClickListener {
-            val clientId = GajaMapApplication.prefs.getString("clientId", "")
+            val clientId = requireActivity().intent.getLongExtra("clientId", -1).toString()
+            Log.d("edit", clientId)
             val clientName1 = binding.infoProfileNameEt.text
             Log.d("edit", clientName1.toString())
             val clientName = clientName1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val groupId1 = GajaMapApplication.prefs.getString("groupId", "")
+            val groupId1 = requireActivity().intent.getLongExtra("groupId", -1).toString()
             Log.d("edit", groupId1)
             val groupId = groupId1.toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
             Log.d("edit", phoneNumber1.toString())
             val phoneNumber =
                 phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val mainAddress1 = GajaMapApplication.prefs.getString("address1", "")
-            Log.d("edit", mainAddress1)
+            val mainAddress1 = requireActivity().intent.getStringExtra("address1")
+            Log.d("edit", mainAddress1!!)
             val mainAddress = mainAddress1.toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
             Log.d("edit", detail1.toString())
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val latitude1 = GajaMapApplication.prefs.getString("latitude1", "")
+            val latitude1 = requireActivity().intent.getDoubleExtra("latitude", 0.0).toString()
+            val longitude1 = requireActivity().intent.getDoubleExtra("longtitude", 0.0).toString()
             Log.d("edit", latitude1)
             val latitude = latitude1.toRequestBody("text/plain".toMediaTypeOrNull())
-            val longitude1 = GajaMapApplication.prefs.getString("longitude1", "")
             val longitude = longitude1.toRequestBody("text/plain".toMediaTypeOrNull())
             val isBasicImage1 = true
             val isBasicImage =
@@ -271,13 +303,13 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 Log.d("postAddDirect", it.toString())
                 // 클라이언트 리스트 가져오기
                 //val clientList = UserData.clientListResponse
-                val targetClientId = GajaMapApplication.prefs.getString("clientId", "")
+                val targetClientId = requireActivity().intent.getStringExtra("clientId")
 
                 // 클라이언트 리스트가 null이 아니고, clients가 null이 아닌 경우에만 처리
                 clientList?.let { clients ->
                     // 특정 clientId에 해당하는 클라이언트 찾기
-                    val targetClient = clients.find { it.clientId == targetClientId.toLong() }
-
+                    val targetClient = clients.find { it.clientId == targetClientId!!.toLong() }
+                    Log.d("targetClient", targetClient.toString())
                     // 해당 clientId의 클라이언트를 찾았을 경우 값 변경
                     targetClient?.apply {
                         this.clientId = it.clientId
@@ -298,21 +330,13 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                         clientList!!.indexOf(this).let { index ->
                             clientList!![index] = this
                         }
-                        GajaMapApplication.prefs.setString("name", this.clientName)
-                        GajaMapApplication.prefs.setString("address1", this.address.mainAddress)
-                        GajaMapApplication.prefs.setString("address2", this.address.detail)
-                        GajaMapApplication.prefs.setString("phone", this.phoneNumber)
-                        this.image.filePath?.let { it1 ->
-                            GajaMapApplication.prefs.setString(
-                                "image",
-                                it1
-                            )
-                        }
                     }
                 }
                 Log.d("editlist", clientList.toString())
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
+                    .replace(R.id.frame_fragment, CustomerInfoFragment())
+                    .addToBackStack(null)
+                    .commit()
             })
         }
 

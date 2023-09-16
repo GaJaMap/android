@@ -238,6 +238,7 @@
             android:textSize="11sp"
             android:paddingStart="11dp"
             android:textColor="@color/black"
+            android:maxLength="13"
             android:background="@drawable/fragment_add_bottom_gray"
             android:layout_marginStart="18dp"
             android:layout_marginEnd="34dp"
