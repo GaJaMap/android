@@ -36,22 +36,7 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
         binding.viewModel = this.viewModel
     }
 
-    val clientId = GajaMapApplication.prefs.getString("clientId", "")
-    val groupId = GajaMapApplication.prefs.getString("groupId", "")
 
-    val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
-        Log.d("deleteId", clientId)
-        viewModel.deleteClient(groupId.toLong(), clientId.toLong())
-        viewModel.deleteClient.observe(this, Observer {
-            removeClientWithClientId(clientId.toLong())
-            customerInfoActivity!!.finish()
-        })
-        // 액티비티 꺼지게 하는 코드 추가
-        Toast.makeText(requireContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show()
-    }
-    val negativeButtonClick = { dialogInterface: DialogInterface, i: Int ->
-        Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
-    }
 
     override fun onCreateAction(){
         CoroutineScope(Dispatchers.IO).launch {
@@ -64,7 +49,7 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
         }
 
         Glide.with(this)
-            .load("https://maps.googleapis.com/maps/api/staticmap?center=Williamsburg,Brooklyn,NY&zoom=13&size=400x400&markers=color:blue%7Clabel:S%7C11211%7C11206%7C11222&key=AIzaSyA3kg7YWugGl1lTXmAmaBGPNhDW9pEh5bo&signature=9I8O8GPILKHfPkxVaNPKu-MsYX8=")
+            .load("https://maps.googleapis.com/maps/api/staticmap?center=Williamsburg,Brooklyn,NY&zoom=13&size=400x400&markers=color:blue%7Clabel:S%7C11211%7C11206%7C11222&key=AIzaSyA3kg7YWugGl1lTXmAmaBGPNhDW9pEh5bo")
             .error(R.drawable.location_not_found_text)
             .into(binding.mapImage)
 
@@ -73,6 +58,24 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
                 customerInfoActivity!!.finish()
             }
         })
+
+        val clientId = requireActivity().intent.getLongExtra("clientId", -1).toString()
+        val groupId = requireActivity().intent.getLongExtra("groupId", -1).toString()
+
+        val positiveButtonClick = { dialogInterface: DialogInterface, i: Int ->
+            Log.d("deleteId", clientId)
+            viewModel.deleteClient(groupId.toLong(), clientId.toLong())
+            viewModel.deleteClient.observe(this, Observer {
+                removeClientWithClientId(clientId.toLong())
+                customerInfoActivity!!.finish()
+            })
+            // 액티비티 꺼지게 하는 코드 추가
+            Toast.makeText(requireContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show()
+
+        }
+        val negativeButtonClick = { dialogInterface: DialogInterface, i: Int ->
+            Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
+        }
 
         //고객 삭제 dialog
         binding.topDeleteBtn.setOnClickListener {
@@ -123,17 +126,16 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
     }
 
     fun text(){
-        val name = GajaMapApplication.prefs.getString("name", "")
-        val address1 = GajaMapApplication.prefs.getString("address1", "")
-        val address2 = GajaMapApplication.prefs.getString("address2", "")
-        val phone = GajaMapApplication.prefs.getString("phone", "")
-        val image =  GajaMapApplication.prefs.getString("image", null)
-        val latitude = GajaMapApplication.prefs.getString("latitude1", "")
-        val longitude = GajaMapApplication.prefs.getString("longitude1", "")
+        val name = requireActivity().intent.getStringExtra("name")
+        val address1 = requireActivity().intent.getStringExtra("address1")
+        val address2 = requireActivity().intent.getStringExtra("address2")
+        val phone = requireActivity().intent.getStringExtra("phoneNumber")
+        val image = requireActivity().intent.getStringExtra("filePath")
+
         if(image != null){
-            val imageUrl = GajaMapApplication.prefs.getString("imageUrlPrefix", "")
+            val imageUrl = UserData.imageUrlPrefix
             val file = imageUrl + image
-            Glide.with(binding.infoProfileImg.context)
+            Glide.with(requireContext())
                 .load(file)
                 .fitCenter()
                 .apply(RequestOptions().override(500,500))
