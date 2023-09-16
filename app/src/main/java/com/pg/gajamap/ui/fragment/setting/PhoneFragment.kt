@@ -130,7 +130,6 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                             viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
                         groupId = selectedGroupInfoResponse.groupId
                         Log.d("groupId", groupId.toString())
-                        GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
                     }
                 }
 
@@ -230,7 +229,6 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                 }
             }
         })
-        val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
         binding.settingPhoneSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
@@ -252,7 +250,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                                 viewLifecycleOwner,
                                 Observer { response ->
 
-                                    if (groupId1 == groupInfo?.groupId.toString() || groupInfo?.groupId == -1L) {
+                                    if (groupId == groupInfo?.groupId || groupInfo?.groupId == -1L) {
                                         val ids = response.body() // Response에서 Int 리스트를 가져옵니다.
 
                                         if (ids != null) {
@@ -292,11 +290,11 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                                         }
                                     }
 
+                                    requireActivity().supportFragmentManager.beginTransaction()
+                                        .remove(this@PhoneFragment).commit()
+                                    requireActivity().supportFragmentManager.popBackStack()
                                 })
 
-                            requireActivity().supportFragmentManager.beginTransaction()
-                                .remove(this@PhoneFragment).commit()
-                            requireActivity().supportFragmentManager.popBackStack()
                         }
                         //GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
                     }
