@@ -11,6 +11,7 @@ import android.telephony.PhoneNumberFormattingTextWatcher
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
@@ -19,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -250,6 +252,7 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
             if(groupId1 != "-1") {
+                dialogShow()
                 viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
                 viewModel.postClient.observe(this, Observer {
                     if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId){
@@ -258,6 +261,7 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
                             ?.let { it1 -> UserData.clientListResponse?.clients?.add(it1) }
                         UserData.groupinfo!!.clientCount = UserData.groupinfo!!.clientCount + 1
                     }
+                    dialogHide()
                     finish()
                 })
             } else {
@@ -281,15 +285,13 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             val mainAddress = mainAddress1.toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-
             val latitude = latitude.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-
             val longitude = longitude.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-
             val isBasicImage1 = true
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
             if(groupId1 != "-1") {
+                dialogShow()
                 viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
                 viewModel.postClient.observe(this, Observer {
                     if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId){
@@ -298,6 +300,7 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
                             ?.let { it1 -> UserData.clientListResponse?.clients?.add(it1) }
                         UserData.groupinfo!!.clientCount = UserData.groupinfo!!.clientCount + 1
                     }
+                    dialogHide()
                     finish()
                 })
             } else {
@@ -305,5 +308,19 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             }
 
         }
+    }
+
+    private fun dialogShow() {
+        binding.progress.isVisible = true
+        binding.btnSubmit.text = ""
+        window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun dialogHide() {
+        binding.progress.isVisible = false
+        binding.btnSubmit.text = "확인"
+        window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 }

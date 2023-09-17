@@ -19,8 +19,10 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -240,6 +242,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                         groupName = selectedGroupInfoResponse.groupName
 
                         binding.btnSubmit.setOnClickListener {
+                            dialogShow()
                             viewModel.postKakaoPhoneClient(
                                 PostKakaoPhoneRequest(
                                     selectedClients,
@@ -290,6 +293,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                                         }
                                     }
 
+                                    dialogHide()
                                     requireActivity().supportFragmentManager.beginTransaction()
                                         .remove(this@PhoneFragment).commit()
                                     requireActivity().supportFragmentManager.popBackStack()
@@ -398,6 +402,20 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
             binding.topTvNumber1.text = selectedClients.size.toString()
 
         }
+    }
+
+    private fun dialogShow() {
+        binding.progress.isVisible = true
+        binding.btnSubmit.text = ""
+        activity?.window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun dialogHide() {
+        binding.progress.isVisible = false
+        binding.btnSubmit.text = "확인"
+        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
 }
