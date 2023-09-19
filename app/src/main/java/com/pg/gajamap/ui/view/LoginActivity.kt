@@ -48,13 +48,14 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
             // 싱글톤 패턴을 이용하여 자동 로그인 response 데이터 값 저장
             UserData.clientListResponse = it.clientListResponse
             UserData.groupinfo = it.groupInfo
-            GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix)
+            UserData.imageUrlPrefix = it.imageUrlPrefix
+
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         })
     }
 
-    fun kakaoLogin(){
+    fun kakaoLogin() {
         // 카카오계정으로 로그인 공통 callback 구성
         // 카카오톡으로 로그인 할 수 없어 카카오계정으로 로그인할 경우 사용됨
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
@@ -89,7 +90,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
     }
 
     //로그인 api
-    private fun postLogin(token: String){
+    private fun postLogin(token: String) {
 
         Log.d("kakoAccessToken_1", token)
 
@@ -105,16 +106,16 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
             viewModel.autoLogin.observe(this@LoginActivity, Observer {
                 GajaMapApplication.prefs.saveAutoLoginResponse(it)
                 // autoLogin이 완료된 후에 MainActivity로 이동합니다.
-                    GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix)
+                UserData.imageUrlPrefix = it.imageUrlPrefix
 
                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                 finish()
             })
+
             GajaMapApplication.prefs.setString("authority", it.authority)
             GajaMapApplication.prefs.setString("email", it.email)
             GajaMapApplication.prefs.setString("createdDate", it.createdDate)
 
         })
     }
-
 }

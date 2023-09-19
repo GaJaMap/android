@@ -1,9 +1,7 @@
 package com.pg.gajamap.ui.view
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -11,14 +9,14 @@ import android.telephony.PhoneNumberFormattingTextWatcher
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -112,7 +110,11 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
                 if(pos != 0){
                     val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
                     groupId = selectedGroupInfoResponse.groupId
+                    chkBtnActivate()
                     Log.d("groupId", groupId.toString())
+                } else {
+                    groupId = -1L
+                    chkBtnActivate()
                 }
             }
 
@@ -153,11 +155,17 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
     // 필수 입력사항을 모두 작성하였을 때 확인 버튼 활성화시키기
     private fun chkBtnActivate() {
         // 버튼이 활성화되어 있지 않은 상황에서 확인
-        if (!isBtnActivated && chkInputData()) {
-            isBtnActivated = !isBtnActivated
+        if (chkInputData() && groupId != -1L) {
+            isBtnActivated = true
             binding.btnSubmit.apply {
                 isEnabled = true
                 setBackgroundResource(R.drawable.fragment_add_bottom_purple)
+            }
+        } else {
+            isBtnActivated = false
+            binding.btnSubmit.apply {
+                isEnabled = false
+                setBackgroundResource(R.drawable.bg_notworkbtn)
             }
         }
     }
@@ -249,22 +257,18 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             val isBasicImage1 = false
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            if(groupId1 != "-1") {
-                viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
-                viewModel.postClient.observe(this, Observer {
-                    if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId){
-                        Log.d("postAddDirect", it.body().toString())
-                        viewModel.postClient.value!!.body()
-                            ?.let { it1 -> UserData.clientListResponse?.clients?.add(it1) }
-                        UserData.groupinfo!!.clientCount = UserData.groupinfo!!.clientCount + 1
-                    }
-                    finish()
-                })
-            } else {
-                Toast.makeText(this, "그룹을 선택해 주세요",Toast.LENGTH_SHORT).show()
-            }
-
-
+            dialogShow()
+            viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
+            viewModel.postClient.observe(this, Observer {
+                if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId){
+                    Log.d("postAddDirect", it.body().toString())
+                    viewModel.postClient.value!!.body()
+                        ?.let { it1 -> UserData.clientListResponse?.clients?.add(it1) }
+                    UserData.groupinfo!!.clientCount = UserData.groupinfo!!.clientCount + 1
+                }
+                dialogHide()
+                finish()
+            })
         }
     }
 
@@ -281,29 +285,38 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             val mainAddress = mainAddress1.toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-
             val latitude = latitude.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-
             val longitude = longitude.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-
             val isBasicImage1 = true
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            if(groupId1 != "-1") {
-                viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
-                viewModel.postClient.observe(this, Observer {
-                    if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId){
-                        Log.d("postAddDirect", it.body().toString())
-                        viewModel.postClient.value!!.body()
-                            ?.let { it1 -> UserData.clientListResponse?.clients?.add(it1) }
-                        UserData.groupinfo!!.clientCount = UserData.groupinfo!!.clientCount + 1
-                    }
-                    finish()
-                })
-            } else {
-                Toast.makeText(this, "그룹을 선택해 주세요",Toast.LENGTH_SHORT).show()
-            }
+            dialogShow()
+            viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
+            viewModel.postClient.observe(this, Observer {
+                if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId){
+                    Log.d("postAddDirect", it.body().toString())
+                    viewModel.postClient.value!!.body()
+                        ?.let { it1 -> UserData.clientListResponse?.clients?.add(it1) }
+                    UserData.groupinfo!!.clientCount = UserData.groupinfo!!.clientCount + 1
+                }
+                dialogHide()
+                finish()
+            })
 
         }
+    }
+
+    private fun dialogShow() {
+        binding.progress.isVisible = true
+        binding.btnSubmit.text = ""
+        window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun dialogHide() {
+        binding.progress.isVisible = false
+        binding.btnSubmit.text = "확인"
+        window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 }

@@ -19,8 +19,10 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -48,6 +50,8 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
     var clientList = UserData.clientListResponse?.clients
     var groupInfo = UserData.groupinfo
     val regex = """^\d{2,3}-\d{3,4}-\d{4}$""".toRegex()
+
+    private var isBtnActivated = false // 버튼 활성화 되었는지 여부, true면 활성화, false면 비활성화
 
     companion object {
         const val PERMISSION_REQUEST_CODE = 100
@@ -126,8 +130,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
 
                     if (pos != 0) {
-                        val selectedGroupInfoResponse: GroupInfoResponse =
-                            viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
+                        val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
                         groupId = selectedGroupInfoResponse.groupId
                         Log.d("groupId", groupId.toString())
                     }
@@ -152,6 +155,23 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
         super.onResume()
         onCheckContactsPermission()
         //requestPermission()
+    }
+
+    private fun chkBtnActivate() {
+        // 버튼이 활성화되어 있지 않은 상황에서 확인
+        if (selectedClients.size >=1 && groupId != -1L) {
+            isBtnActivated = true
+            binding.btnSubmit.apply {
+                isEnabled = true
+                setBackgroundResource(R.drawable.fragment_add_bottom_purple)
+            }
+        } else {
+            isBtnActivated = false
+            binding.btnSubmit.apply {
+                isEnabled = false
+                setBackgroundResource(R.drawable.bg_notworkbtn)
+            }
+        }
     }
 
     //연락처 가져오기
@@ -206,6 +226,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
             }
             phoneListAdapter?.setAllItemsChecked(isChecked)
             binding.topTvNumber1.text = selectedClients.size.toString()
+            chkBtnActivate()
         }
 
 
@@ -219,14 +240,17 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                     if (phoneListAdapter!!.isChecked(position)) {
                         it.name.let { nickname ->
                             selectedClients.add(Clients(nickname, it.number))
+                            chkBtnActivate()
                         }
                     } else {
                         it.name.let { nickname ->
                             selectedClients.remove(Clients(nickname, it.number))
+                            chkBtnActivate()
                         }
                     }
-                    binding.topTvNumber1.text = selectedClients.size.toString()
                 }
+                binding.topTvNumber1.text = selectedClients.size.toString()
+
             }
         })
         binding.settingPhoneSpinner.onItemSelectedListener =
@@ -238,8 +262,10 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                             viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
                         groupId = selectedGroupInfoResponse.groupId
                         groupName = selectedGroupInfoResponse.groupName
+                        chkBtnActivate()
 
                         binding.btnSubmit.setOnClickListener {
+                            dialogShow()
                             viewModel.postKakaoPhoneClient(
                                 PostKakaoPhoneRequest(
                                     selectedClients,
@@ -290,6 +316,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                                         }
                                     }
 
+                                    dialogHide()
                                     requireActivity().supportFragmentManager.beginTransaction()
                                         .remove(this@PhoneFragment).commit()
                                     requireActivity().supportFragmentManager.popBackStack()
@@ -297,6 +324,9 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
 
                         }
                         //GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
+                    } else {
+                        groupId = -1L
+                        chkBtnActivate()
                     }
                 }
 
@@ -392,12 +422,28 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
             selectedClients.add(Clients(item.name, item.number))
 
             binding.topTvNumber1.text = selectedClients.size.toString()
+            chkBtnActivate()
         } else {
             selectedClients.remove(Clients(item.name, item.number))
 
             binding.topTvNumber1.text = selectedClients.size.toString()
+            chkBtnActivate()
 
         }
+    }
+
+    private fun dialogShow() {
+        binding.progress.isVisible = true
+        binding.btnSubmit.text = ""
+        activity?.window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun dialogHide() {
+        binding.progress.isVisible = false
+        binding.btnSubmit.text = "확인"
+        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
 }

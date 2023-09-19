@@ -63,7 +63,7 @@ class CustomerListAdapter(private var dataList: List<Client>) :
             }
             val imageUrl = UserData.imageUrlPrefix
             val file = imageUrl + data.image.filePath
-            Log.d("img_file", file.toString())
+
             Glide.with(binding.itemProfileImg.context)
                 .load(file)
                 .fitCenter()

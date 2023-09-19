@@ -9,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.pg.gajamap.R
 import com.pg.gajamap.base.GajaMapApplication
+import com.pg.gajamap.base.UserData
 import com.pg.gajamap.data.model.Client
 import com.pg.gajamap.databinding.ItemAnyListBinding
 
@@ -27,8 +28,7 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
             RecyclerView.ViewHolder(binding.root) {
         fun bind(data: Client, background: Drawable?) {
             val address = data.address.mainAddress
-            val filePath = data.image.filePath
-            val imageUrl = GajaMapApplication.prefs.getString("imageUrlPrefix", "")
+            val imageUrl = UserData.imageUrlPrefix
             val file = imageUrl + data.image.filePath
             Glide.with(binding.itemProfileImg.context)
                 .load(file)
