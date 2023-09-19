@@ -256,7 +256,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 if (position == 0){
                     getAllClient()
                 }else{
-                    getGroupClient(gid)
+                    getGroupClient(gid, gname)
                 }
             }
         })
@@ -447,7 +447,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                             val bgShapebtn = binding.ibKm.background as GradientDrawable
                             bgShapebtn.setColor(resources.getColor(R.color.white))
                             binding.ibKm.setImageResource(R.drawable.ic_km)
-                            getGroupClient(UserData.groupinfo!!.groupId)
+                            getGroupClient(UserData.groupinfo!!.groupId, UserData.groupinfo!!.groupName)
                         }
                     }
 
@@ -486,7 +486,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                             val bgShapebtn = binding.ibKm.background as GradientDrawable
                             bgShapebtn.setColor(resources.getColor(R.color.white))
                             binding.ibKm.setImageResource(R.drawable.ic_km)
-                            getGroupClient(UserData.groupinfo!!.groupId)
+                            getGroupClient(UserData.groupinfo!!.groupId, UserData.groupinfo!!.groupName)
                         }
                     }
                 }else {
@@ -568,7 +568,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun createGroup(name: String){
         viewModel.createGroup(CreateGroupRequest(name))
         viewModel.checkGroup.observe(this, Observer {
-            groupListAdapter.setData(it)
+            //groupListAdapter.setData(viewModel.checkGroup.value!!)
         })
     }
 
@@ -684,7 +684,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     // 특정 그룹 내에 고객 전부 조회 api
-    private fun getGroupClient(groupId: Long){
+    private fun getGroupClient(groupId: Long, gname : String){
         viewModel.getGroupAllClient(groupId)
         viewModel.groupClients.observe(this, Observer {
             val data = viewModel.groupClients.value!!.clients
@@ -693,7 +693,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             // UserData 값 갱신
             UserData.clientListResponse = viewModel.groupClients.value
             // groupinfo 값도 변경
-            UserData.groupinfo = AutoLoginGroupInfo(groupId, num, data.get(0).groupInfo.groupName)
+            UserData.groupinfo = AutoLoginGroupInfo(groupId, num, gname)
 
             binding.mapView.removeAllPOIItems()
             for (i in 0..num-1) {
@@ -890,6 +890,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 }
             }
         } else {
+            stopTracking()
             // 권한이 있는 상태
             startTracking()
             // 사용자 위치에 대한 위도, 경도 값 저장
