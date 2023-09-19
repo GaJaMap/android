@@ -260,7 +260,7 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             dialogShow()
             viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
             viewModel.postClient.observe(this, Observer {
-                if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId){
+                if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId || UserData.groupinfo?.groupId == -1L){
                     Log.d("postAddDirect", it.body().toString())
                     viewModel.postClient.value!!.body()
                         ?.let { it1 -> UserData.clientListResponse?.clients?.add(it1) }
@@ -293,7 +293,7 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             dialogShow()
             viewModel.postClient( clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, null, isBasicImage)
             viewModel.postClient.observe(this, Observer {
-                if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId){
+                if(UserData.groupinfo?.groupId == viewModel.postClient.value?.body()?.groupInfo?.groupId || UserData.groupinfo?.groupId == -1L){
                     Log.d("postAddDirect", it.body().toString())
                     viewModel.postClient.value!!.body()
                         ?.let { it1 -> UserData.clientListResponse?.clients?.add(it1) }
