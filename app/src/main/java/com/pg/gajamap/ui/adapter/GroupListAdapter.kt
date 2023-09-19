@@ -62,35 +62,30 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
     override fun onBindViewHolder(holder: ViewHolder, @SuppressLint("RecyclerView") position: Int) {
         holder.bind(datalist[position])
 
-        Log.d("pos", selectedPosition.toString())
-
         if(datalist[position].whole && position == 0) {
             holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.GONE
             holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.GONE
         }
 
         // 아이템의 배경 설정
-//        if(selectedPosition == position){
-//            holder.itemView.setBackgroundResource(R.color.inform)
-//        }else{
-//            holder.itemView.setBackgroundResource(R.color.white)
-//        }
+        if(selectedPosition == position){
+            holder.itemView.setBackgroundResource(R.color.inform)
+        }else{
+            holder.itemView.setBackgroundResource(R.color.white)
+        }
 
         if(!datalist[position].whole && selectedPosition != 0 && position != 0){
             holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.VISIBLE
             holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.VISIBLE
         }
+
         // 아이템 클릭 이벤트
         holder.itemView.setOnClickListener {
             // 이전에 선택된 아이템의 배경을 변경
             previousSelectedPosition = selectedPosition
             datalist[previousSelectedPosition].isSelected = false
-            Log.d("poss1Pre", previousSelectedPosition.toString())
-            Log.d("poss1", datalist[previousSelectedPosition].isSelected.toString())
             selectedPosition = position
             datalist[selectedPosition].isSelected = true
-            Log.d("poss2Sel", selectedPosition.toString())
-            Log.d("poss2", datalist[selectedPosition].isSelected.toString())
             // 이전 & 현재 클릭된 아이템의 배경을 변경
             notifyItemChanged(selectedPosition)
             notifyItemChanged(previousSelectedPosition)
@@ -98,14 +93,17 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
             itemClickListener.onClick(it, position, datalist[position].id, datalist[position].name)
         }
     }
+
     // 아이템 삭제 버튼 클릭
     interface GroupDeleteListener{
         fun click(id: Long, name: String, position: Int)
     }
+
     // 아이템 수정 버튼 클릭
     interface GroupEditListener{
         fun click2(id: Long, name: String, position: Int)
     }
+
     // 아이템 클릭
     interface OnItemClickListener {
         fun onClick(v: View, position: Int, gid: Long, gname: String)
@@ -121,6 +119,4 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
         datalist = data
         notifyDataSetChanged()
     }
-
-
 }
