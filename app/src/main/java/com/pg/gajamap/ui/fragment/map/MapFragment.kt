@@ -119,7 +119,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         val itemHeight = resources.getDimensionPixelSize(R.dimen.item_height)
 
         // 자동 로그인 response 데이터 값 받아오기
-        val clientList = UserData.clientListResponse
         val groupInfo = UserData.groupinfo
 
         clientMarker()
@@ -237,6 +236,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 mDialogView.ivClose.setOnClickListener {
                     addDialog.dismiss()
                 }
+
                 mDialogView.btnDialogSubmit.setOnClickListener {
                     // 그룹 수정 api 연동
                     modifyGroup(gid, mDialogView.etName.text.toString(), position)
@@ -282,6 +282,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 mDialogView.ivClose.setOnClickListener {
                     addDialog.dismiss()
                 }
+
                 mDialogView.btnDialogSubmit.setOnClickListener {
                     // 그룹 생성 api 연동
                     createGroup(mDialogView.etName.text.toString())
@@ -428,7 +429,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                                 }
                                 else{
                                     specificRadius(3000, a.first, a.second, itemId)
-
                                 }
                             }
                         }
@@ -458,6 +458,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                                 binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
                                 binding.btn3km.setTextColor(resources.getColor(R.color.main))
                             }
+
                             fiveCheck = true
                             binding.btn5km.setBackgroundResource(R.drawable.bg_km_click)
                             binding.btn5km.setTextColor(resources.getColor(R.color.white))
@@ -494,7 +495,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
                 }
             }
-            else{ // 두 번 클릭 시 원상태로 돌아오게 하기
+            else{
+                // 두 번 클릭 시 원상태로 돌아오게 하기
                 if(threeCheck || fiveCheck){
                     binding.clKm.visibility = View.VISIBLE
                 }
@@ -568,7 +570,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun createGroup(name: String){
         viewModel.createGroup(CreateGroupRequest(name))
         viewModel.checkGroup.observe(this, Observer {
-            //groupListAdapter.setData(viewModel.checkGroup.value!!)
+            groupListAdapter.setData(viewModel.checkGroup.value!!)
         })
     }
 
@@ -629,6 +631,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 UserData.clientListResponse = viewModel.wholeRadius.value
                 val data = viewModel.wholeRadius.value!!.clients
                 val num = data.count()
+
                 binding.mapView.removeAllPOIItems()
                 for (i in 0..num-1){
                     val itemdata = data.get(i)
@@ -664,6 +667,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 UserData.clientListResponse = viewModel.wholeRadius.value
                 val data = viewModel.wholeRadius.value!!.clients
                 val num = data.count()
+
                 binding.mapView.removeAllPOIItems()
                 for (i in 0..num-1){
                     val itemdata = data.get(i)
@@ -780,6 +784,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
         for (i in 0..size-1){
             val itemdata = data.clients.get(i)
+
             if(itemdata.image.filePath != null){
                 if(itemdata.distance == null){
                     viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null))
@@ -863,6 +868,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         val isFirstCheck = preference.getBoolean("isFirstPermissionCheck", true)
         var userLatitude = 0.0
         var userLongitude = 0.0
+
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // 권한이 없는 상태
             if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -914,6 +920,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun clientMarker(){
         // MapFragment 띄우자마자 현재 선택된 고객들의 위치 마커 찍기
         val clientNum = UserData.clientListResponse!!.clients.size
+
         for (i in 0..clientNum-1){
             val itemdata = UserData.clientListResponse!!.clients.get(i)
             // 지도에 마커 추가
@@ -1012,6 +1019,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.ibGps.visibility = View.GONE
         binding.ibKm.visibility = View.GONE
         binding.clKm.visibility = View.GONE
+
         if(pos == 0){
             getAllClientName(p1!!.itemName)
         }
