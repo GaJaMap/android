@@ -40,6 +40,7 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
             binding.itemProfileName.text = data.clientName
             binding.itemProfilePhoneDetail.text = data.phoneNumber
             itemView.background = background
+            binding.itemProfileAddressDetail.isSelected = true
 
         }
     }
