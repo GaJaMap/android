@@ -1,18 +1,17 @@
 package com.pg.gajamap.ui.fragment.customerAdd
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.telephony.PhoneNumberFormattingTextWatcher
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -21,9 +20,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.pg.gajamap.BR
 import com.pg.gajamap.R
 import com.pg.gajamap.base.BaseFragment
-import com.pg.gajamap.base.GajaMapApplication
 import com.pg.gajamap.base.UserData
-import com.pg.gajamap.data.model.Client
 import com.pg.gajamap.databinding.FragmentEditProfileBinding
 import com.pg.gajamap.viewmodel.ClientViewModel
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -46,7 +43,6 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         binding.fragment = this@EditProfileFragment
     }
 
-    var imageFile : File? = null
     private var isCamera = false
 
     companion object {
@@ -55,6 +51,9 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     }
 
     override fun onCreateAction() {
+
+        binding.infoProfilePhoneEt.addTextChangedListener(PhoneNumberFormattingTextWatcher())
+
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 parentFragmentManager.beginTransaction()
@@ -86,6 +85,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         if(image != null){
             val imageUrl = UserData.imageUrlPrefix
             val file = imageUrl + image
+
             Glide.with(binding.infoProfileImg.context)
                 .load(file)
                 .fitCenter()
@@ -195,14 +195,16 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             Log.d("edit", detail1.toString())
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val latitude1 = requireActivity().intent.getDoubleExtra("latitude", 0.0)
-            val longitude1 = requireActivity().intent.getDoubleExtra("longtitude", 0.0)
+            val longitude1 = requireActivity().intent.getDoubleExtra("longitude", 0.0)
             Log.d("edit", latitude1.toString())
+            Log.d("edit", longitude1.toString())
             val latitude = latitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val longitude = longitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val isBasicImage1 = false
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
             viewModel.putClient( groupId1.toLong(), clientId.toLong(), clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
+            dialogShow()
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
                 Log.d("editwhy", it.toString())
                 // 클라이언트 리스트 가져오기
@@ -243,10 +245,8 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
 
                         val customerInfoFragment = CustomerInfoFragment()
                         customerInfoFragment.arguments = bundle
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.frame_fragment, customerInfoFragment)
-                            .addToBackStack(null)
-                            .commit()
+                        dialogHide()
+                        activity?.finish()
                     }
                 }
                 Log.d("editlist", clientList.toString())
@@ -277,11 +277,12 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             Log.d("edit", detail1.toString())
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val latitude1 = requireActivity().intent.getDoubleExtra("latitude", 0.0).toString()
-            val longitude1 = requireActivity().intent.getDoubleExtra("longtitude", 0.0).toString()
+            val longitude1 = requireActivity().intent.getDoubleExtra("longitude", 0.0).toString()
             Log.d("edit", latitude1)
+            Log.d("edit", longitude1)
             val latitude = latitude1.toRequestBody("text/plain".toMediaTypeOrNull())
             val longitude = longitude1.toRequestBody("text/plain".toMediaTypeOrNull())
-            val isBasicImage1 = true
+            val isBasicImage1 = false
             val isBasicImage =
                 isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
@@ -298,12 +299,13 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 null,
                 isBasicImage
             )
+            dialogShow()
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
                 Log.d("editwhy", it.toString())
                 Log.d("postAddDirect", it.toString())
                 // 클라이언트 리스트 가져오기
                 //val clientList = UserData.clientListResponse
-                val targetClientId = requireActivity().intent.getStringExtra("clientId")
+                val targetClientId = requireActivity().intent.getLongExtra("clientId", -1).toString()
 
                 // 클라이언트 리스트가 null이 아니고, clients가 null이 아닌 경우에만 처리
                 clientList?.let { clients ->
@@ -333,12 +335,24 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                     }
                 }
                 Log.d("editlist", clientList.toString())
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.frame_fragment, CustomerInfoFragment())
-                    .addToBackStack(null)
-                    .commit()
+                dialogHide()
+                activity?.finish()
             })
         }
 
+    }
+
+    private fun dialogShow() {
+        binding.progress.isVisible = true
+        binding.btnSubmit.text = ""
+        activity?.window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun dialogHide() {
+        binding.progress.isVisible = false
+        binding.btnSubmit.text = "확인"
+        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 }
