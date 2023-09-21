@@ -1,6 +1,8 @@
 package com.pg.gajamap.ui.view
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -34,6 +36,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
+
 
 class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activity_add_direct) {
     var latitude = 0.0
@@ -124,8 +127,8 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
         }
 
         binding.infoProfileCameraBtn.setOnClickListener {
-            selectGallery()
-            isCamera = true
+
+            openImagePickOption()
         }
         if(!isCamera){
             sendImage1()
@@ -213,23 +216,6 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
     }
     // 갤러리를 부르는 메서드
     private fun selectGallery(){
-//        val writePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//        val readPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-//
-//        // 권한 확인
-//        if(writePermission == PackageManager.PERMISSION_DENIED || readPermission == PackageManager.PERMISSION_DENIED){
-//            // 권한 요청
-//            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), REQ_GALLERY)
-//        }else{
-//            // 권한이 있는 경우 갤러리 실행
-//            val intent = Intent(Intent.ACTION_PICK)
-//            // intent의 data와 type을 동시에 설정하는 메서드
-//            intent.setDataAndType(
-//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*"
-//            )
-//            imageResult.launch(intent)
-//        }
-
         val intent = Intent(Intent.ACTION_PICK)
         // intent의 data와 type을 동시에 설정하는 메서드
         intent.setDataAndType(
@@ -237,6 +223,27 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
         )
         imageResult.launch(intent)
 
+    }
+
+    fun openImagePickOption() {
+        val items = arrayOf<CharSequence>("앨범에서 사진 선택", "기본 이미지로 변경")
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setTitle("프로필 사진")
+        builder.setItems(items, DialogInterface.OnClickListener { dialog, item ->
+            if (items[item] == "앨범에서 사진 선택") {
+                selectGallery()
+                isCamera = true
+            } else if (items[item] == "기본 이미지로 변경") {
+                Glide.with(this)
+                    .load(R.drawable.profile_img_origin)
+                    .fitCenter()
+                    .apply(RequestOptions().override(500,500))
+                    .into(binding.infoProfileImg)
+                sendImage1()
+                isCamera = false
+            }
+        })
+        builder.show()
     }
 
     private fun sendImage(clientImage: MultipartBody.Part){

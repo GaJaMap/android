@@ -1,6 +1,8 @@
 package com.pg.gajamap.ui.fragment.customerAdd
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -44,6 +46,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     }
 
     private var isCamera = false
+    private var isBasicImage = false
 
     companion object {
         // 갤러리 권한 요청
@@ -95,8 +98,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         }
 
         binding.infoProfileCameraBtn.setOnClickListener {
-            selectGallery()
-            isCamera = true
+            openImagePickOption()
         }
         if(!isCamera){
             sendImage1()
@@ -147,24 +149,6 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
 
     // 갤러리를 부르는 메서드
     private fun selectGallery(){
-//        val writePermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//        val readPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
-//
-//        // 권한 확인
-//        if(writePermission == PackageManager.PERMISSION_DENIED || readPermission == PackageManager.PERMISSION_DENIED){
-//            // 권한 요청
-//            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
-//                EditProfileFragment.REQ_GALLERY
-//            )
-//        }else{
-//            // 권한이 있는 경우 갤러리 실행
-//            val intent = Intent(Intent.ACTION_PICK)
-//            // intent의 data와 type을 동시에 설정하는 메서드
-//            intent.setDataAndType(
-//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*"
-//            )
-//            imageResult.launch(intent)
-//        }
 
         val intent = Intent(Intent.ACTION_PICK)
         // intent의 data와 type을 동시에 설정하는 메서드
@@ -172,6 +156,29 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,"image/*"
         )
         imageResult.launch(intent)
+    }
+
+    fun openImagePickOption() {
+        val items = arrayOf<CharSequence>("앨범에서 사진 선택", "기본 이미지로 변경")
+        val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("프로필 사진")
+        builder.setItems(items, DialogInterface.OnClickListener { dialog, item ->
+            if (items[item] == "앨범에서 사진 선택") {
+                selectGallery()
+                isCamera = true
+                isBasicImage = false
+            } else if (items[item] == "기본 이미지로 변경") {
+                Glide.with(this)
+                    .load(R.drawable.profile_img_origin)
+                    .fitCenter()
+                    .apply(RequestOptions().override(500,500))
+                    .into(binding.infoProfileImg)
+                sendImage1()
+                isCamera = false
+                isBasicImage = true
+            }
+        })
+        builder.show()
     }
 
     private fun sendImage(clientImage: MultipartBody.Part){
@@ -282,7 +289,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             Log.d("edit", longitude1)
             val latitude = latitude1.toRequestBody("text/plain".toMediaTypeOrNull())
             val longitude = longitude1.toRequestBody("text/plain".toMediaTypeOrNull())
-            val isBasicImage1 = false
+            val isBasicImage1 = isBasicImage
             val isBasicImage =
                 isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
