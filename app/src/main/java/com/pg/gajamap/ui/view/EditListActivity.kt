@@ -115,7 +115,7 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
 
         //고객 리스트
         binding.topTvNumber2.text = it.clients.size.toString()
-        val customerAnyListAdapter = CustomerAnyListAdapter(it.clients)
+        val customerAnyListAdapter = CustomerAnyListAdapter(it.clients, this)
         binding.listRv.apply {
             adapter = customerAnyListAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)

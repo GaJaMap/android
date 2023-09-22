@@ -1,31 +1,36 @@
 package com.pg.gajamap.ui.adapter
 
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.pg.gajamap.R
-import com.pg.gajamap.base.GajaMapApplication
 import com.pg.gajamap.base.UserData
 import com.pg.gajamap.data.model.Client
 import com.pg.gajamap.databinding.ItemAnyListBinding
 
-class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.Adapter<CustomerAnyListAdapter.ViewHolder>() {
+class CustomerAnyListAdapter(private val dataList: List<Client>, context: Context) :
+    RecyclerView.Adapter<CustomerAnyListAdapter.ViewHolder>() {
 
-    private var selectPos :Boolean = false
-    private var pos : Int = -1
+    private var selectPos: Boolean = false
+    private var pos: Int = -1
     private val selectedPositions = mutableSetOf<Int>()
 
     // 원래 배경 리소스 ID (클릭 전의 배경)
     private var originalBackgroundResource: Int = 0
 
-    private var itemBackground: Drawable? = null
+    private var itemBackground: Drawable? = ContextCompat.getDrawable(
+        context,
+        R.drawable.fragment_list_tool
+    )
 
-    inner class ViewHolder(private val binding: ItemAnyListBinding):
-            RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(private val binding: ItemAnyListBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         fun bind(data: Client, background: Drawable?) {
             val address = data.address.mainAddress
             val imageUrl = UserData.imageUrlPrefix
@@ -40,6 +45,7 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
             binding.itemProfileName.text = data.clientName
             binding.itemProfilePhoneDetail.text = data.phoneNumber
             itemView.background = background
+            binding.itemProfileAddressDetail.isSelected = true
 
         }
     }
@@ -54,7 +60,7 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-       holder.bind(dataList[position], itemBackground)
+        holder.bind(dataList[position], itemBackground)
 
         holder.itemView.setOnClickListener {
             if (selectedPositions.contains(position)) {
@@ -92,10 +98,10 @@ class CustomerAnyListAdapter(private val dataList: List<Client>): RecyclerView.A
         fun onClick(v: View, position: Int)
     }
 
-    fun setOnItemClickListener(onItemClickListener: OnItemClickListener){
+    fun setOnItemClickListener(onItemClickListener: OnItemClickListener) {
         this.itemClickListener = onItemClickListener
     }
 
-    private lateinit var itemClickListener : OnItemClickListener
+    private lateinit var itemClickListener: OnItemClickListener
 
 }

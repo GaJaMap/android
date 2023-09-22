@@ -73,6 +73,7 @@ class CustomerListAdapter(private var dataList: List<Client>) :
             binding.itemProfileAddressDetail.text = address
             binding.itemProfileName.text = data.clientName
             binding.itemProfilePhoneDetail.text = data.phoneNumber
+            binding.itemProfileAddressDetail.isSelected = true
 
 
         }

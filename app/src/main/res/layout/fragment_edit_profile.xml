@@ -230,6 +230,7 @@
             android:layout_width="0dp"
             android:layout_height="39dp"
             android:hint="@string/direct_hint3"
+            android:maxLength="13"
             android:textColorHint="@color/direct_hint_gray"
             android:textSize="11sp"
             android:paddingStart="11dp"
@@ -271,6 +272,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ProgressBar
+            android:id="@+id/progress"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_centerInParent="true"
+            android:elevation="10dp"
+            android:indeterminateTint="@color/white"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/btn_submit"
+            app:layout_constraintEnd_toEndOf="@+id/btn_submit"
+            app:layout_constraintStart_toStartOf="@+id/btn_submit"
+            app:layout_constraintTop_toTopOf="@+id/btn_submit" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

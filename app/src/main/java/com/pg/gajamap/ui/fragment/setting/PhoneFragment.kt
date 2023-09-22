@@ -16,6 +16,7 @@ import com.pg.gajamap.R
 import com.pg.gajamap.base.BaseFragment
 import com.pg.gajamap.databinding.FragmentPhoneBinding
 import android.provider.Settings
+import android.telephony.PhoneNumberUtils
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -187,12 +188,17 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                 val name =
                     contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
                 val number =
-                    contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                    PhoneNumberUtils.formatNumber(contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)))
 
-                if (regex.matches(number) && name.length <= 20) {
-                    list.add(ContactsData(contactsId, name, number))
+                if (name.length <= 20) {
+                    // 중복 확인
+                    val isDuplicate = list.any { existingContact ->
+                        existingContact.name == name && existingContact.number == number
+                    }
+                    if (!isDuplicate) {
+                        list.add(ContactsData(contactsId, name, number))
+                    }
                 }
-
             }
         }
         list.sortBy { it.name }
