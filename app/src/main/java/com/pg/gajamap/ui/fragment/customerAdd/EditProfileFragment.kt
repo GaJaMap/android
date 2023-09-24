@@ -57,8 +57,6 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
 
     override fun onCreateAction() {
 
-        binding.infoProfilePhoneEt.addTextChangedListener(PhoneNumberFormattingTextWatcher())
-
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 parentFragmentManager.beginTransaction()
@@ -86,6 +84,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         binding.infoProfileAddressTv1.text = address1
         binding.infoProfileAddressTv2.setText(address2)
         binding.infoProfilePhoneEt.setText(phone)
+        binding.infoProfilePhoneEt.addTextChangedListener(PhoneNumberFormattingTextWatcher())
 
         if(image != null){
             val imageUrl = UserData.imageUrlPrefix
