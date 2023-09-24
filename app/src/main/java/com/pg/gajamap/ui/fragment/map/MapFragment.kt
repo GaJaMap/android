@@ -987,6 +987,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.ibKm.visibility = View.VISIBLE
         // 검색창 없애기
         binding.clSearchResult.visibility = View.GONE
+        // todo : 확인하기
+        // 검색한 값 지우기
+        binding.etSearch.setText(null)
 
         if(plusBtn){
             plusBtnInactivation()
