@@ -39,6 +39,8 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     var clientList = UserData.clientListResponse?.clients
 
     private var groupId : Int = -1
+    private var latitude1 : Double? = null
+    private var longitude1 : Double? = null
     override fun initViewModel(viewModel: ViewModel) {
         binding.setVariable(BR.viewModel, viewModel)
         binding.lifecycleOwner = this@EditProfileFragment
@@ -54,8 +56,6 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     }
 
     override fun onCreateAction() {
-
-        binding.infoProfilePhoneEt.addTextChangedListener(PhoneNumberFormattingTextWatcher())
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -84,6 +84,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         binding.infoProfileAddressTv1.text = address1
         binding.infoProfileAddressTv2.setText(address2)
         binding.infoProfilePhoneEt.setText(phone)
+        binding.infoProfilePhoneEt.addTextChangedListener(PhoneNumberFormattingTextWatcher())
 
         if(image != null){
             val imageUrl = UserData.imageUrlPrefix
@@ -195,22 +196,29 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             val phoneNumber1 = binding.infoProfilePhoneEt.text
             Log.d("edit", phoneNumber1.toString())
             val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val mainAddress1 = requireActivity().intent.getStringExtra("address1")
-            Log.d("edit", mainAddress1!!)
-            val mainAddress = mainAddress1.toRequestBody("text/plain".toMediaTypeOrNull())
+            val mainAddress1 = binding.infoProfileAddressTv1.text
+            Log.d("edit", mainAddress1.toString())
+            val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
             Log.d("edit", detail1.toString())
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val latitude1 = requireActivity().intent.getDoubleExtra("latitude", 0.0)
-            val longitude1 = requireActivity().intent.getDoubleExtra("longitude", 0.0)
+
+            latitude1 = requireActivity().intent.getDoubleExtra("latitude", 0.0)
+            if(latitude1 == 0.0) {
+                latitude1 = null
+            }
+            longitude1 = requireActivity().intent.getDoubleExtra("longitude", 0.0)
+            if(longitude1 == 0.0) {
+                longitude1 = null
+            }
             Log.d("edit", latitude1.toString())
             Log.d("edit", longitude1.toString())
-            val latitude = latitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val longitude = longitude1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val latitude = latitude1
+            val longitude = longitude1
             val isBasicImage1 = false
             val isBasicImage = isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            viewModel.putClient( groupId1.toLong(), clientId.toLong(), clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
+            viewModel.putClient(groupId1.toLong(), clientId.toLong(), clientName, groupId, phoneNumber, mainAddress , detail, latitude, longitude, clientImage, isBasicImage)
             dialogShow()
             viewModel.putClient.observe(viewLifecycleOwner, Observer {
                 Log.d("editwhy", it.toString())
@@ -277,18 +285,24 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             Log.d("edit", phoneNumber1.toString())
             val phoneNumber =
                 phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val mainAddress1 = requireActivity().intent.getStringExtra("address1")
-            Log.d("edit", mainAddress1!!)
-            val mainAddress = mainAddress1.toRequestBody("text/plain".toMediaTypeOrNull())
+            val mainAddress1 = binding.infoProfileAddressTv1.text
+            Log.d("edit", mainAddress1.toString())
+            val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
             Log.d("edit", detail1.toString())
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val latitude1 = requireActivity().intent.getDoubleExtra("latitude", 0.0).toString()
-            val longitude1 = requireActivity().intent.getDoubleExtra("longitude", 0.0).toString()
-            Log.d("edit", latitude1)
-            Log.d("edit", longitude1)
-            val latitude = latitude1.toRequestBody("text/plain".toMediaTypeOrNull())
-            val longitude = longitude1.toRequestBody("text/plain".toMediaTypeOrNull())
+            latitude1 = requireActivity().intent.getDoubleExtra("latitude", 0.0)
+            if(latitude1 == 0.0) {
+                latitude1 = null
+            }
+            longitude1 = requireActivity().intent.getDoubleExtra("longitude", 0.0)
+            if(longitude1 == 0.0) {
+                longitude1 = null
+            }
+            Log.d("edit", latitude1.toString())
+            Log.d("edit", longitude1.toString())
+            val latitude = latitude1
+            val longitude = longitude1
             val isBasicImage1 = isBasicImage
             val isBasicImage =
                 isBasicImage1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
