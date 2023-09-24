@@ -3,6 +3,8 @@ package com.pg.gajamap.ui.fragment.customerAdd
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -11,6 +13,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.kakao.sdk.navi.Constants
+import com.kakao.sdk.navi.NaviClient
+import com.kakao.sdk.navi.model.CoordType
+import com.kakao.sdk.navi.model.Location
+import com.kakao.sdk.navi.model.NaviOption
 import com.pg.gajamap.R
 import com.pg.gajamap.base.BaseFragment
 import com.pg.gajamap.base.GajaMapApplication
@@ -27,6 +34,8 @@ import kotlinx.coroutines.withContext
 class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.fragment_customer_info) {
 
     var customerInfoActivity: CustomerInfoActivity?=null
+    private var latitude : Double? = null
+    private var longitude : Double? = null
 
     override val viewModel by viewModels<GetClientViewModel> {
         GetClientViewModel.AddViewModelFactory("tmp")
@@ -94,6 +103,43 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
                 .replace(R.id.frame_fragment, EditProfileFragment())
                 .addToBackStack(null)
                 .commit()
+        }
+
+        binding.infoProfilePhoneBtn.setOnClickListener {
+            val intent = Intent(Intent.ACTION_DIAL)
+            intent.data = Uri.parse("tel:${binding.infoProfilePhoneTv.text}.")
+            binding.root.context.startActivity(intent)
+        }
+
+        binding.infoProfileAddressBtn.setOnClickListener {
+            latitude = requireActivity().intent.getDoubleExtra("latitude", 0.0)
+            if(latitude == 0.0) {
+                latitude = null
+            }
+            longitude = requireActivity().intent.getDoubleExtra("longitude", 0.0)
+            if(longitude == 0.0) {
+                longitude = null
+            }
+            //카카오내비
+            // 카카오내비 앱으로 길 안내
+            if (NaviClient.instance.isKakaoNaviInstalled(requireContext())) {
+                // 카카오내비 앱으로 길 안내 - WGS84
+                startActivity(
+                    NaviClient.instance.navigateIntent(
+                        //위도 경도를 장소이름으로 바꿔주기
+                        Location(binding.infoProfileNameTv.text.toString(), longitude.toString(), latitude.toString()),
+                        NaviOption(coordType = CoordType.WGS84)
+                    )
+                )
+            } else {
+                // 카카오내비 설치 페이지로 이동
+                startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(Constants.WEB_NAVI_INSTALL)
+                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                )
+            }
         }
     }
 
