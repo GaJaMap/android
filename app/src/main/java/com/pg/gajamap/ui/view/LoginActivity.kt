@@ -2,7 +2,10 @@ package com.pg.gajamap.ui.view
 
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import com.pg.gajamap.R
@@ -28,6 +31,8 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
     // SearchResult recyclerview
     private val searchResultList = arrayListOf<SearchResultData>()
     private val searchResultAdapter = SearchResultAdapter(searchResultList)
+    //뒤로가기 두번 클릭 시 앱 종료
+    private var backPressedTime: Long = 0
 
     override val viewModel by viewModels<LoginViewModel> {
         LoginViewModel.LoginViewModelFactory("tmp")
@@ -40,8 +45,8 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
 
     override fun onCreateAction() {
 
-        val keyHash = Utility.getKeyHash(this)
-        Log.d("Hash", keyHash)
+        // val keyHash = Utility.getKeyHash(this)
+        // Log.d("Hash", keyHash)
 
         viewModel.autoLogin()
         viewModel.autoLogin.observe(this, Observer {
@@ -53,6 +58,10 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         })
+
+        // deprecated 된 onBackPressed() 대신 사용
+        // 위에서 생성한 콜백 인스턴스 붙여주기
+        this.onBackPressedDispatcher.addCallback(this, callback)
     }
 
     fun kakaoLogin() {
@@ -117,5 +126,23 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
             GajaMapApplication.prefs.setString("createdDate", it.createdDate)
 
         })
+    }
+
+    // todo : 확인하기!
+    // 뒤로가기 두 번 클릭 시 앱 종료
+    // 콜백 인스턴스 생성
+    private val callback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            // 뒤로가기 버튼 이벤트 처리
+            if(System.currentTimeMillis() - backPressedTime >= 2000) {
+                backPressedTime = System.currentTimeMillis()
+                Toast.makeText(this@LoginActivity, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                // 앱 자체 종료하기
+                ActivityCompat.finishAffinity(this@LoginActivity)
+                System.runFinalization()
+                System.exit(0)
+            }
+        }
     }
 }

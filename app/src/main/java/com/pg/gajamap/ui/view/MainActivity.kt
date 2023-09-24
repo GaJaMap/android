@@ -5,7 +5,9 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
@@ -25,6 +27,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val TAG_MAP = "map_fragment"
     private val TAG_LIST = "list_fragment"
     private val TAG_SETTING = "setting_fragment"
+    //뒤로가기 두번 클릭 시 앱 종료
+    private var backPressedTime: Long = 0
 
     override val viewModel by viewModels<MainViewModel> {
         MainViewModel.MainViewModelFactory("tmp")
@@ -37,8 +41,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     override fun onCreateAction() {
         // 이곳에 화면 기능 구현
-        //카카오 해시키
-        // Log.d(TAG, "keyhash : ${Utility.getKeyHash(this)}")
 
         // bottom navigation
         bnMain = binding.navBn
@@ -48,15 +50,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         bnMain.selectedItemId = R.id.menu_map
         // 프래그먼트 초기화 및 추가
         setFragment(TAG_MAP, mapFragment!!)
-
-//        bnMain.setOnItemSelectedListener {
-//            when (it.itemId) {
-//                R.id.menu_map -> setFragment(TAG_MAP, MapFragment())
-//                R.id.menu_list -> setFragment(TAG_LIST, ListFragment())
-//                R.id.menu_setting -> setFragment(TAG_SETTING, SettingFragment())
-//            }
-//            true
-//        }
 
         bnMain.setOnItemSelectedListener { menuItem ->
             val transaction = supportFragmentManager.beginTransaction()
@@ -86,7 +79,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             true
         }
 
-
         // 탭 버튼 재 호출시 이벤트 없이 처리
         bnMain.setOnItemReselectedListener {
             when (it.itemId) {
@@ -95,6 +87,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 R.id.menu_setting -> {}
             }
         }
+
+        // deprecated 된 onBackPressed() 대신 사용
+        // 위에서 생성한 콜백 인스턴스 붙여주기
+        this.onBackPressedDispatcher.addCallback(this, callback)
     }
 
     // fragment 상태 유지를 위한 컨트롤 함수
@@ -124,7 +120,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             bt.hide(setting)
         }
 
-        //tag로 입력받은 fragment만 show를 통해 보여주도록 합니다.
+        //tag로 입력받은 fragment만 show를 통해 보여주도록 함
         if (tag == TAG_MAP) {
             if (map != null) {
                 bt.show(map)
@@ -158,6 +154,24 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 val bgShape = findViewById<ImageButton>(R.id.ib_gps).background as GradientDrawable
                 bgShape.setColor(resources.getColor(R.color.white))
                 findViewById<ImageButton>(R.id.ib_gps).setImageResource(R.drawable.ic_gray_gps)
+            }
+        }
+    }
+
+    // todo : 확인하기!
+    // 뒤로가기 두 번 클릭 시 앱 종료
+    // 콜백 인스턴스 생성
+    private val callback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            // 뒤로가기 버튼 이벤트 처리
+            if(System.currentTimeMillis() - backPressedTime >= 2000) {
+                backPressedTime = System.currentTimeMillis()
+                Toast.makeText(this@MainActivity, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                // 앱 자체 종료하기
+                ActivityCompat.finishAffinity(this@MainActivity)
+                System.runFinalization()
+                System.exit(0)
             }
         }
     }
