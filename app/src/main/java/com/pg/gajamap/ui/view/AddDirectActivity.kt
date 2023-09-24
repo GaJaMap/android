@@ -336,7 +336,6 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
         window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
-    // todo : 확인하기!
     // 뒤로가기 두 번 클릭 시 앱 종료
     // 콜백 인스턴스 생성
     private val callback = object : OnBackPressedCallback(true) {
