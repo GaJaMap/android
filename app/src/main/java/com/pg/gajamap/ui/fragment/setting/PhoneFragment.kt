@@ -189,7 +189,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                 val number =
                     PhoneNumberUtils.formatNumber(contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)))
 
-                if (name.length <= 20) {
+                if (name.length <= 10) {
                     // 중복 확인
                     val isDuplicate = list.any { existingContact ->
                         existingContact.name == name && existingContact.number == number
