@@ -1,6 +1,9 @@
 package com.pg.gajamap.ui.view
 
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import com.pg.gajamap.R
 import com.pg.gajamap.base.BaseActivity
@@ -9,6 +12,8 @@ import com.pg.gajamap.ui.fragment.customerAdd.CustomerInfoFragment
 import com.pg.gajamap.viewmodel.GetClientViewModel
 
 class CustomerInfoActivity : BaseActivity<ActivityCustomerInfoBinding>(R.layout.activity_customer_info) {
+    // 뒤로가기 두 번 클릭 시 앱 종료
+    private var backPressedTime: Long = 0
 
     override val viewModel by viewModels<GetClientViewModel> {
         GetClientViewModel.AddViewModelFactory("tmp")
@@ -20,6 +25,27 @@ class CustomerInfoActivity : BaseActivity<ActivityCustomerInfoBinding>(R.layout.
 
     override fun onCreateAction() {
         supportFragmentManager.beginTransaction().replace(R.id.frame_fragment, CustomerInfoFragment()).commit()
+
+        // deprecated 된 onBackPressed() 대신 사용
+        // 위에서 생성한 콜백 인스턴스 붙여주기
+        this.onBackPressedDispatcher.addCallback(this, callback)
     }
 
+    // todo : 확인하기!
+    // 뒤로가기 두 번 클릭 시 앱 종료
+    // 콜백 인스턴스 생성
+    private val callback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            // 뒤로가기 버튼 이벤트 처리
+            if(System.currentTimeMillis() - backPressedTime >= 2000) {
+                backPressedTime = System.currentTimeMillis()
+                Toast.makeText(this@CustomerInfoActivity, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                // 앱 자체 종료하기
+                ActivityCompat.finishAffinity(this@CustomerInfoActivity)
+                System.runFinalization()
+                System.exit(0)
+            }
+        }
+    }
 }

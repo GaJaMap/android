@@ -7,7 +7,9 @@ import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -28,6 +30,8 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
     var client = UserData.clientListResponse
     var clientList = UserData.clientListResponse?.clients
     var groupInfo = UserData.groupinfo
+    // 뒤로가기 두번 클릭 시 앱 종료
+    private var backPressedTime: Long = 0
 
     override val viewModel by viewModels<GetClientViewModel> {
         GetClientViewModel.AddViewModelFactory("tmp")
@@ -39,10 +43,6 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
     }
 
     override fun onCreateAction() {
-        // 자동 로그인 response 데이터 값 받아오기
-        //val clientList = UserData.clientListResponse
-        //val groupInfo = UserData.groupinfo
-
         if (groupInfo != null) {
             groupId = groupInfo!!.groupId
         }
@@ -107,7 +107,28 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
                     })
             // 다이얼로그를 띄워주기
             builder.show()
+        }
 
+        // deprecated 된 onBackPressed() 대신 사용
+        // 위에서 생성한 콜백 인스턴스 붙여주기
+        this.onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    // todo : 확인하기!
+    // 뒤로가기 두 번 클릭 시 앱 종료
+    // 콜백 인스턴스 생성
+    private val callback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            // 뒤로가기 버튼 이벤트 처리
+            if(System.currentTimeMillis() - backPressedTime >= 2000) {
+                backPressedTime = System.currentTimeMillis()
+                Toast.makeText(this@EditListActivity, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                // 앱 자체 종료하기
+                ActivityCompat.finishAffinity(this@EditListActivity)
+                System.runFinalization()
+                System.exit(0)
+            }
         }
     }
 
