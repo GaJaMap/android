@@ -27,7 +27,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val TAG_MAP = "map_fragment"
     private val TAG_LIST = "list_fragment"
     private val TAG_SETTING = "setting_fragment"
-    //뒤로가기 두번 클릭 시 앱 종료
+    // 뒤로가기 두 번 클릭 시 앱 종료
     private var backPressedTime: Long = 0
 
     override val viewModel by viewModels<MainViewModel> {
@@ -169,6 +169,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 Toast.makeText(this@MainActivity, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
             } else {
                 // 앱 자체 종료하기
+                // 위치추적 중지
+                mapFragment?.stopTracking()
                 ActivityCompat.finishAffinity(this@MainActivity)
                 System.runFinalization()
                 System.exit(0)

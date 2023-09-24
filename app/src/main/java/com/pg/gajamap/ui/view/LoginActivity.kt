@@ -31,7 +31,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
     // SearchResult recyclerview
     private val searchResultList = arrayListOf<SearchResultData>()
     private val searchResultAdapter = SearchResultAdapter(searchResultList)
-    //뒤로가기 두번 클릭 시 앱 종료
+    // 뒤로가기 두 번 클릭 시 앱 종료
     private var backPressedTime: Long = 0
 
     override val viewModel by viewModels<LoginViewModel> {

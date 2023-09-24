@@ -958,7 +958,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     // 위치추적 중지
-    private fun stopTracking() {
+    fun stopTracking() {
         binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOff
     }
 

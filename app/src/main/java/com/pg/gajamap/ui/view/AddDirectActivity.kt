@@ -15,8 +15,11 @@ import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
@@ -41,6 +44,8 @@ import java.io.File
 class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activity_add_direct) {
     var latitude = 0.0
     var longitude = 0.0
+    // 뒤로가기 두 번 클릭 시 앱 종료
+    private var backPressedTime: Long = 0
 
     override val viewModel by viewModels<ClientViewModel> {
         ClientViewModel.SettingViewModelFactory("tmp")
@@ -72,6 +77,10 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
 
         // 전화번호 작성 시 자동으로 하이픈 추가
         binding.infoProfilePhoneEt.addTextChangedListener(PhoneNumberFormattingTextWatcher())
+
+        // deprecated 된 onBackPressed() 대신 사용
+        // 위에서 생성한 콜백 인스턴스 붙여주기
+        this.onBackPressedDispatcher.addCallback(this, callback)
 
         //스피너
         viewModel.checkGroup()
@@ -325,5 +334,23 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
         binding.progress.isVisible = false
         binding.btnSubmit.text = "확인"
         window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    // todo : 확인하기!
+    // 뒤로가기 두 번 클릭 시 앱 종료
+    // 콜백 인스턴스 생성
+    private val callback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            // 뒤로가기 버튼 이벤트 처리
+            if(System.currentTimeMillis() - backPressedTime >= 2000) {
+                backPressedTime = System.currentTimeMillis()
+                Toast.makeText(this@AddDirectActivity, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                // 앱 자체 종료하기
+                ActivityCompat.finishAffinity(this@AddDirectActivity)
+                System.runFinalization()
+                System.exit(0)
+            }
+        }
     }
 }
