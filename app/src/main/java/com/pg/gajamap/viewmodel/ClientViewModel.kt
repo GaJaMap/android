@@ -66,8 +66,8 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                   phoneNumber : RequestBody,
                   mainAddress : RequestBody,
                   detail : RequestBody,
-                  latitude : RequestBody,
-                  longitude : RequestBody,
+                  latitude : Double?,
+                  longitude : Double?,
                   clientImage : MultipartBody.Part?,
                   isBasicImage : RequestBody) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -78,7 +78,7 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                 _putClient.postValue(response.body())
                 Log.d("putClientSuccess", "${response.body()}")
             }else {
-                Log.d("putClientError", "putClient : ${response.errorBody()}")
+                Log.d("putClientError", "putClient : ${response.errorBody()?.string()}")
             }
         }
     }

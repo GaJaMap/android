@@ -40,8 +40,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) {
-    private var groupId : Int = -1
+class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
+    private var groupId: Int = -1
     private var radius = 0
     private var clientList = UserData.clientListResponse
     private var groupInfo = UserData.groupinfo
@@ -71,8 +71,9 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         binding.fragmentEditBtn.setOnClickListener {
 
             // 고객 편집하기 activity로 이동
-            if(groupInfo?.groupId == -1L) {
-                Toast.makeText(requireContext(), "전체 그룹은 편집 기능을 사용하지 못합니다.", Toast.LENGTH_SHORT).show()
+            if (groupInfo?.groupId == -1L) {
+                Toast.makeText(requireContext(), "전체 그룹은 편집 기능을 사용하지 못합니다.", Toast.LENGTH_SHORT)
+                    .show()
             } else {
                 val intent = Intent(activity, EditListActivity::class.java)
                 startActivity(intent)
@@ -90,10 +91,12 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 val searchText = editable.toString().trim()
                 filterClientList(searchText)
             }
+
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 //입력 하기 전에 작동됩니다.
 
             }
+
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 //타이핑 되는 텍스트에 변화가 있으면 작동됩니다.
             }
@@ -117,7 +120,8 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
 
     // GPS가 켜져있는지 확인
     private fun checkLocationService(): Boolean {
-        val locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val locationManager =
+            requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 
@@ -125,14 +129,26 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
     private fun permissionCheck() {
         val preference = requireActivity().getPreferences(Context.MODE_PRIVATE)
         val isFirstCheck = preference.getBoolean("isFirstPermissionCheck", true)
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             // 권한이 없는 상태
-            if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            ) {
                 // 권한 거절 (다시 한 번 물어봄)
                 val builder = AlertDialog.Builder(requireContext())
                 builder.setMessage("현재 위치를 확인하시려면 위치 권한을 허용해주세요.")
                 builder.setPositiveButton("확인") { dialog, which ->
-                    ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), ACCESS_FINE_LOCATION)
+                    ActivityCompat.requestPermissions(
+                        requireActivity(),
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        ACCESS_FINE_LOCATION
+                    )
                 }
                 builder.setNegativeButton("취소") { dialog, which ->
 
@@ -142,7 +158,11 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
                 if (isFirstCheck) {
                     // 최초 권한 요청
                     preference.edit().putBoolean("isFirstPermissionCheck", false).apply()
-                    ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), ACCESS_FINE_LOCATION)
+                    ActivityCompat.requestPermissions(
+                        requireActivity(),
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        ACCESS_FINE_LOCATION
+                    )
                 } else {
                     // 다시 묻지 않음 클릭 (앱 정보 화면으로 이동)
                     val builder = AlertDialog.Builder(requireContext())
@@ -164,7 +184,11 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
 
 
     // 권한 요청 후 행동
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == ACCESS_FINE_LOCATION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -180,8 +204,8 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
     }
 
 
-    private suspend fun setView(){
-        withContext(Dispatchers.Main){
+    private suspend fun setView() {
+        withContext(Dispatchers.Main) {
             clientList?.let { ListRv(it) }
 
             if (groupInfo != null) {
@@ -195,7 +219,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         CoroutineScope(Dispatchers.IO).launch {
             updateData()
         }
-        Log.d("backonactivity","backonactivity")
+        Log.d("backonactivity", "backonactivity")
     }
 
     private suspend fun updateData() {
@@ -212,21 +236,22 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
         }
     }
 
-    fun ListRv(it : GetAllClientResponse){
+    fun ListRv(it: GetAllClientResponse) {
         val customerListAdapter = CustomerListAdapter(it.clients)
         binding.listRv.apply {
             adapter = customerListAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+            customerListAdapter.updateData(it.clients.sortedBy { it.clientId }.reversed())
         }
 
-        binding.fragmentListCategory1.setOnClickListener {view->
+        binding.fragmentListCategory1.setOnClickListener { view ->
             binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory1.setBackgroundResource(R.drawable.list_distance_purple)
 
             customerListAdapter.updateData(it.clients.sortedBy { it.clientId }.reversed())
         }
-        binding.fragmentListCategory2.setOnClickListener {view->
+        binding.fragmentListCategory2.setOnClickListener { view ->
             binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory2.setBackgroundResource(R.drawable.list_distance_purple)
@@ -234,7 +259,7 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             customerListAdapter.updateData(it.clients.sortedBy { it.clientId })
         }
 
-        binding.fragmentListCategory3.setOnClickListener {view->
+        binding.fragmentListCategory3.setOnClickListener { view ->
             binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory3.setBackgroundResource(R.drawable.list_distance_purple)
@@ -242,43 +267,9 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             customerListAdapter.updateData(it.clients.sortedBy { it.distance })
         }
 
-        //리사이클러뷰 클릭
-        customerListAdapter.setOnItemClickListener(object :
-            CustomerListAdapter.OnItemClickListener{
-            override fun onClick(v: View, position: Int) {
-                val clientId = it.clients[position].clientId
-                val groupId = it.clients[position].groupInfo.groupId
-                val groupName = it.clients[position].groupInfo.groupName
-                it.clients[position].image.filePath?.let { it1 ->
-                    GajaMapApplication.prefs.setString("image",
-                        it1
-                    )
-                }
-                GajaMapApplication.prefs.setString("groupName", groupName.toString())
-                GajaMapApplication.prefs.setString("clientId", clientId.toString())
-                GajaMapApplication.prefs.setString("groupId", groupId.toString())
-                val name = it.clients[position].clientName
-                val address1 = it.clients[position].address.mainAddress ?:""
-                val address2 = it.clients[position].address.detail ?:""
-                val phone = it.clients[position].phoneNumber
-                val latitude = it.clients[position].location.latitude
-                val longitude = it.clients[position].location.longitude
-                GajaMapApplication.prefs.setString("name", name)
-                GajaMapApplication.prefs.setString("address1", address1)
-                GajaMapApplication.prefs.setString("address2", address2)
-                GajaMapApplication.prefs.setString("phone", phone)
-                GajaMapApplication.prefs.setString("latitude1", latitude.toString())
-                GajaMapApplication.prefs.setString("longitude1", longitude.toString())
-
-                // 고객 상세 정보 activity로 이동
-                val intent = Intent(activity, CustomerInfoActivity::class.java)
-                startActivity(intent)
-            }
-        })
-
         //내비게이션
         customerListAdapter.setItemClickListener(object :
-            CustomerListAdapter.ItemClickListener{
+            CustomerListAdapter.ItemClickListener {
             override fun onClick(v: View, position: Int) {
                 val latitude = it.clients[position].location.latitude
                 val longitude = it.clients[position].location.longitude
@@ -308,97 +299,6 @@ class ListFragment : BaseFragment<FragmentListBinding> (R.layout.fragment_list) 
             }
         })
     }
-
-
-    /*fun GroupClientSearchRV(it : GetGroupAllClientResponse){
-        GajaMapApplication.prefs.setString("imageUrlPrefix", it.imageUrlPrefix.toString())
-        //고객 리스트
-        val customerListAdapter = CustomerListAdapter(it.clients)
-        binding.listRv.apply {
-            adapter = customerListAdapter
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-        }
-
-        binding.fragmentListCategory1.setOnClickListener {view->
-            binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
-            binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
-            binding.fragmentListCategory1.setBackgroundResource(R.drawable.list_distance_purple)
-            customerListAdapter.updateData(it.clients)
-        }
-        binding.fragmentListCategory2.setOnClickListener {view->
-            binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
-            binding.fragmentListCategory3.setBackgroundResource(R.drawable.fragment_list_category_background)
-            binding.fragmentListCategory2.setBackgroundResource(R.drawable.list_distance_purple)
-            val reversedList = it.clients.reversed()
-            customerListAdapter.updateData(reversedList)
-        }
-
-        //리사이클러뷰 클릭
-        customerListAdapter.setOnItemClickListener(object :
-            CustomerListAdapter.OnItemClickListener{
-            override fun onClick(v: View, position: Int) {
-                val clientId = it.clients[position].clientId
-                val groupId = it.clients[position].groupInfo.groupId
-                val groupName = it.clients[position].groupInfo.groupName
-                GajaMapApplication.prefs.setString("groupName", groupName.toString())
-                GajaMapApplication.prefs.setString("clientId", clientId.toString())
-                GajaMapApplication.prefs.setString("groupId", groupId.toString())
-                it.clients[position].image.filePath?.let { it1 ->
-                    GajaMapApplication.prefs.setString("image",
-                        it1
-                    )
-                }
-                val name = it.clients[position].clientName
-                val address1 = it.clients[position].address.mainAddress
-                val address2 = it.clients[position].address.detail
-                val phone = it.clients[position].phoneNumber
-                val latitude = it.clients[position].location.latitude
-                val longitude = it.clients[position].location.longitude
-                GajaMapApplication.prefs.setString("name", name)
-                GajaMapApplication.prefs.setString("address1", address1)
-                GajaMapApplication.prefs.setString("address2", address2)
-                GajaMapApplication.prefs.setString("phone", phone)
-                GajaMapApplication.prefs.setString("latitude1", latitude.toString())
-                GajaMapApplication.prefs.setString("longitude1", longitude.toString())
-
-                // 고객 상세 정보 activity로 이동
-                val intent = Intent(activity, CustomerInfoActivity::class.java)
-                startActivity(intent)
-            }
-        })
-
-        //내비게이션
-        customerListAdapter.setItemClickListener(object :
-            CustomerListAdapter.ItemClickListener{
-            override fun onClick(v: View, position: Int) {
-                val latitude = it.clients[position].location.latitude
-                val longitude = it.clients[position].location.longitude
-                val name = it.clients[position].clientName
-                //카카오내비
-                // 카카오내비 앱으로 길 안내
-                if (NaviClient.instance.isKakaoNaviInstalled(requireContext())) {
-                    // 카카오내비 앱으로 길 안내 - WGS84
-                    startActivity(
-                        NaviClient.instance.navigateIntent(
-                            //위도 경도를 장소이름으로 바꿔주기
-                            Location(name, longitude.toString(), latitude.toString()),
-                            NaviOption(coordType = CoordType.WGS84)
-                        )
-                    )
-                } else {
-                    // 카카오내비 설치 페이지로 이동
-                    startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(Constants.WEB_NAVI_INSTALL)
-                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    )
-                }
-
-            }
-
-        })
-    }*/
 
     fun filterClientList(searchText: String) {
 

@@ -64,8 +64,8 @@ interface ApiInterface {
         @Part("phoneNumber") phoneNumber : RequestBody,
         @Part("mainAddress") mainAddress : RequestBody,
         @Part("detail") detail : RequestBody,
-        @Part("latitude") latitude : RequestBody,
-        @Part("longitude") longitude : RequestBody,
+        @Part("latitude") latitude : Double?,
+        @Part("longitude") longitude : Double?,
         @Part clientImage : MultipartBody.Part?,
         @Part("isBasicImage") isBasicImage : RequestBody
     ): Response<Client>

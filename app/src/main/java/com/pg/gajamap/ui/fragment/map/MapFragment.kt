@@ -341,7 +341,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         searchResultAdapter.setItemClickListener(object : SearchResultAdapter.OnItemClickListener{
             override fun onClick(v: View, position: Int, index: Int) {
                 val itemData = UserData.clientListResponse?.clients?.get(index)
-                val mapPoint = MapPoint.mapPointWithGeoCoord(itemData!!.location.latitude, itemData.location.longitude)
+                val mapPoint = MapPoint.mapPointWithGeoCoord(itemData!!.location.latitude!!, itemData.location.longitude!!)
                 binding.mapView.setMapCenterPoint(mapPoint, true)
             }
         })
@@ -641,7 +641,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         itemName = itemdata.clientName
                         tag = itemdata.clientId.toInt()
                         mapPoint =
-                            MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+                            MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
                         markerType = MapPOIItem.MarkerType.BluePin
                         selectedMarkerType = MapPOIItem.MarkerType.RedPin
                     }
@@ -677,7 +677,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         itemName = itemdata.clientName
                         tag = itemdata.clientId.toInt()
                         mapPoint =
-                            MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+                            MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
                         markerType = MapPOIItem.MarkerType.BluePin
                         selectedMarkerType = MapPOIItem.MarkerType.RedPin
                     }
@@ -702,12 +702,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             binding.mapView.removeAllPOIItems()
             for (i in 0..num-1) {
                 val itemdata = data.get(i)
+                if(itemdata.location.latitude == null)
+                    continue
                 // 지도에 마커 추가
                 val point = MapPOIItem()
                 point.apply {
                     itemName = itemdata.clientName
                     tag = itemdata.clientId.toInt()
-                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
                 }
@@ -732,12 +734,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             binding.mapView.removeAllPOIItems()
             for (i in 0..num-1) {
                 val itemdata = data.get(i)
+                if(itemdata.location.latitude == null)
+                    continue
                 // 지도에 마커 추가
                 val point = MapPOIItem()
                 point.apply {
                     itemName = itemdata.clientName
                     tag = itemdata.clientId.toInt()
-                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+
+                    mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
                 }
@@ -922,14 +927,17 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         val clientNum = UserData.clientListResponse!!.clients.size
 
         for (i in 0..clientNum-1){
+
             val itemdata = UserData.clientListResponse!!.clients.get(i)
+            if(itemdata.location.latitude == null)
+                continue
             // 지도에 마커 추가
             val point = MapPOIItem()
             point.apply {
                 itemName = itemdata.clientName
                 tag = itemdata.clientId.toInt()
                 mapPoint =
-                    MapPoint.mapPointWithGeoCoord(itemdata.location.latitude, itemdata.location.longitude)
+                    MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
                 markerType = MapPOIItem.MarkerType.BluePin
                 selectedMarkerType = MapPOIItem.MarkerType.RedPin
             }

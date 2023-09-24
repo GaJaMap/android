@@ -1,20 +1,10 @@
 package com.pg.gajamap.ui.fragment.setting
 
-import android.content.pm.PackageManager
-import android.widget.ArrayAdapter
-import androidx.core.content.ContextCompat.checkSelfPermission
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
-import com.pg.gajamap.BR
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.provider.ContactsContract
-import android.widget.Toast
-import androidx.core.content.ContextCompat
-import com.pg.gajamap.R
-import com.pg.gajamap.base.BaseFragment
-import com.pg.gajamap.databinding.FragmentPhoneBinding
 import android.provider.Settings
 import android.telephony.PhoneNumberUtils
 import android.util.Log
@@ -22,12 +12,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.pg.gajamap.base.GajaMapApplication
+import com.pg.gajamap.BR
+import com.pg.gajamap.R
+import com.pg.gajamap.base.BaseFragment
 import com.pg.gajamap.base.UserData
 import com.pg.gajamap.data.model.Address
 import com.pg.gajamap.data.model.Client
@@ -37,6 +35,7 @@ import com.pg.gajamap.data.model.GroupInfoResponse
 import com.pg.gajamap.data.model.Image
 import com.pg.gajamap.data.model.Location
 import com.pg.gajamap.data.model.PostKakaoPhoneRequest
+import com.pg.gajamap.databinding.FragmentPhoneBinding
 import com.pg.gajamap.ui.adapter.PhoneListAdapter
 import com.pg.gajamap.viewmodel.ClientViewModel
 
@@ -190,7 +189,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                 val number =
                     PhoneNumberUtils.formatNumber(contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)))
 
-                if (name.length <= 20) {
+                if (name.length <= 10) {
                     // 중복 확인
                     val isDuplicate = list.any { existingContact ->
                         existingContact.name == name && existingContact.number == number
@@ -305,8 +304,8 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                                                         ), // 적절한 값으로 대체하세요
                                                         image = Image(null, null), // 적절한 값으로 대체하세요
                                                         location = Location(
-                                                            0.0,
-                                                            0.0
+                                                            null,
+                                                            null
                                                         ), // 적절한 값으로 대체하세요
                                                         phoneNumber = selectedClient.phoneNumber, // 선택된 클라이언트의 전화번호를 사용합니다
                                                         createdAt = "" // 적절한 값으로 대체하세요
@@ -329,7 +328,6 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                                 })
 
                         }
-                        //GajaMapApplication.prefs.setString("groupIdSpinner", groupId.toString())
                     } else {
                         groupId = -1L
                         chkBtnActivate()
