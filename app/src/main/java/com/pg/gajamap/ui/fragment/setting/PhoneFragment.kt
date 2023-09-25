@@ -74,6 +74,15 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
 
     override fun onCreateAction() {
 
+//        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+//            override fun handleOnBackPressed() {
+//                parentFragmentManager.beginTransaction()
+//                    .replace(R.id.menu_setting, SettingFragment())
+//                    .addToBackStack(null)
+//                    .commit()
+//            }
+//        })
+
         hideBottomNavigation(true)
 
         //var groupInfo = UserData.groupinfo

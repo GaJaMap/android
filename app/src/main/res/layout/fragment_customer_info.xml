@@ -143,15 +143,27 @@
                 app:layout_constraintTop_toBottomOf="@+id/info_profile_address_tv1"
                 app:layout_constraintStart_toEndOf="@+id/info_profile_address"/>
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/info_profile_address_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_info_car"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/item_profile_car_btn"
+                android:layout_width="46dp"
+                android:layout_height="25dp"
                 android:layout_marginEnd="25dp"
+                android:background="@drawable/ic_item_car_background"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/info_profile_address_tv2"
-                app:layout_constraintBottom_toBottomOf="@+id/info_profile_address_tv2"/>
+                app:layout_constraintBottom_toBottomOf="@+id/info_profile_address_tv2">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_item_car"
+                    android:layout_marginTop="3dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/info_profile_phone"
@@ -175,15 +187,27 @@
                 app:layout_constraintBottom_toBottomOf="@+id/info_profile_phone"
                 app:layout_constraintStart_toEndOf="@+id/info_profile_phone"/>
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/info_profile_phone_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_info_phone_btn"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/item_profile_phone_btn"
+                android:layout_width="46dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/ic_item_car_background"
                 android:layout_marginEnd="25dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/info_profile_phone_tv"
-                app:layout_constraintBottom_toBottomOf="@+id/info_profile_phone_tv"/>
+                app:layout_constraintBottom_toBottomOf="@+id/info_profile_phone_tv">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_item_phone"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <View
                 android:id="@+id/line"

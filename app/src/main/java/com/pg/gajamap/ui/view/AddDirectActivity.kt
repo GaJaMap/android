@@ -340,16 +340,7 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
     // 콜백 인스턴스 생성
     private val callback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            // 뒤로가기 버튼 이벤트 처리
-            if(System.currentTimeMillis() - backPressedTime >= 2000) {
-                backPressedTime = System.currentTimeMillis()
-                Toast.makeText(this@AddDirectActivity, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
-            } else {
-                // 앱 자체 종료하기
-                ActivityCompat.finishAffinity(this@AddDirectActivity)
-                System.runFinalization()
-                System.exit(0)
-            }
+            finish()
         }
     }
 }

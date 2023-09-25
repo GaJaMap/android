@@ -5,5 +5,7 @@ data class ViewPagerData(
     var name: String,
     var address: String,
     var phoneNumber: String,
-    var distance: Double?=null
+    var distance: Double?=null,
+    var latitude: Double?= null,
+    var longitude: Double? = null
 )
