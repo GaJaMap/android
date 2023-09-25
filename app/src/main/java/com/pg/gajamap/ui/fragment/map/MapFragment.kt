@@ -403,97 +403,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             if(!kmBtn){
                 // km 버튼 클릭 상태로 변경
                 // GPS가 켜져있을 경우
-                if (checkLocationService()) {
-                    val a = permissionCheck()
-                    kmBtn = true
-                    val bgShape = binding.ibKm.background as GradientDrawable
-                    bgShape.setColor(resources.getColor(R.color.main))
-                    binding.ibKm.setImageResource(R.drawable.ic_white_km)
-                    binding.clKm.visibility = View.VISIBLE
 
-                    // 자신의 현재 위치를 기준으로 반경 3km, 5km에 위치한 전체 고객 정보 가져오기
-                    binding.btn3km.setOnClickListener {
-                        if(!threeCheck){
-                            if(fiveCheck){
-                                fiveCheck = false
-                                binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
-                                binding.btn5km.setTextColor(resources.getColor(R.color.main))
-                            }
-                            threeCheck = true
-                            binding.btn3km.setBackgroundResource(R.drawable.bg_km_click)
-                            binding.btn3km.setTextColor(resources.getColor(R.color.white))
+                searchLocationsGPS()
+                
 
-                            if (a.first != 0.0 && a.second != 0.0){
-                                if (binding.tvSearch.text == "전체"){
-                                    wholeRadius(3000, a.first, a.second)
-                                }
-                                else{
-                                    specificRadius(3000, a.first, a.second, itemId)
-                                }
-                            }
-                        }
-                        // 3km 버튼이 이미 눌려있을 경우
-                        else{
-                            threeCheck = false
-                            binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
-                            binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
-                            binding.btn3km.setTextColor(resources.getColor(R.color.main))
-                        }
-                        // 3km 버튼 누를 시 해당 버튼 창 없애기
-                        binding.clKm.visibility = View.GONE
-
-                        if(!threeCheck && !fiveCheck){
-                            kmBtn = false
-                            val bgShapebtn = binding.ibKm.background as GradientDrawable
-                            bgShapebtn.setColor(resources.getColor(R.color.white))
-                            binding.ibKm.setImageResource(R.drawable.ic_km)
-                            getGroupClient(UserData.groupinfo!!.groupId, UserData.groupinfo!!.groupName)
-                        }
-                    }
-
-                    binding.btn5km.setOnClickListener {
-                        if(!fiveCheck) {
-                            if (threeCheck) {
-                                threeCheck = false
-                                binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
-                                binding.btn3km.setTextColor(resources.getColor(R.color.main))
-                            }
-
-                            fiveCheck = true
-                            binding.btn5km.setBackgroundResource(R.drawable.bg_km_click)
-                            binding.btn5km.setTextColor(resources.getColor(R.color.white))
-
-                            if (a.first != 0.0 && a.second != 0.0) {
-                                if (binding.tvSearch.text == "전체") {
-                                    wholeRadius(5000, a.first, a.second)
-                                } else {
-                                    specificRadius(5000, a.first, a.second, itemId)
-                                }
-                            }
-                        }
-                        // 5km 버튼이 이미 눌려있을 경우
-                        else{
-                            fiveCheck = false
-                            binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
-                            binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
-                            binding.btn5km.setTextColor(resources.getColor(R.color.main))
-                        }
-
-                        // 5km 버튼 누를 시 해당 버튼 창 없애기
-                        binding.clKm.visibility = View.GONE
-
-                        if(!threeCheck && !fiveCheck){
-                            kmBtn = false
-                            val bgShapebtn = binding.ibKm.background as GradientDrawable
-                            bgShapebtn.setColor(resources.getColor(R.color.white))
-                            binding.ibKm.setImageResource(R.drawable.ic_km)
-                            getGroupClient(UserData.groupinfo!!.groupId, UserData.groupinfo!!.groupName)
-                        }
-                    }
-                }else {
-                    // GPS가 꺼져있을 경우
-                    Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                if(!GPSBtn) {
+                    stopTracking()
                 }
+
             }
             else{
                 // 두 번 클릭 시 원상태로 돌아오게 하기
@@ -622,7 +539,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.wholeRadius.observe(this, Observer {
             if (viewModel.wholeRadius.value == null){
                 val builder = AlertDialog.Builder(requireContext())
-                builder.setMessage("현재 생성된 그룹이 없거나 등록된 고객이 없습니다.\n그룹 및 고객을 등록해주세요.")
+                builder.setMessage("시스템 오류")
                 builder.setPositiveButton("확인") { dialog, which ->
                 }
                 builder.show()
@@ -654,11 +571,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // 특정 그룹 내에 고객 대상 반경 검색 api
     private fun specificRadius(radius: Int, latitude: Double, longitude: Double, groupId: Long){
         viewModel.specificRadius(radius, latitude, longitude, groupId)
+        Log.d("specificGroupId",groupId.toString())
 
         viewModel.wholeRadius.observe(this, Observer {
             if (viewModel.wholeRadius.value == null){
                 val builder = AlertDialog.Builder(requireContext())
-                builder.setMessage("현재 생성된 그룹이 없거나 등록된 고객이 없습니다.\n그룹 및 고객을 등록해주세요.")
+                builder.setMessage("시스템 오류")
                 builder.setPositiveButton("확인") { dialog, which ->
                 }
                 builder.show()
@@ -945,6 +863,102 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         }
     }
 
+    private fun searchLocationsGPS() {
+        if (checkLocationService()) {
+            val a = permissionCheck()
+            kmBtn = true
+            val bgShape = binding.ibKm.background as GradientDrawable
+            bgShape.setColor(resources.getColor(R.color.main))
+            binding.ibKm.setImageResource(R.drawable.ic_white_km)
+            binding.clKm.visibility = View.VISIBLE
+
+            // 자신의 현재 위치를 기준으로 반경 3km, 5km에 위치한 전체 고객 정보 가져오기
+            binding.btn3km.setOnClickListener {
+                if(!threeCheck){
+                    if(fiveCheck){
+                        fiveCheck = false
+                        binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
+                        binding.btn5km.setTextColor(resources.getColor(R.color.main))
+                    }
+                    threeCheck = true
+                    binding.btn3km.setBackgroundResource(R.drawable.bg_km_click)
+                    binding.btn3km.setTextColor(resources.getColor(R.color.white))
+
+                    if (a.first != 0.0 && a.second != 0.0){
+                        if (binding.tvSearch.text == "전체"){
+                            wholeRadius(3000, a.first, a.second)
+                        }
+                        else{
+                            specificRadius(3000, a.first, a.second, UserData.groupinfo!!.groupId)
+                        }
+                        binding.mapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(a.first,a.second),false)
+                    }
+                }
+                // 3km 버튼이 이미 눌려있을 경우
+                else{
+                    threeCheck = false
+                    binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
+                    binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
+                    binding.btn3km.setTextColor(resources.getColor(R.color.main))
+                }
+                // 3km 버튼 누를 시 해당 버튼 창 없애기
+                binding.clKm.visibility = View.GONE
+
+                if(!threeCheck && !fiveCheck){
+                    kmBtn = false
+                    val bgShapebtn = binding.ibKm.background as GradientDrawable
+                    bgShapebtn.setColor(resources.getColor(R.color.white))
+                    binding.ibKm.setImageResource(R.drawable.ic_km)
+                    getGroupClient(UserData.groupinfo!!.groupId, UserData.groupinfo!!.groupName)
+                }
+            }
+
+            binding.btn5km.setOnClickListener {
+                if(!fiveCheck) {
+                    if (threeCheck) {
+                        threeCheck = false
+                        binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
+                        binding.btn3km.setTextColor(resources.getColor(R.color.main))
+                    }
+
+                    fiveCheck = true
+                    binding.btn5km.setBackgroundResource(R.drawable.bg_km_click)
+                    binding.btn5km.setTextColor(resources.getColor(R.color.white))
+
+                    if (a.first != 0.0 && a.second != 0.0) {
+                        if (binding.tvSearch.text == "전체") {
+                            wholeRadius(5000, a.first, a.second)
+                        } else {
+                            specificRadius(5000, a.first, a.second, UserData.groupinfo!!.groupId)
+                        }
+                        binding.mapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(a.first,a.second),false)
+                    }
+                }
+                // 5km 버튼이 이미 눌려있을 경우
+                else{
+                    fiveCheck = false
+                    binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
+                    binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
+                    binding.btn5km.setTextColor(resources.getColor(R.color.main))
+                }
+
+                // 5km 버튼 누를 시 해당 버튼 창 없애기
+                binding.clKm.visibility = View.GONE
+
+                if(!threeCheck && !fiveCheck){
+                    kmBtn = false
+                    val bgShapebtn = binding.ibKm.background as GradientDrawable
+                    bgShapebtn.setColor(resources.getColor(R.color.white))
+                    binding.ibKm.setImageResource(R.drawable.ic_km)
+                    getGroupClient(UserData.groupinfo!!.groupId, UserData.groupinfo!!.groupName)
+                }
+            }
+        }else {
+            // GPS가 꺼져있을 경우
+            Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun plusBtnInactivation(){
         plusBtn = false
         val bgShape = binding.ibPlus.background as GradientDrawable
@@ -1051,4 +1065,5 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     override fun onDraggablePOIItemMoved(p0: MapView?, p1: MapPOIItem?, p2: MapPoint?) {
     }
+
 }
