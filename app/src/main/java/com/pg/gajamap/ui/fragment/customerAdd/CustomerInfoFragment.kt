@@ -105,13 +105,13 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
                 .commit()
         }
 
-        binding.infoProfilePhoneBtn.setOnClickListener {
+        binding.itemProfileCarBtn.setOnClickListener {
             val intent = Intent(Intent.ACTION_DIAL)
             intent.data = Uri.parse("tel:${binding.infoProfilePhoneTv.text}.")
             binding.root.context.startActivity(intent)
         }
 
-        binding.infoProfileAddressBtn.setOnClickListener {
+        binding.itemProfilePhoneBtn.setOnClickListener {
             latitude = requireActivity().intent.getDoubleExtra("latitude", 0.0)
             if(latitude == 0.0) {
                 latitude = null

@@ -24,12 +24,8 @@ class CustomerListAdapter(private var dataList: List<Client>) :
 
     inner class ViewHolder(private val binding: ItemListBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        val button1: CircleImageView = binding.itemProfileImg
-        val button2: TextView = binding.itemProfileName
-        val button3: TextView = binding.itemProfileAddressDetail
-        val button4: TextView = binding.itemProfileAddress
-        val button5: TextView = binding.itemProfilePhoneDetail
-        val button6: TextView = binding.itemProfilePhone
+
+        val mainCardView = binding.cardview
         val buttonNavi: ConstraintLayout = binding.itemProfileCarBtn
 
         init {
@@ -56,10 +52,10 @@ class CustomerListAdapter(private var dataList: List<Client>) :
                 val distance1 = "- " + "km"
                 binding.itemProfileDistance.text = distance1
             } else {
-                val distance = data.distance.toString()
-                Log.d("distance", distance.toString())
-                val distance1 = distance + "km"
-                binding.itemProfileDistance.text = distance1
+                val distanceInMeters = data.distance // data.distance는 미터(m) 단위로 가정
+                val distanceInKilometers = distanceInMeters?.div(1000.0) // 미터를 킬로미터로 변환
+                val formattedDistance = String.format("%.1f km", distanceInKilometers) // 소수점 한 자리까지 표시
+                binding.itemProfileDistance.text = formattedDistance
             }
             val imageUrl = UserData.imageUrlPrefix
             val file = imageUrl + data.image.filePath
@@ -91,22 +87,7 @@ class CustomerListAdapter(private var dataList: List<Client>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(dataList[position])
 
-        holder.button1.setOnClickListener {
-            intentToData(it, position)
-        }
-        holder.button2.setOnClickListener {
-            intentToData(it, position)
-        }
-        holder.button3.setOnClickListener {
-            intentToData(it, position)
-        }
-        holder.button4.setOnClickListener {
-            intentToData(it, position)
-        }
-        holder.button5.setOnClickListener {
-            intentToData(it, position)
-        }
-        holder.button6.setOnClickListener {
+        holder.mainCardView.setOnClickListener {
             intentToData(it, position)
         }
         holder.buttonNavi.setOnClickListener {
