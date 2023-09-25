@@ -49,6 +49,7 @@ import com.pg.gajamap.ui.view.AddDirectActivity
 import com.pg.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.pg.gajamap.data.model.AutoLoginGroupInfo
+import com.pg.gajamap.ui.view.MainActivity
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapReverseGeoCoder
@@ -80,8 +81,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     val searchResultAdapter = SearchResultAdapter(searchResultList)
     // viewpager 설정
     private val viewpagerList = arrayListOf<ViewPagerData>()
-    val viewpagerAdapter = ViewPagerAdapter(viewpagerList)
+
     var sheetView : DialogAddGroupBottomSheetBinding? = null
+    private var mActivity: MainActivity? = null
+    private val viewpagerAdapter: ViewPagerAdapter by lazy { ViewPagerAdapter(viewpagerList, mActivity as Context) }
+
     private var keyword = "" // 검색 키워드
     var gid: Long = 0
     var itemId: Long = 0
@@ -105,6 +109,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.lifecycleOwner = this@MapFragment
         binding.fragment = this@MapFragment
     }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is MainActivity) {
+            mActivity = context
+        }
+    }
+
+
 
     @SuppressLint("ResourceAsColor")
     override fun onCreateAction() {
@@ -710,18 +723,18 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
             if(itemdata.image.filePath != null){
                 if(itemdata.distance == null){
-                    viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null))
+                    viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null, itemdata.location.latitude, itemdata.location.longitude))
 
                 }else{
-                    viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance))
+                    viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance, itemdata.location.latitude, itemdata.location.longitude))
                 }
             }
             else{
                 if(itemdata.distance == null){
-                    viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null))
+                    viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null, itemdata.location.latitude, itemdata.location.longitude))
 
                 }else{
-                    viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance))
+                    viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance, itemdata.location.latitude, itemdata.location.longitude))
                 }
             }
         }
