@@ -35,7 +35,6 @@ import com.pg.gajamap.api.retrofit.KakaoSearchClient
 import com.pg.gajamap.base.BaseFragment
 import com.pg.gajamap.base.GajaMapApplication
 import com.pg.gajamap.base.UserData
-import com.pg.gajamap.data.model.GetAllClientResponse
 import com.pg.gajamap.data.model.ViewPagerData
 import com.pg.gajamap.data.response.*
 import com.pg.gajamap.databinding.DialogAddGroupBottomSheetBinding
@@ -263,7 +262,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 sheetView!!.tvAddgroupMain.text = gname
                 pos = position
 
-                // todo: 확인하기
                 // 그룹 더보기 아이템 클릭 시 반경 버튼 비활성화
                 // 만약 3km나 5km 버튼이 활성화되어있을 경우는 km버튼도 활성화 되어있는 것이므로 같이 처리
                 if(threeCheck) {
@@ -584,8 +582,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     point.apply {
                         itemName = itemdata.clientName
                         tag = itemdata.clientId.toInt()
-                        mapPoint =
-                            MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
+                        mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
+                        userObject = itemdata.location
                         markerType = MapPOIItem.MarkerType.BluePin
                         selectedMarkerType = MapPOIItem.MarkerType.RedPin
                     }
@@ -620,8 +618,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     point.apply {
                         itemName = itemdata.clientName
                         tag = itemdata.clientId.toInt()
-                        mapPoint =
-                            MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
+                        mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
+                        userObject = itemdata.location
                         markerType = MapPOIItem.MarkerType.BluePin
                         selectedMarkerType = MapPOIItem.MarkerType.RedPin
                     }
@@ -654,6 +652,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     itemName = itemdata.clientName
                     tag = itemdata.clientId.toInt()
                     mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
+                    userObject = itemdata.location
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
                 }
@@ -685,8 +684,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 point.apply {
                     itemName = itemdata.clientName
                     tag = itemdata.clientId.toInt()
-
                     mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
+                    userObject = itemdata.location
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
                 }
@@ -694,23 +693,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
         })
     }
-
-    // todo: 기능 작동 후 삭제 예정
-//    // 전체 고객 검색 -> 조회할 고객 이름 검색 api
-//    private fun getAllClientName(name : String){
-//        viewModel.getAllClientName(name)
-//        viewModel.allClientsName.observe(this, Observer {
-//            getClientList(viewModel.allClientsName.value!!)
-//        })
-//    }
-//
-//    // 특정 그룹 내 고객 검색 -> 위도 경도 값으로 찾기
-//    private fun getGroupAllClientName(name : String, groupId: Long){
-//        viewModel.getGroupAllClientName(name, groupId)
-//        viewModel.groupClientsName.observe(this, Observer {
-//            getClientList(viewModel.groupClientsName.value!!)
-//        })
-//    }
 
     override fun onResume() {
         super.onResume()
@@ -727,17 +709,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         clearMapTilePersistentCache()
     }
 
-    // todo : 확인하기
-    // getMapPoint() 함수를 이용해 마커 클릭 시 해당 위도 경도값을 사용하여 해당하는 고객들 뷰페이저로 띄우기
     // ViewPager에 들어갈 아이템
-    private fun getClientList(lat : Double, lon : Double) {
+    private fun getClientList(userObject: Any) {
         viewpagerList.clear()
-
         val size = UserData.clientListResponse!!.clients.size
+
         for (i in 0..size-1){
             val itemdata = UserData.clientListResponse!!.clients.get(i)
 
-            if(lat == itemdata.location.latitude && lon == itemdata.location.longitude){
+            if(userObject == itemdata.location){
                 if(itemdata.image.filePath != null){
                     if(itemdata.distance == null){
                         viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null, itemdata.location.latitude, itemdata.location.longitude))
@@ -751,22 +731,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null, itemdata.location.latitude, itemdata.location.longitude))
 
                     }else {
-                        viewpagerList.add(
-                            ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance, itemdata.location.latitude, itemdata.location.longitude)
-                        )
+                        viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance, itemdata.location.latitude, itemdata.location.longitude))
                     }
                 }
             }
         }
-
-
-//        val size = data.clients.size
-
-//        for (i in 0..size-1){
-//            val itemdata = data.clients.get(i)
-//
-//
-//        }
 
         binding.vpClient.adapter = viewpagerAdapter
         searchResultAdapter.notifyDataSetChanged()
@@ -813,8 +782,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 val point = MapPOIItem()
                 point.apply {
                     itemName = document.place_name
-                    mapPoint =
-                        MapPoint.mapPointWithGeoCoord(document.y.toDouble(), document.x.toDouble())
+                    mapPoint = MapPoint.mapPointWithGeoCoord(document.y.toDouble(), document.x.toDouble())
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
                 }
@@ -896,8 +864,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             point.apply {
                 itemName = itemdata.clientName
                 tag = itemdata.clientId.toInt()
-                mapPoint =
-                    MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
+                mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
+                userObject = itemdata.location
                 markerType = MapPOIItem.MarkerType.BluePin
                 selectedMarkerType = MapPOIItem.MarkerType.RedPin
             }
@@ -1092,16 +1060,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.ibKm.visibility = View.GONE
         binding.clKm.visibility = View.GONE
 
-        // getMapPoint() 함수를 이용해 마커 클릭 시 해당 위도 경도값을 사용하여 해당하는 고객들 뷰페이저로 띄우기
-        getClientList(p1!!.mapPoint.mapPointGeoCoord.latitude, p1.mapPoint.mapPointGeoCoord.longitude)
-
-//        if(pos == 0){
-//
-//            getAllClientName(p1!!.itemName)
-//        }
-//        else{
-//            getGroupAllClientName(p1!!.itemName, itemId)
-//        }
+        // 마커 클릭 시 해당 위도 경도값을 사용하여 일치하는 고객들 뷰페이저로 띄우기
+        getClientList(p1!!.userObject)
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {
