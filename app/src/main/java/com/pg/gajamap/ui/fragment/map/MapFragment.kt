@@ -81,11 +81,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     val searchResultAdapter = SearchResultAdapter(searchResultList)
     // viewpager 설정
     private val viewpagerList = arrayListOf<ViewPagerData>()
-
     var sheetView : DialogAddGroupBottomSheetBinding? = null
     private var mActivity: MainActivity? = null
     private val viewpagerAdapter: ViewPagerAdapter by lazy { ViewPagerAdapter(viewpagerList, mActivity as Context) }
-
     private var keyword = "" // 검색 키워드
     var gid: Long = 0
     var itemId: Long = 0
@@ -117,8 +115,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         }
     }
 
-
-
     @SuppressLint("ResourceAsColor")
     override fun onCreateAction() {
         // 지도 타일 이미지 Persistent Cache 기능 : 네트워크를 통해 다운로드한 지도 이미지 데이터를 단말의 영구(persistent) 캐쉬 영역에 저장하는 기능
@@ -149,6 +145,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
         // 추가한 그룹이 존재하는지 확인한 뒤에 그룹을 추가하라는 다이얼로그를 띄울지 말지 결정해야 하기에 일단 여기에서 호출
         checkGroup()
+
         // GPS 권한 설정
         binding.ibGps.setOnClickListener {
             if(!GPSBtn){
@@ -265,6 +262,25 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 binding.tvSearch.text = gname
                 sheetView!!.tvAddgroupMain.text = gname
                 pos = position
+
+                // 그룹 더보기 아이템 클릭 시 반경 버튼 비활성화
+                // 만약 3km나 5km 버튼이 활성화되어있을 경우는 km버튼도 활성화 되어있는 것이므로 같이 처리
+                if(threeCheck) {
+                    threeCheck = false
+                    binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
+                    binding.btn3km.setTextColor(resources.getColor(R.color.main))
+                }
+                if(fiveCheck){
+                    fiveCheck = false
+                    binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
+                    binding.btn5km.setTextColor(resources.getColor(R.color.main))
+                }
+
+                kmBtn = false
+                val bgShapebtn = binding.ibKm.background as GradientDrawable
+                bgShapebtn.setColor(resources.getColor(R.color.white))
+                binding.ibKm.setImageResource(R.drawable.ic_km)
+                binding.clKm.visibility = View.GONE
 
                 if (position == 0){
                     getAllClient()
@@ -416,14 +432,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             if(!kmBtn){
                 // km 버튼 클릭 상태로 변경
                 // GPS가 켜져있을 경우
-
                 searchLocationsGPS()
-                
 
                 if(!GPSBtn) {
                     stopTracking()
                 }
-
             }
             else{
                 // 두 번 클릭 시 원상태로 돌아오게 하기
@@ -690,7 +703,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         })
     }
 
-    // 특정 그룹 내 고객 검색 -> 조회할 고객 이름 검색 api
+    // 특정 그룹 내 고객 검색 -> 위도 경도 값으로 찾기
     private fun getGroupAllClientName(name : String, groupId: Long){
         viewModel.getGroupAllClientName(name, groupId)
         viewModel.groupClientsName.observe(this, Observer {
@@ -927,6 +940,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             }
 
             binding.btn5km.setOnClickListener {
+
                 if(!fiveCheck) {
                     if (threeCheck) {
                         threeCheck = false
@@ -1032,12 +1046,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {
+
     }
 
     override fun onMapViewLongPressed(p0: MapView?, p1: MapPoint?) {
+
     }
 
     override fun onMapViewDragStarted(p0: MapView?, p1: MapPoint?) {
+
     }
 
     override fun onMapViewDragEnded(p0: MapView?, p1: MapPoint?) {
@@ -1050,6 +1067,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     override fun onMapViewMoveFinished(p0: MapView?, p1: MapPoint?) {
 
     }
+
     // 마커 클릭 시 호출되는 콜백 메서드
     override fun onPOIItemSelected(p0: MapView?, p1: MapPOIItem?) {
         binding.clCardview.visibility = View.VISIBLE
@@ -1067,6 +1085,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {
+
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(
@@ -1074,9 +1093,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         p1: MapPOIItem?,
         p2: MapPOIItem.CalloutBalloonButtonType?
     ) {
+
     }
 
     override fun onDraggablePOIItemMoved(p0: MapView?, p1: MapPOIItem?, p2: MapPoint?) {
-    }
 
+    }
 }
