@@ -263,7 +263,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 sheetView!!.tvAddgroupMain.text = gname
                 pos = position
 
-                // todo: 확인하기
                 // 그룹 더보기 아이템 클릭 시 반경 버튼 비활성화
                 // 만약 3km나 5km 버튼이 활성화되어있을 경우는 km버튼도 활성화 되어있는 것이므로 같이 처리
                 if(threeCheck) {
@@ -758,15 +757,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 }
             }
         }
-
-
-//        val size = data.clients.size
-
-//        for (i in 0..size-1){
-//            val itemdata = data.clients.get(i)
-//
-//
-//        }
 
         binding.vpClient.adapter = viewpagerAdapter
         searchResultAdapter.notifyDataSetChanged()
