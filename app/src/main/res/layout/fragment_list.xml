@@ -81,7 +81,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/nanumsquareneo_bold"
-                    android:text="@string/list_search_tv"
+                    android:text="@string/addgroup_total"
                     android:textAlignment="center"
                     android:textColor="@color/white"
                     android:textSize="14sp"
