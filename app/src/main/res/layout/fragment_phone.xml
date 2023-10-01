@@ -29,8 +29,8 @@
             android:id="@+id/top_back_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="18dp"
             android:src="@drawable/ic_back_btn"
-            android:layout_marginStart="14dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -43,7 +43,6 @@
             android:textStyle="bold"
             android:textColor="@color/black"
             android:textSize="16sp"
-            android:layout_marginStart="18dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toEndOf="@+id/top_back_btn"/>
