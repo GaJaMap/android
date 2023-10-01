@@ -51,30 +51,50 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         // 프래그먼트 초기화 및 추가
         setFragment(TAG_MAP, mapFragment!!)
 
+//        bnMain.setOnItemSelectedListener { menuItem ->
+//            val transaction = supportFragmentManager.beginTransaction()
+//
+//            when (menuItem.itemId) {
+//                R.id.menu_map -> {
+//                    val mapFragment = MapFragment()
+//                    // 현재 표시 중인 프래그먼트를 제거
+//                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+//                    transaction.replace(R.id.nav_fl, mapFragment, TAG_MAP)
+//                }
+//                R.id.menu_list -> {
+//                    val listFragment = ListFragment()
+//                    // 현재 표시 중인 프래그먼트를 제거
+//                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+//                    transaction.replace(R.id.nav_fl, listFragment, TAG_LIST)
+//                }
+//                R.id.menu_setting -> {
+//                    val settingFragment = SettingFragment()
+//                    // 현재 표시 중인 프래그먼트를 제거
+//                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+//                    transaction.replace(R.id.nav_fl, settingFragment, TAG_SETTING)
+//                }
+//            }
+//
+//            transaction.commit()
+//            true
+//        }
+
         bnMain.setOnItemSelectedListener { menuItem ->
             val transaction = supportFragmentManager.beginTransaction()
 
             when (menuItem.itemId) {
                 R.id.menu_map -> {
-                    val mapFragment = MapFragment()
-                    // 현재 표시 중인 프래그먼트를 제거
-                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                    transaction.replace(R.id.nav_fl, mapFragment, TAG_MAP)
+                    transaction.replace(R.id.nav_fl, MapFragment(), TAG_MAP)
                 }
                 R.id.menu_list -> {
-                    val listFragment = ListFragment()
-                    // 현재 표시 중인 프래그먼트를 제거
-                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                    transaction.replace(R.id.nav_fl, listFragment, TAG_LIST)
+                    transaction.replace(R.id.nav_fl, ListFragment(), TAG_LIST)
                 }
                 R.id.menu_setting -> {
-                    val settingFragment = SettingFragment()
-                    // 현재 표시 중인 프래그먼트를 제거
-                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                    transaction.replace(R.id.nav_fl, settingFragment, TAG_SETTING)
+                    transaction.replace(R.id.nav_fl, SettingFragment(), TAG_SETTING)
                 }
             }
 
+            transaction.addToBackStack(null)
             transaction.commit()
             true
         }

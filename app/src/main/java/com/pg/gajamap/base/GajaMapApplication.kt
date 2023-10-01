@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 class GajaMapApplication : Application() {
 
-    val API_URL = "http://52.79.103.19:8080/"
+    val API_URL = "https://gajamap.com/"
 
     companion object {
         lateinit var instance: GajaMapApplication
