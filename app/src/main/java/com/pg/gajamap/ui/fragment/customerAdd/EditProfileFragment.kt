@@ -87,11 +87,9 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         binding.infoProfilePhoneEt.addTextChangedListener(PhoneNumberFormattingTextWatcher())
 
         if(image != null){
-            val imageUrl = UserData.imageUrlPrefix
-            val file = imageUrl + image
 
             Glide.with(binding.infoProfileImg.context)
-                .load(file)
+                .load(image)
                 .fitCenter()
                 .apply(RequestOptions().override(500,500))
                 .error(R.drawable.profile_img_origin)

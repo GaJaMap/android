@@ -720,18 +720,18 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             if(userObject == itemdata.location){
                 if(itemdata.image.filePath != null){
                     if(itemdata.distance == null){
-                        viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null, itemdata.location.latitude, itemdata.location.longitude))
+                        viewpagerList.add(ViewPagerData(itemdata.clientId, itemdata.groupInfo.groupId,UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.address.detail, itemdata.phoneNumber, null, itemdata.location.latitude, itemdata.location.longitude))
 
                     }else{
-                        viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance, itemdata.location.latitude, itemdata.location.longitude))
+                        viewpagerList.add(ViewPagerData(itemdata.clientId, itemdata.groupInfo.groupId,UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.address.detail, itemdata.phoneNumber, itemdata.distance, itemdata.location.latitude, itemdata.location.longitude))
                     }
                 }
                 else{
                     if(itemdata.distance == null){
-                        viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null, itemdata.location.latitude, itemdata.location.longitude))
+                        viewpagerList.add(ViewPagerData(itemdata.clientId, itemdata.groupInfo.groupId,"null", itemdata.clientName, itemdata.address.mainAddress, itemdata.address.detail, itemdata.phoneNumber, null, itemdata.location.latitude, itemdata.location.longitude))
 
                     }else {
-                        viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance, itemdata.location.latitude, itemdata.location.longitude))
+                        viewpagerList.add(ViewPagerData(itemdata.clientId, itemdata.groupInfo.groupId,"null", itemdata.clientName, itemdata.address.mainAddress, itemdata.address.detail, itemdata.phoneNumber, itemdata.distance, itemdata.location.latitude, itemdata.location.longitude))
                     }
                 }
             }
