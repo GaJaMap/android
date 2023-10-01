@@ -1,20 +1,19 @@
 package com.pg.gajamap.ui.fragment.customerList
 
-import android.view.View
-import android.widget.Toast
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.drawable.GradientDrawable
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -22,34 +21,25 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.pg.gajamap.BR
-import com.pg.gajamap.R
-import com.pg.gajamap.base.BaseFragment
-import com.pg.gajamap.base.GajaMapApplication
-import com.pg.gajamap.base.UserData
-import com.pg.gajamap.data.model.*
-import com.pg.gajamap.databinding.FragmentListBinding
-import com.pg.gajamap.ui.adapter.CustomerListAdapter
-import com.pg.gajamap.ui.view.CustomerInfoActivity
-import com.pg.gajamap.ui.view.EditListActivity
-import com.pg.gajamap.viewmodel.GetClientViewModel
 import com.kakao.sdk.navi.Constants
 import com.kakao.sdk.navi.NaviClient
 import com.kakao.sdk.navi.model.CoordType
 import com.kakao.sdk.navi.model.Location
 import com.kakao.sdk.navi.model.NaviOption
+import com.pg.gajamap.BR
+import com.pg.gajamap.R
+import com.pg.gajamap.base.BaseFragment
+import com.pg.gajamap.base.UserData
+import com.pg.gajamap.data.model.*
 import com.pg.gajamap.data.response.CreateGroupRequest
 import com.pg.gajamap.databinding.DialogAddGroupBottomSheetBinding
 import com.pg.gajamap.databinding.DialogGroupBinding
+import com.pg.gajamap.databinding.FragmentListBinding
+import com.pg.gajamap.ui.adapter.CustomerListAdapter
 import com.pg.gajamap.ui.adapter.GroupListAdapter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.daum.mf.map.api.MapPOIItem
-import net.daum.mf.map.api.MapPoint
+import com.pg.gajamap.ui.view.EditListActivity
+import com.pg.gajamap.viewmodel.GetClientViewModel
 
 class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
     private var groupId: Int = -1
@@ -127,6 +117,14 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
             binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
             binding.fragmentListCategory3.setBackgroundResource(R.drawable.list_distance_purple)
             state = 3
+
+            if (checkLocationService()) {
+                // GPS가 켜져있을 경우
+                permissionCheck()
+            } else {
+                // GPS가 꺼져있을 경우
+                Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+            }
 
             customerListAdapter.updateData(clientList!!.clients.sortedBy { it.distance })
         }
@@ -215,10 +213,8 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
 
                 if (position == 0){
                     getAllClient()
-
                 }else{
                     getGroupClient(gid, gname)
-
                 }
             }
         })
@@ -291,20 +287,6 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
             }
         })
 
-        //GPS 위치권한
-        binding.fragmentListCategory3.setOnClickListener {
-            binding.fragmentListCategory1.setBackgroundResource(R.drawable.fragment_list_category_background)
-            binding.fragmentListCategory2.setBackgroundResource(R.drawable.fragment_list_category_background)
-            binding.fragmentListCategory3.setBackgroundResource(R.drawable.list_distance_purple)
-
-            if (checkLocationService()) {
-                // GPS가 켜져있을 경우
-                permissionCheck()
-            } else {
-                // GPS가 꺼져있을 경우
-                Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
     // GPS가 켜져있는지 확인
@@ -403,11 +385,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
 
     fun ListRv(it: GetAllClientResponse) {
         customerListAdapter = CustomerListAdapter(it.clients)
-        binding.listRv.apply {
-            adapter = customerListAdapter
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-            customerListAdapter.updateData(it.clients.sortedBy { it.clientId }.reversed())
-        }
+        sortedRVList()
     }
 
     fun filterClientList(searchText: String) {
@@ -489,30 +467,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
             clientList = UserData.clientListResponse
             customerListAdapter = CustomerListAdapter(clientList!!.clients)
 
-            when (state) {
-                1 -> {
-
-                    binding.listRv.apply {
-                        adapter = customerListAdapter
-                        layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-                        customerListAdapter.updateData(clientList!!.clients.sortedBy { it.clientId }.reversed())
-                    }
-                }
-                2 -> {
-                    binding.listRv.apply {
-                        adapter = customerListAdapter
-                        layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-                        customerListAdapter.updateData(clientList!!.clients.sortedBy { it.clientId })
-                    }
-                }
-                3 -> {
-                    binding.listRv.apply {
-                        adapter = customerListAdapter
-                        layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-                        customerListAdapter.updateData(clientList!!.clients.sortedBy { it.distance })
-                    }
-                }
-            }
+            sortedRVList()
         })
     }
 
@@ -532,29 +487,21 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
             clientList = UserData.clientListResponse
             customerListAdapter = CustomerListAdapter(clientList!!.clients)
 
-            when (state) {
-                1 -> {
-                    binding.listRv.apply {
-                        adapter = customerListAdapter
-                        layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-                        customerListAdapter.updateData(clientList!!.clients.sortedBy { it.clientId }.reversed())
-                    }
-                }
-                2 -> {
-                    binding.listRv.apply {
-                        adapter = customerListAdapter
-                        layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-                        customerListAdapter.updateData(clientList!!.clients.sortedBy { it.clientId })
-                    }
-                }
-                3 -> {
-                    binding.listRv.apply {
-                        adapter = customerListAdapter
-                        layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-                        customerListAdapter.updateData(clientList!!.clients.sortedBy { it.distance })
-                    }
-                }
-            }
+            sortedRVList()
         })
+    }
+
+    private fun sortedRVList() {
+        binding.listRv.apply {
+            adapter = customerListAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+            val sortedData = when (state) {
+                1 -> clientList!!.clients.sortedBy { it.clientId }.reversed()
+                2 -> clientList!!.clients.sortedBy { it.clientId }
+                3 -> clientList!!.clients.sortedBy { it.distance }
+                else -> clientList!!.clients // 기본값으로 정렬하지 않음
+            }
+            customerListAdapter.updateData(sortedData)
+        }
     }
 }
