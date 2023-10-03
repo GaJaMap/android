@@ -3,6 +3,7 @@ package com.pg.gajamap.viewmodel
 import android.graphics.Color
 import android.util.Log
 import androidx.lifecycle.*
+import com.pg.gajamap.base.SingleLiveEvent
 import com.pg.gajamap.data.model.*
 import com.pg.gajamap.data.repository.GetClientRepository
 import com.pg.gajamap.data.repository.GroupRepository
@@ -23,6 +24,10 @@ class MapViewModel: ViewModel() {
         get() = _checkGroup
     private var checkItems = ArrayList<GroupListData>()
 
+    private val _checkErrorGroup = SingleLiveEvent<String>()
+    val checkErrorGroup : LiveData<String>
+        get() = _checkErrorGroup
+
     // 그룹 생성
     fun createGroup(createRequest: CreateGroupRequest){
         viewModelScope.launch(Dispatchers.IO) {
@@ -37,6 +42,11 @@ class MapViewModel: ViewModel() {
                 Log.d("createGroupSuccess", "${response.body()}")
             }else {
                 Log.d("createGroupError", "createGroup : ${response.message()}")
+                if(response.code() == 403) {
+                    _checkErrorGroup.postValue("Free 등급은 그룹을 최대 하나만 생성 가능합니다.")
+                } else {
+                    _checkErrorGroup.postValue("${response.code()}: ${response.message()}")
+                }
             }
         }
     }
@@ -62,6 +72,11 @@ class MapViewModel: ViewModel() {
                 _checkGroup.value = checkItems
             }else {
                 Log.d("checkGroupError", "checkGroup : ${response.message()}")
+                if(response.code() == 403) {
+                    _checkErrorGroup.postValue("Free 등급은 그룹을 최대 하나만 생성 가능합니다.")
+                } else {
+                    _checkErrorGroup.postValue("${response.code()}: ${response.message()}")
+                }
             }
         }
     }

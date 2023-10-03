@@ -1,15 +1,21 @@
 package com.pg.gajamap.viewmodel
 
+import android.graphics.Color
 import android.util.Log
 import androidx.lifecycle.*
+import com.pg.gajamap.base.SingleLiveEvent
 import com.pg.gajamap.data.model.*
 import com.pg.gajamap.data.repository.GetClientRepository
+import com.pg.gajamap.data.repository.GroupRepository
+import com.pg.gajamap.data.response.CreateGroupRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 class GetClientViewModel(private val tmp: String): ViewModel() {
 
     private val getClientRepository = GetClientRepository()
+    private val groupRepository = GroupRepository()
 
     private val _getGroupClient = MutableLiveData<GetGroupClientResponse>()
     val getGroupClient : LiveData<GetGroupClientResponse>
@@ -56,21 +62,96 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
     val groupRadius : LiveData<GetRadiusResponse>
     get() = _groupRadius
 
-    private val _checkGroup = MutableLiveData<GroupResponse>()
-    val checkGroup : LiveData<GroupResponse>
-    get() = _checkGroup
+    // 값이 변경되는 경우 MutableLiveData로 선언한다.
+    private val _checkGroup = MutableLiveData<ArrayList<GroupListData>>()
+    val checkGroup : LiveData<ArrayList<GroupListData>>
+        get() = _checkGroup
+    private var checkItems = ArrayList<GroupListData>()
 
+    private val _checkErrorGroup = SingleLiveEvent<String>()
+    val checkErrorGroup : LiveData<String>
+        get() = _checkErrorGroup
 
-    //그룹 조회
-    fun checkGroup(){
+    // 그룹 생성
+    fun createGroup(createRequest: CreateGroupRequest){
         viewModelScope.launch(Dispatchers.IO) {
-            val response = getClientRepository.checkGroup()
-            Log.d("checkGroup", "${response.body()}\n${response.code()}")
+            val response = groupRepository.createGroup(createRequest)
+            Log.d("createGroup", "$response\n${response.code()}")
+            Log.d("createResponse", response.body().toString())
             if(response.isSuccessful){
-                _checkGroup.postValue(response.body())
+                val data = response.body()
+                // MapFragment에서 observer가 실행되기 위해서는 postValue가 필요하다!
+                checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = data!!, name = createRequest.name, person = "0", false, false))
+                _checkGroup.postValue(checkItems)
+                Log.d("createGroupSuccess", "${response.body()}")
+            }else {
+                Log.d("createGroupError", "createGroup : ${response.message()}")
+                if(response.code() == 403) {
+                    _checkErrorGroup.postValue("Free 등급은 그룹을 최대 하나만 생성 가능합니다.")
+                } else {
+                    _checkErrorGroup.postValue("${response.code()}: ${response.message()}")
+                }
+            }
+        }
+    }
+
+    // 그룹 조회
+    fun checkGroup(){
+        viewModelScope.launch {
+            val response = groupRepository.checkGroup()
+            Log.d("checkGroup", "$response\n${response.code()}")
+            if(response.isSuccessful){
+                val data = response.body()
+                checkItems.clear()
                 Log.d("checkGroupSuccess", "${response.body()}")
+                val num = data!!.groupInfos.count()
+                var count = 0
+                checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = 0, name = "전체", person = "0", true, true))
+                for (i in 0..num-1) {
+                    val itemdata = data.groupInfos.get(i)
+                    count += itemdata.clientCount
+                    checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = itemdata.groupId, name = itemdata.groupName, person = itemdata.clientCount.toString(), false, false))
+                }
+                checkItems[0].person = count.toString()
+                _checkGroup.value = checkItems
             }else {
                 Log.d("checkGroupError", "checkGroup : ${response.message()}")
+                if(response.code() == 403) {
+                    _checkErrorGroup.postValue("Free 등급은 그룹을 최대 하나만 생성 가능합니다.")
+                } else {
+                    _checkErrorGroup.postValue("${response.code()}: ${response.message()}")
+                }
+            }
+        }
+    }
+
+    // 그룹 삭제
+    fun deleteGroup(groupId: Long, pos: Int){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = groupRepository.deleteGroup(groupId)
+            Log.d("deleteGroup", "$response\n${response.code()}")
+            if(response.isSuccessful){
+                checkItems.removeAt(pos)
+                _checkGroup.postValue(checkItems)
+                Log.d("deleteGroupSuccess", "${response.body()}")
+            }else {
+                Log.d("deleteGroupError", "deleteGroup : ${response.message()}")
+            }
+        }
+    }
+
+    // 그룹 수정
+    fun modifyGroup(groupId: Long, createRequest: CreateGroupRequest, pos: Int){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = groupRepository.modifyGroup(groupId, createRequest)
+            Log.d("modifyGroup", "$response\n${response.code()}")
+            if(response.isSuccessful){
+                checkItems.get(pos).name = createRequest.name
+                _checkGroup.postValue(checkItems)
+                Log.d("modifyGroupSuccess", "${response.body()}")
+
+            }else {
+                Log.d("modifyGroupError", "modifyGroup : ${response.message()}")
             }
         }
     }
@@ -100,67 +181,39 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
         }
     }
 
-    fun getGroupClient(groupId : Long, client : Long){
+    // 특정 그룹 내 고객 전부 조회
+    private val _groupClients = MutableLiveData<GetAllClientResponse>()
+    val groupClients : LiveData<GetAllClientResponse>
+        get() = _groupClients
+
+    fun getGroupAllClient(groupId : Long){
         viewModelScope.launch(Dispatchers.IO) {
-            val response = getClientRepository.getGroupClient(groupId, client)
-            Log.d("getGroupClient", "${response.body()}\n${response.code()}")
+            val response = groupRepository.getGroupAllClient(groupId)
+            Log.d("getGroupAllClient", "${response.body()}\n${response.code()}")
             if(response.isSuccessful){
-                _getGroupClient.postValue(response.body())
-                Log.d("getGroupClientSuccess", "${response.body()}")
+                _groupClients.postValue(response.body())
+                Log.d("getGroupAllClientSuccess", "${response.body()}")
             }else {
-                Log.d("getGroupClientError", "getGroupClient : ${response.message()}")
+                Log.d("getGroupAllClientError", "getGroupAllClient : ${response.message()}")
             }
         }
     }
+
+
+    // 전체 고객 전부 조회
+    private val _allClients = MutableLiveData<GetAllClientResponse>()
+    val allClients : LiveData<GetAllClientResponse>
+        get() = _allClients
 
     fun getAllClient(){
         viewModelScope.launch(Dispatchers.IO) {
             val response = getClientRepository.getAllClient()
             Log.d("getAllClient", "${response.body()}\n${response.code()}")
             if(response.isSuccessful){
-                _getAllClient.postValue(response.body())
+                _allClients.postValue(response.body())
                 Log.d("getAllClientSuccess", "${response.body()}")
             }else {
                 Log.d("getAllClientError", "getAllClient : ${response.message()}")
-            }
-        }
-    }
-
-    fun getAllClientName(wordCond : String){
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = getClientRepository.getAllClientName(wordCond)
-            Log.d("getAllClientName", "${response.body()}\n${response.code()}")
-            if(response.isSuccessful){
-                _getAllClientName.postValue(response.body())
-                Log.d("getAllClientNameSuccess", "${response.body()}")
-            }else {
-                Log.d("getAllClientNameError", "getAllClientName : ${response.message()}")
-            }
-        }
-    }
-
-    fun getGroupAllClientName(wordCond : String, groupId : Long){
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = getClientRepository.getGroupAllClientName(groupId, wordCond)
-            Log.d("getGroupAllClientName", "${response.body()}\n${response.code()}")
-            if(response.isSuccessful){
-                _getGroupAllClientName.postValue(response.body())
-                Log.d("getGroupAllClientNameSuccess", "${response.body()}")
-            }else {
-                Log.d("getGroupAllClientNameError", "getGroupAllClientName : ${response.message()}")
-            }
-        }
-    }
-
-    fun getGroupAllClient(groupId : Long){
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = getClientRepository.getGroupAllClient(groupId)
-            Log.d("getGroupAllClient", "${response.body()}\n${response.code()}")
-            if(response.isSuccessful){
-                _getGroupAllClient.postValue(response.body())
-                Log.d("getGroupAllClientSuccess", "${response.body()}")
-            }else {
-                Log.d("getGroupAllClientError", "getGroupAllClient : ${response.message()}")
             }
         }
     }

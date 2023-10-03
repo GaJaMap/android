@@ -25,10 +25,15 @@ class ClientViewModel(private val tmp: String): ViewModel() {
 
     private val _postClient = MutableLiveData<Response<Client>>()
     val postClient : LiveData<Response<Client>>
+        get() = _postClient
+
+    private val _postErrorClient = MutableLiveData<String>()
+    val postErrorClient : LiveData<String>
+        get() = _postErrorClient
 
 //    private val _postClient = MutableLiveData<Response<Int>>()
 //    val postClient : LiveData<Response<Int>>
-    get() = _postClient
+
 
     private val _postKakaoPhoneClient = MutableLiveData<Response<List<Int>>>()
     val postKakaoPhoneClient : LiveData<Response<List<Int>>>
@@ -79,6 +84,11 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                 Log.d("putClientSuccess", "${response.body()}")
             }else {
                 Log.d("putClientError", "putClient : ${response.errorBody()?.string()}")
+                if(response.code() == 400) {
+                    _postErrorClient.postValue("올바른 전화번호 형식을 사용해주세요")
+                } else {
+                    _postErrorClient.postValue("${response.code()}: ${response.message()}")
+                }
             }
         }
     }
@@ -114,6 +124,11 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                 Log.d("postClientSuccess", "$response")
             }else {
                 Log.d("postClientError", "postClient : ${response.errorBody()?.string()}")
+                if(response.code() == 400) {
+                    _postErrorClient.postValue("올바른 전화번호 형식을 사용해주세요")
+                } else {
+                    _postErrorClient.postValue("${response.code()}: ${response.message()}")
+                }
             }
         }
     }
@@ -127,6 +142,7 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                 Log.d("postKakaoPhoneClientSuccess", "${response.body()}")
             }else {
                 Log.d("postKakaoPhoneClientError", "postKakaoPhoneClient : ${response.message()}")
+                _postErrorClient.postValue("${response.code()}: ${response.message()}")
             }
         }
     }

@@ -6,18 +6,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.kakao.sdk.user.model.User
 import com.pg.gajamap.R
-import com.pg.gajamap.base.GajaMapApplication
 import com.pg.gajamap.base.UserData
 import com.pg.gajamap.data.model.Client
 import com.pg.gajamap.databinding.ItemListBinding
 import com.pg.gajamap.ui.view.CustomerInfoActivity
-import de.hdodenhof.circleimageview.CircleImageView
 
 class CustomerListAdapter(private var dataList: List<Client>) :
     RecyclerView.Adapter<CustomerListAdapter.ViewHolder>() {
@@ -70,8 +68,6 @@ class CustomerListAdapter(private var dataList: List<Client>) :
             binding.itemProfileName.text = data.clientName
             binding.itemProfilePhoneDetail.text = data.phoneNumber
             binding.itemProfileAddressDetail.isSelected = true
-
-
         }
     }
 
@@ -122,7 +118,7 @@ class CustomerListAdapter(private var dataList: List<Client>) :
 
     fun intentToData(v: View, position: Int) {
         val intent = Intent(v.context, CustomerInfoActivity::class.java)
-        intent.putExtra("filePath", dataList[position].image.filePath)
+        intent.putExtra("filePath", UserData.imageUrlPrefix + dataList[position].image.filePath)
         intent.putExtra("name", dataList[position].clientName)
         intent.putExtra("phoneNumber", dataList[position].phoneNumber)
         intent.putExtra("address1", dataList[position].address.mainAddress)

@@ -11,6 +11,7 @@ import android.provider.MediaStore
 import android.telephony.PhoneNumberFormattingTextWatcher
 import android.util.Log
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
@@ -87,11 +88,9 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         binding.infoProfilePhoneEt.addTextChangedListener(PhoneNumberFormattingTextWatcher())
 
         if(image != null){
-            val imageUrl = UserData.imageUrlPrefix
-            val file = imageUrl + image
 
             Glide.with(binding.infoProfileImg.context)
-                .load(file)
+                .load(image)
                 .fitCenter()
                 .apply(RequestOptions().override(500,500))
                 .error(R.drawable.profile_img_origin)
@@ -266,6 +265,11 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 }
                 Log.d("editlist", clientList.toString())
             })
+            viewModel.postErrorClient.observe(this, Observer {
+                Toast.makeText(requireContext(), it , Toast.LENGTH_SHORT).show()
+                dialogHide()
+                activity?.finish()
+            })
         }
 
     }
@@ -356,6 +360,11 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                     }
                 }
                 Log.d("editlist", clientList.toString())
+                dialogHide()
+                activity?.finish()
+            })
+            viewModel.postErrorClient.observe(this, Observer {
+                Toast.makeText(requireContext(), it , Toast.LENGTH_SHORT).show()
                 dialogHide()
                 activity?.finish()
             })

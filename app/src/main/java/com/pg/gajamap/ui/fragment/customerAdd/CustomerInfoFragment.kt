@@ -83,7 +83,6 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
 
         }
         val negativeButtonClick = { dialogInterface: DialogInterface, i: Int ->
-            Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
         }
 
         //고객 삭제 dialog
@@ -179,10 +178,8 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
         val image = requireActivity().intent.getStringExtra("filePath")
 
         if(image != null){
-            val imageUrl = UserData.imageUrlPrefix
-            val file = imageUrl + image
             Glide.with(requireContext())
-                .load(file)
+                .load(image)
                 .fitCenter()
                 .apply(RequestOptions().override(500,500))
                 .error(R.drawable.profile_img_origin)
