@@ -12,6 +12,8 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
 import android.location.Location
 import android.location.LocationManager
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -20,6 +22,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -64,6 +67,7 @@ import java.lang.Integer.min
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), MapView.POIItemEventListener, MapView.MapViewEventListener {
     // 그룹 리스트 recyclerview
     lateinit var groupListAdapter: GroupListAdapter
+    private lateinit var mapFragment: MapFragment
     private val ACCESS_FINE_LOCATION = 1000   // Request Code
     var gName: String = ""
     var pos: Int = 0
@@ -74,7 +78,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private lateinit var reverseGeoCodingResultListener : ReverseGeoCodingResultListener
     // LocationSearch recyclerview
     private val locationSearchList = arrayListOf<LocationSearchData>()
-    private val locationSearchAdapter = LocationSearchAdapter(locationSearchList)
+    private lateinit var locationSearchAdapter : LocationSearchAdapter
     // SearchResult recyclerview
     private val searchResultList = arrayListOf<SearchResultData>()
     val searchResultAdapter = SearchResultAdapter(searchResultList)
@@ -84,6 +88,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private var mActivity: MainActivity? = null
     private val viewpagerAdapter: ViewPagerAdapter by lazy { ViewPagerAdapter(viewpagerList, mActivity as Context) }
     private var keyword = "" // 검색 키워드
+    private var doubleBackToExitPressedOnce = false
     var gid: Long = 0
     var itemId: Long = 0
     var groupNum = 0
@@ -96,6 +101,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     var GPSBtn = false
     var latitude = 0.0
     var longitude = 0.0
+    var address = ""
 
     override val viewModel by viewModels<MapViewModel> {
         MapViewModel.MapViewModelFactory()
@@ -116,6 +122,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     @SuppressLint("ResourceAsColor")
     override fun onCreateAction() {
+        locationSearchAdapter = LocationSearchAdapter(requireContext(), locationSearchList)
         // 지도 타일 이미지 Persistent Cache 기능 : 네트워크를 통해 다운로드한 지도 이미지 데이터를 단말의 영구(persistent) 캐쉬 영역에 저장하는 기능
         setMapTilePersistentCacheEnabled(true)
 
@@ -224,7 +231,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         deleteGroup(gid, position)
                     })
                     .setNegativeButton("취소", { dialogInterface: DialogInterface, i: Int ->
-                        Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
                     })
                 val alertDialog = builder.create()
                 alertDialog.show()
@@ -323,7 +329,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         reverseGeoCodingResultListener = object : ReverseGeoCodingResultListener {
             override fun onReverseGeoCoderFoundAddress(mapReverseGeoCoder: MapReverseGeoCoder, addressString: String) {
                 // 주소를 찾은 경우
-                GajaMapApplication.prefs.setString("address", addressString)
+
+                address = addressString
                 binding.tvLocationAddress.text = addressString
             }
 
@@ -402,6 +409,17 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     binding.ibGps.visibility = View.GONE
                     binding.ibKm.visibility = View.GONE
 
+                    if(threeCheck || fiveCheck) {
+                        binding.clKm.visibility = View.GONE
+                    } else {
+                        binding.clKm.visibility = View.GONE
+                        val bgShape2 = binding.ibKm.background as GradientDrawable
+                        bgShape2.setColor(resources.getColor(R.color.white))
+                        binding.ibKm.setImageResource(R.drawable.ic_km)
+                    }
+
+
+
                     // 지도에서 직접 추가하기 마커 위치
                     val centerPoint = binding.mapView.mapCenterPoint
                     marker = MapPOIItem()
@@ -456,20 +474,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.rvLocation.adapter = locationSearchAdapter
         // recyclerview 아이템 클릭 시 해당 위치로 이동
         locationSearchAdapter.setItemClickListener(object : LocationSearchAdapter.OnItemClickListener{
-            override fun onClick(v: View, position: Int) {
+            override fun onClick(v: View, position: Int, text: String) {
                 val mapPoint = MapPoint.mapPointWithGeoCoord(locationSearchList[position].y, locationSearchList[position].x)
-                latitude = locationSearchList[position].y
-                longitude = locationSearchList[position].x
-
                 binding.mapView.setMapCenterPoint(mapPoint, true)
-                val btn: Button = v.findViewById(R.id.btn_plus)
-                btn.setOnClickListener {
-                    // 고객 추가하기 activity로 이동
-                    val intent = Intent(activity, AddDirectActivity::class.java)
-                    intent.putExtra("latitude", latitude)
-                    intent.putExtra("longitude", longitude)
-                    startActivity(intent)
-                }
+
             }
         })
 
@@ -502,10 +510,29 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.tvLocationBtn.setOnClickListener {
             // 고객 추가하기 activity로 이동
             val intent = Intent(getActivity(), AddDirectActivity::class.java)
+            intent.putExtra("address", address)
             intent.putExtra("latitude", latitude)
             intent.putExtra("longitude", longitude)
             startActivity(intent)
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (doubleBackToExitPressedOnce) {
+                    // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
+                    System.exit(0)
+                    requireActivity().finish()
+                } else {
+                    doubleBackToExitPressedOnce = true
+                    Toast.makeText(requireContext(), "한번 더 누르면 종료 됩니다.", Toast.LENGTH_SHORT).show()
+
+                    // 2초 후에 doubleBackToExitPressedOnce 값을 초기화합니다.
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        doubleBackToExitPressedOnce = false
+                    }, 2000)
+                }
+            }
+        })
     }
 
     // 그룹 생성 api
@@ -513,6 +540,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.createGroup(CreateGroupRequest(name))
         viewModel.checkGroup.observe(this, Observer {
             groupListAdapter.setData(viewModel.checkGroup.value!!)
+        })
+        viewModel.checkErrorGroup.observe(this, Observer {
+            Toast.makeText(requireContext(), it , Toast.LENGTH_SHORT).show()
         })
     }
 
@@ -522,6 +552,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.checkGroup.observe(this@MapFragment, Observer {
             groupListAdapter.setData(it)
             groupNum = viewModel.checkGroup.value!!.size
+        })
+        viewModel.checkErrorGroup.observe(this, Observer {
+            Toast.makeText(requireContext(), it , Toast.LENGTH_SHORT).show()
         })
     }
 
@@ -696,10 +729,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     override fun onResume() {
         super.onResume()
-        if(plusBtn){
-            plusBtnInactivation()
-            clientMarker()
-        }
+        plusBtnInactivation()
+        clientMarker()
     }
 
     override fun onDestroy() {
@@ -710,7 +741,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     }
 
     // ViewPager에 들어갈 아이템
-    private fun getClientList(userObject: Any) {
+    private fun  getClientList(userObject: Any) {
         viewpagerList.clear()
         val size = UserData.clientListResponse!!.clients.size
 
@@ -720,18 +751,18 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             if(userObject == itemdata.location){
                 if(itemdata.image.filePath != null){
                     if(itemdata.distance == null){
-                        viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null, itemdata.location.latitude, itemdata.location.longitude))
+                        viewpagerList.add(ViewPagerData(itemdata.clientId, itemdata.groupInfo.groupId,UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.address.detail, itemdata.phoneNumber, null, itemdata.location.latitude, itemdata.location.longitude))
 
                     }else{
-                        viewpagerList.add(ViewPagerData(UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance, itemdata.location.latitude, itemdata.location.longitude))
+                        viewpagerList.add(ViewPagerData(itemdata.clientId, itemdata.groupInfo.groupId,UserData.imageUrlPrefix + itemdata.image.filePath, itemdata.clientName, itemdata.address.mainAddress, itemdata.address.detail, itemdata.phoneNumber, itemdata.distance, itemdata.location.latitude, itemdata.location.longitude))
                     }
                 }
                 else{
                     if(itemdata.distance == null){
-                        viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, null, itemdata.location.latitude, itemdata.location.longitude))
+                        viewpagerList.add(ViewPagerData(itemdata.clientId, itemdata.groupInfo.groupId,"null", itemdata.clientName, itemdata.address.mainAddress, itemdata.address.detail, itemdata.phoneNumber, null, itemdata.location.latitude, itemdata.location.longitude))
 
                     }else {
-                        viewpagerList.add(ViewPagerData("null", itemdata.clientName, itemdata.address.mainAddress, itemdata.phoneNumber, itemdata.distance, itemdata.location.latitude, itemdata.location.longitude))
+                        viewpagerList.add(ViewPagerData(itemdata.clientId, itemdata.groupInfo.groupId,"null", itemdata.clientName, itemdata.address.mainAddress, itemdata.address.detail, itemdata.phoneNumber, itemdata.distance, itemdata.location.latitude, itemdata.location.longitude))
                     }
                 }
             }
@@ -981,8 +1012,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.ibPlus.visibility = View.VISIBLE
         binding.ibGps.visibility = View.VISIBLE
         binding.ibKm.visibility = View.VISIBLE
+        binding.mapView.removeAllPOIItems()
+        binding.clLocationSearch.visibility = View.GONE
+        binding.clCardview.visibility = View.GONE
         markerCheck = false
-        binding.mapView.removePOIItem(marker)
+//        binding.mapView.removePOIItem(marker)
     }
 
     // 위치추적 시작
@@ -1026,6 +1060,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
         if(plusBtn){
             plusBtnInactivation()
+            clientMarker()
         }
     }
 
@@ -1061,7 +1096,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.clKm.visibility = View.GONE
 
         // 마커 클릭 시 해당 위도 경도값을 사용하여 일치하는 고객들 뷰페이저로 띄우기
-        getClientList(p1!!.userObject)
+        try {
+            getClientList(p1!!.userObject)
+        } catch (e: Exception) {
+            binding.clCardview.visibility = View.GONE
+        }
+
     }
 
     override fun onCalloutBalloonOfPOIItemTouched(p0: MapView?, p1: MapPOIItem?) {
