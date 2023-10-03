@@ -1,6 +1,5 @@
 package com.pg.gajamap.ui.adapter
 
-import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pg.gajamap.databinding.ItemPhoneBinding
 import com.pg.gajamap.ui.fragment.setting.ContactsData
 
-class PhoneListAdapter(private val dataList : ArrayList<ContactsData>, private val listener: OnItemClickListener2
+class PhoneListAdapter(private var dataList : ArrayList<ContactsData>, private val listener: OnItemClickListener2
 ): RecyclerView.Adapter<PhoneListAdapter.ViewHolder>() {
 
     private val checkedPositions = SparseBooleanArray()
@@ -61,6 +60,12 @@ class PhoneListAdapter(private val dataList : ArrayList<ContactsData>, private v
         for (i in 0 until dataList.size) {
             checkedPositions.put(i, checked)
         }
+        notifyDataSetChanged()
+    }
+
+    fun updateData(newDataList: ArrayList<ContactsData>) {
+        //differ.submitList(newDataList)
+        dataList = newDataList
         notifyDataSetChanged()
     }
 
