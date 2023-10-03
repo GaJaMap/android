@@ -3,7 +3,10 @@ package com.pg.gajamap.ui.fragment.setting
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -12,6 +15,7 @@ import com.pg.gajamap.R
 import com.pg.gajamap.base.BaseFragment
 import com.pg.gajamap.base.GajaMapApplication
 import com.pg.gajamap.databinding.FragmentSettingBinding
+import com.pg.gajamap.ui.fragment.map.MapFragment
 import com.pg.gajamap.ui.view.LoginActivity
 import com.pg.gajamap.viewmodel.ClientViewModel
 
@@ -20,6 +24,8 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
     override val viewModel by viewModels<ClientViewModel> {
         ClientViewModel.SettingViewModelFactory("tmp")
     }
+
+    private var doubleBackToExitPressedOnce = false
 
     override fun initViewModel(viewModel: ViewModel) {
         binding.setVariable(BR.viewModel, viewModel)
@@ -104,5 +110,25 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
             val alertDialog = builder.create()
             alertDialog.show()
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (doubleBackToExitPressedOnce) {
+                    // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
+                    System.exit(0)
+                    requireActivity().finish()
+                } else {
+                    doubleBackToExitPressedOnce = true
+                    Toast.makeText(requireContext(), "한번 더 누르면 종료 됩니다.", Toast.LENGTH_SHORT).show()
+
+                    // 2초 후에 doubleBackToExitPressedOnce 값을 초기화합니다.
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        doubleBackToExitPressedOnce = false
+                    }, 2000)
+                }
+            }
+        })
     }
+
+
 }

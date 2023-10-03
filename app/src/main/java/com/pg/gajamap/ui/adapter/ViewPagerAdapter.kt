@@ -16,8 +16,9 @@ import com.kakao.sdk.navi.model.NaviOption
 import com.pg.gajamap.R
 import com.pg.gajamap.data.model.ViewPagerData
 import com.pg.gajamap.databinding.ItemViewpagerBinding
+import com.pg.gajamap.ui.view.CustomerInfoActivity
 
-class ViewPagerAdapter (val itemList: ArrayList<ViewPagerData>,private val context: Context): RecyclerView.Adapter<ViewPagerAdapter.PagerViewHolder>() {
+class ViewPagerAdapter (private val itemList: ArrayList<ViewPagerData>, private val context: Context): RecyclerView.Adapter<ViewPagerAdapter.PagerViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : PagerViewHolder{
         val binding=ItemViewpagerBinding.inflate(LayoutInflater.from(parent.context),parent,false)
@@ -72,12 +73,29 @@ class ViewPagerAdapter (val itemList: ArrayList<ViewPagerData>,private val conte
             binding.tvCardAddressDetail.text = item.address
             binding.tvCardPhoneDetail.text = item.phoneNumber
             binding.tvCardAddressDetail.isSelected = true
+            binding.itemViewpager.setOnClickListener {
+                intentToData(position)
+            }
             if(item.distance == null) {
-                binding.tvCardDistance.text = "-"
+                binding.tvCardDistance.text = "- "
             }
             else {
-                binding.tvCardDistance.text = String.format("%.2f", item.distance?.times(0.001))
+                binding.tvCardDistance.text = String.format("%.1f ", item.distance?.times(0.001))
             }
         }
+    }
+
+    fun intentToData(position: Int) {
+        val intent = Intent(context, CustomerInfoActivity::class.java)
+        intent.putExtra("clientId", itemList[position].clientId)
+        intent.putExtra("groupId", itemList[position].groupId)
+        intent.putExtra("filePath", itemList[position].profileImg)
+        intent.putExtra("name", itemList[position].name)
+        intent.putExtra("phoneNumber", itemList[position].phoneNumber)
+        intent.putExtra("address1", itemList[position].address)
+        intent.putExtra("address2", itemList[position].detail)
+        intent.putExtra("latitude", itemList[position].latitude)
+        intent.putExtra("longitude", itemList[position].longitude)
+        context.startActivity(intent)
     }
 }

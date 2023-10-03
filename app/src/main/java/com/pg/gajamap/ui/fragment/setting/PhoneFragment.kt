@@ -7,6 +7,8 @@ import android.content.pm.PackageManager
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.telephony.PhoneNumberUtils
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -155,6 +157,23 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
             requireActivity().supportFragmentManager.popBackStack()
         }
 
+        binding.settingPhoneSearchEt.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(editable: Editable?) {
+                //입력이 끝날 때 작동됩니다.
+                val searchText = editable.toString().trim()
+                filterClientList(searchText)
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                //입력 하기 전에 작동됩니다.
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                //타이핑 되는 텍스트에 변화가 있으면 작동됩니다.
+            }
+        })
+
         //연락처 권한
         onCheckContactsPermission()
         requestPermission()
@@ -242,7 +261,6 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
             binding.topTvNumber1.text = selectedClients.size.toString()
             chkBtnActivate()
         }
-
 
         phoneListAdapter?.setOnItemClickListener(object :
             PhoneListAdapter.OnItemClickListener {
@@ -336,6 +354,14 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                                     requireActivity().supportFragmentManager.popBackStack()
                                 })
 
+                            viewModel.postErrorClient.observe(viewLifecycleOwner, Observer {
+                                Toast.makeText(requireContext(), it , Toast.LENGTH_SHORT).show()
+                                dialogHide()
+                                requireActivity().supportFragmentManager.beginTransaction()
+                                    .remove(this@PhoneFragment).commit()
+                                requireActivity().supportFragmentManager.popBackStack()
+                            })
+
                         }
                     } else {
                         groupId = -1L
@@ -347,8 +373,6 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                     TODO("Not yet implemented")
                 }
             }
-
-
     }
 
     private fun onCheckContactsPermission() {
@@ -375,7 +399,6 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
             ), PERMISSION_REQUEST_CODE
         )
     }
-
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -445,6 +468,14 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
         }
     }
 
+    fun filterClientList(searchText: String) {
+        val filteredList = contactsList.filter {
+            it.name.contains(searchText, ignoreCase = true)
+        }
+
+        // 필터링된 결과를 어댑터에 설정합니다.
+        phoneListAdapter?.updateData(filteredList as ArrayList<ContactsData>)
+    }
     private fun dialogShow() {
         binding.progress.isVisible = true
         binding.btnSubmit.text = ""

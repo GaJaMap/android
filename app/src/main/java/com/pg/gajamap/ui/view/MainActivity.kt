@@ -51,30 +51,50 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         // 프래그먼트 초기화 및 추가
         setFragment(TAG_MAP, mapFragment!!)
 
+//        bnMain.setOnItemSelectedListener { menuItem ->
+//            val transaction = supportFragmentManager.beginTransaction()
+//
+//            when (menuItem.itemId) {
+//                R.id.menu_map -> {
+//                    val mapFragment = MapFragment()
+//                    // 현재 표시 중인 프래그먼트를 제거
+//                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+//                    transaction.replace(R.id.nav_fl, mapFragment, TAG_MAP)
+//                }
+//                R.id.menu_list -> {
+//                    val listFragment = ListFragment()
+//                    // 현재 표시 중인 프래그먼트를 제거
+//                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+//                    transaction.replace(R.id.nav_fl, listFragment, TAG_LIST)
+//                }
+//                R.id.menu_setting -> {
+//                    val settingFragment = SettingFragment()
+//                    // 현재 표시 중인 프래그먼트를 제거
+//                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+//                    transaction.replace(R.id.nav_fl, settingFragment, TAG_SETTING)
+//                }
+//            }
+//
+//            transaction.commit()
+//            true
+//        }
+
         bnMain.setOnItemSelectedListener { menuItem ->
             val transaction = supportFragmentManager.beginTransaction()
 
             when (menuItem.itemId) {
                 R.id.menu_map -> {
-                    val mapFragment = MapFragment()
-                    // 현재 표시 중인 프래그먼트를 제거
-                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                    transaction.replace(R.id.nav_fl, mapFragment, TAG_MAP)
+                    transaction.replace(R.id.nav_fl, MapFragment(), TAG_MAP)
                 }
                 R.id.menu_list -> {
-                    val listFragment = ListFragment()
-                    // 현재 표시 중인 프래그먼트를 제거
-                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                    transaction.replace(R.id.nav_fl, listFragment, TAG_LIST)
+                    transaction.replace(R.id.nav_fl, ListFragment(), TAG_LIST)
                 }
                 R.id.menu_setting -> {
-                    val settingFragment = SettingFragment()
-                    // 현재 표시 중인 프래그먼트를 제거
-                    supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                    transaction.replace(R.id.nav_fl, settingFragment, TAG_SETTING)
+                    transaction.replace(R.id.nav_fl, SettingFragment(), TAG_SETTING)
                 }
             }
 
+            transaction.addToBackStack(null)
             transaction.commit()
             true
         }
@@ -90,7 +110,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
         // deprecated 된 onBackPressed() 대신 사용
         // 위에서 생성한 콜백 인스턴스 붙여주기
-        this.onBackPressedDispatcher.addCallback(this, callback)
+//        this.onBackPressedDispatcher.addCallback(this, callback)
     }
 
     // fragment 상태 유지를 위한 컨트롤 함수
@@ -158,22 +178,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
     }
 
-    // 뒤로가기 두 번 클릭 시 앱 종료
-    // 콜백 인스턴스 생성
-    private val callback = object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() {
-            // 뒤로가기 버튼 이벤트 처리
-            if(System.currentTimeMillis() - backPressedTime >= 2000) {
-                backPressedTime = System.currentTimeMillis()
-                Toast.makeText(this@MainActivity, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
-            } else {
-                // 앱 자체 종료하기
-                // 위치추적 중지
-                mapFragment?.stopTracking()
-                ActivityCompat.finishAffinity(this@MainActivity)
-                System.runFinalization()
-                System.exit(0)
-            }
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // 여기에서 mapFragment.stopTracking()을 호출합니다.
+        mapFragment?.stopTracking()
     }
 }

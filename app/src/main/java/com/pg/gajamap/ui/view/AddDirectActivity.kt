@@ -44,6 +44,7 @@ import java.io.File
 class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activity_add_direct) {
     var latitude = 0.0
     var longitude = 0.0
+    var address = ""
     // 뒤로가기 두 번 클릭 시 앱 종료
     private var backPressedTime: Long = 0
 
@@ -67,12 +68,13 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
     override fun onCreateAction() {
         latitude = intent.getDoubleExtra("latitude",0.0)
         longitude = intent.getDoubleExtra("longitude",0.0)
+        address = intent.getStringExtra("address")!!
+
 
         binding.topBackBtn.setOnClickListener {
             finish()
         }
         //주소 데이터 가져오기
-        val address = GajaMapApplication.prefs.getString("address", "")
         binding.infoProfileAddressTv1.text = address
 
         // 전화번호 작성 시 자동으로 하이픈 추가
@@ -285,6 +287,12 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
                 dialogHide()
                 finish()
             })
+
+            viewModel.postErrorClient.observe(this, Observer {
+                Toast.makeText(this, it , Toast.LENGTH_SHORT).show()
+                dialogHide()
+                finish()
+            })
         }
     }
 
@@ -315,6 +323,12 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
                         ?.let { it1 -> UserData.clientListResponse?.clients?.add(it1) }
                     UserData.groupinfo!!.clientCount = UserData.groupinfo!!.clientCount + 1
                 }
+                dialogHide()
+                finish()
+            })
+
+            viewModel.postErrorClient.observe(this, Observer {
+                Toast.makeText(this, it , Toast.LENGTH_SHORT).show()
                 dialogHide()
                 finish()
             })
