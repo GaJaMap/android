@@ -8,6 +8,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.json.JSONArray
+import org.json.JSONException
 import retrofit2.Response
 
 class ClientViewModel(private val tmp: String): ViewModel() {
@@ -84,10 +86,26 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                 Log.d("putClientSuccess", "${response.body()}")
             }else {
                 Log.d("putClientError", "putClient : ${response.errorBody()?.string()}")
-                if(response.code() == 400) {
-                    _postErrorClient.postValue("올바른 전화번호 형식을 사용해주세요")
-                } else {
-                    _postErrorClient.postValue("${response.code()}: ${response.message()}")
+                try {
+                    if (response.code() == 400) {
+                        val errorBodyString = response.errorBody()?.string()
+                        if (errorBodyString != null && errorBodyString.isNotBlank()) {
+                            val jsonArray = JSONArray(errorBodyString)
+
+                            // JSON 배열에서 첫 번째 객체를 가져와서 "message" 필드의 값을 추출합니다.
+                            if (jsonArray.length() > 0) {
+                                val firstError = jsonArray.getJSONObject(0)
+                                val errorMessage = firstError.getString("message")
+
+                                // 추출한 오류 메시지를 LiveData에 postValue로 보냅니다.
+                                _postErrorClient.postValue(errorMessage)
+                            }
+                        }
+                    } else {
+                        _postErrorClient.postValue("${response.code()}: ${response.message()}")
+                    }
+                } catch (e: JSONException) {
+                    e.printStackTrace()
                 }
             }
         }
@@ -123,11 +141,26 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                 _postClient.postValue(response)
                 Log.d("postClientSuccess", "$response")
             }else {
-                Log.d("postClientError", "postClient : ${response.errorBody()?.string()}")
-                if(response.code() == 400) {
-                    _postErrorClient.postValue("올바른 전화번호 형식을 사용해주세요")
-                } else {
-                    _postErrorClient.postValue("${response.code()}: ${response.message()}")
+                try {
+                    if (response.code() == 400) {
+                        val errorBodyString = response.errorBody()?.string()
+                        if (errorBodyString != null && errorBodyString.isNotBlank()) {
+                            val jsonArray = JSONArray(errorBodyString)
+
+                            // JSON 배열에서 첫 번째 객체를 가져와서 "message" 필드의 값을 추출합니다.
+                            if (jsonArray.length() > 0) {
+                                val firstError = jsonArray.getJSONObject(0)
+                                val errorMessage = firstError.getString("message")
+
+                                // 추출한 오류 메시지를 LiveData에 postValue로 보냅니다.
+                                _postErrorClient.postValue(errorMessage)
+                            }
+                        }
+                    } else {
+                        _postErrorClient.postValue("${response.code()}: ${response.message()}")
+                    }
+                } catch (e: JSONException) {
+                    e.printStackTrace()
                 }
             }
         }
