@@ -44,6 +44,7 @@ import com.pg.gajamap.ui.adapter.GroupListAdapter
 import com.pg.gajamap.ui.fragment.map.MapFragment
 import com.pg.gajamap.ui.view.EditListActivity
 import com.pg.gajamap.viewmodel.GetClientViewModel
+import kotlin.system.exitProcess
 
 class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
     private var groupId: Int = -1
@@ -216,6 +217,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
                 sheetView!!.tvAddgroupMain.text = gname
                 pos = position
 
+
                 if (position == 0){
                     getAllClient()
                 }else{
@@ -227,7 +229,6 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
         // search bar 클릭 시 바텀 다이얼로그 띄우기
         binding.clSearch.setOnClickListener {
             // 그룹 더보기 바텀 다이얼로그 띄우기
-            checkGroup()
             sheetView!!.rvAddgroup.adapter = groupListAdapter
 
             groupDialog.setContentView(sheetView!!.root)
@@ -296,7 +297,6 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
             override fun handleOnBackPressed() {
                 if (doubleBackToExitPressedOnce) {
                     // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
-                    System.exit(0)
                     requireActivity().finish()
                 } else {
                     doubleBackToExitPressedOnce = true
@@ -531,6 +531,23 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
                 else -> clientList!!.clients // 기본값으로 정렬하지 않음
             }
             customerListAdapter.updateData(sortedData)
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if(hidden) {
+            return
+        }
+        checkGroup()
+        clientList = UserData.clientListResponse
+        customerListAdapter = CustomerListAdapter(clientList!!.clients)
+        updateData()
+
+        // 그룹 더보기 및 검색창 그룹 이름, 현재 선택된 이름으로 변경
+        if (UserData.groupinfo != null) {
+            binding.tvSearch.text = UserData.groupinfo!!.groupName
+            sheetView!!.tvAddgroupMain.text = UserData.groupinfo!!.groupName
         }
     }
 }

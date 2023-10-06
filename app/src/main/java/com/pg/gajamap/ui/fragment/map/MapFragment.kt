@@ -51,6 +51,7 @@ import com.pg.gajamap.ui.view.AddDirectActivity
 import com.pg.gajamap.viewmodel.MapViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.pg.gajamap.data.model.AutoLoginGroupInfo
+import com.pg.gajamap.ui.adapter.CustomerListAdapter
 import com.pg.gajamap.ui.view.MainActivity
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
@@ -71,6 +72,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private val ACCESS_FINE_LOCATION = 1000   // Request Code
     var gName: String = ""
     var pos: Int = 0
+    private var groupInfo = UserData.groupinfo
     var posDelete: Int = 0
     var markerCheck = false
     // 지도에서 직접 추가하기를 위한 중심 위치 point
@@ -298,7 +300,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         // search bar 클릭 시 바텀 다이얼로그 띄우기
         binding.clSearch.setOnClickListener {
             // 그룹 더보기 바텀 다이얼로그 띄우기
-            checkGroup()
             sheetView!!.rvAddgroup.adapter = groupListAdapter
 
             groupDialog.setContentView(sheetView!!.root)
@@ -351,7 +352,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 val size = UserData.clientListResponse?.clients!!.size
                 for (i in 0..size-1){
                     val name = UserData.clientListResponse?.clients!!.get(i).clientName
-                    if(name.contains(binding.etSearch.text.toString())){
+                    val latitude = UserData.clientListResponse?.clients!!.get(i).location.latitude
+                    if(name.contains(binding.etSearch.text.toString())&& latitude!=null){
                         searchResultList.add(SearchResultData(name, i))
                     }
                 }
@@ -424,7 +426,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     val centerPoint = binding.mapView.mapCenterPoint
                     marker = MapPOIItem()
                     binding.mapView.setMapCenterPoint(centerPoint, true)
-                    marker.itemName = "Marker"
+                    marker.itemName = "마커"
                     marker.mapPoint = MapPoint.mapPointWithGeoCoord(binding.mapView.mapCenterPoint.mapPointGeoCoord.latitude, binding.mapView.mapCenterPoint.mapPointGeoCoord.longitude)
                     latitude = binding.mapView.mapCenterPoint.mapPointGeoCoord.latitude
                     longitude = binding.mapView.mapCenterPoint.mapPointGeoCoord.longitude
@@ -520,7 +522,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
             override fun handleOnBackPressed() {
                 if (doubleBackToExitPressedOnce) {
                     // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
-                    System.exit(0)
                     requireActivity().finish()
                 } else {
                     doubleBackToExitPressedOnce = true
@@ -596,11 +597,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
         viewModel.wholeRadius.observe(this, Observer {
             if (viewModel.wholeRadius.value == null){
-                val builder = AlertDialog.Builder(requireContext())
-                builder.setMessage("시스템 오류")
-                builder.setPositiveButton("확인") { dialog, which ->
-                }
-                builder.show()
+//                val builder = AlertDialog.Builder(requireContext())
+//                builder.setMessage("시스템 오류")
+//                builder.setPositiveButton("확인") { dialog, which ->
+//                }
+//                builder.show()
             }
             else{
                 UserData.clientListResponse = viewModel.wholeRadius.value
@@ -632,11 +633,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
         viewModel.wholeRadius.observe(this, Observer {
             if (viewModel.wholeRadius.value == null){
-                val builder = AlertDialog.Builder(requireContext())
-                builder.setMessage("시스템 오류")
-                builder.setPositiveButton("확인") { dialog, which ->
-                }
-                builder.show()
+//                val builder = AlertDialog.Builder(requireContext())
+//                builder.setMessage("시스템 오류")
+//                builder.setPositiveButton("확인") { dialog, which ->
+//                }
+//                builder.show()
             }
             else{
                 UserData.clientListResponse = viewModel.wholeRadius.value
@@ -729,6 +730,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     override fun onResume() {
         super.onResume()
+//        stopTracking()
         plusBtnInactivation()
         clientMarker()
     }
@@ -1017,6 +1019,24 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.clCardview.visibility = View.GONE
         markerCheck = false
 //        binding.mapView.removePOIItem(marker)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if(hidden) {
+            return
+        }
+        Log.d("userdatacorrect", UserData.groupinfo!!.groupId.toString())
+
+        checkGroup()
+        plusBtnInactivation()
+        clientMarker()
+
+        // 그룹 더보기 및 검색창 그룹 이름, 현재 선택된 이름으로 변경
+        if (UserData.groupinfo != null) {
+            binding.tvSearch.text = UserData.groupinfo!!.groupName
+            sheetView!!.tvAddgroupMain.text = UserData.groupinfo!!.groupName
+        }
     }
 
     // 위치추적 시작
