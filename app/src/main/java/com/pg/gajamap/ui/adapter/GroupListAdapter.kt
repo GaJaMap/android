@@ -9,14 +9,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.pg.gajamap.R
+import com.pg.gajamap.base.DataHolder
 import com.pg.gajamap.base.UserData
 import com.pg.gajamap.data.model.GroupListData
 import com.pg.gajamap.databinding.ItemGroupListBinding
 
 class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, private val groupEditListener: GroupEditListener): RecyclerView.Adapter<GroupListAdapter.ViewHolder>() {
     var datalist = mutableListOf<GroupListData>()
-    private var selectedPosition : Int = 0
-    private var previousSelectedPosition : Int = 0
+//    private var selectedPosition : Int = 0
+//    private var previousSelectedPosition : Int = 0
     private var check = false
 
     inner class ViewHolder(private val binding: ItemGroupListBinding): RecyclerView.ViewHolder(binding.root) {
@@ -29,18 +30,18 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
                 for (i in datalist.indices) {
                     val data = datalist[i]
                     if (data.id == UserData.groupinfo!!.groupId) {
-                        selectedPosition = i
+                        DataHolder.selectedPosition = i
                         break
                     }
                 }
-                datalist[selectedPosition].isSelected = true
+                datalist[DataHolder.selectedPosition].isSelected = true
                 check = true
             }
 
             // 삭제, 수정 버튼 눌렀을 때의 이벤트
             binding.ivDelete.setOnClickListener {
                 groupDeleteListener.click(datalist[position].id, datalist[position].name, position)
-                selectedPosition = 0
+                DataHolder.selectedPosition = 0
                 datalist[0].isSelected = true
             }
             binding.ivModify.setOnClickListener {
@@ -68,13 +69,13 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
         }
 
         // 아이템의 배경 설정
-        if(selectedPosition == position){
+        if(DataHolder.selectedPosition == position){
             holder.itemView.setBackgroundResource(R.color.inform)
         }else{
             holder.itemView.setBackgroundResource(R.color.white)
         }
 
-        if(!datalist[position].whole && selectedPosition != 0 && position != 0){
+        if(!datalist[position].whole && DataHolder.selectedPosition != 0 && position != 0){
             holder.itemView.findViewById<ImageView>(R.id.iv_modify).visibility = View.VISIBLE
             holder.itemView.findViewById<ImageView>(R.id.iv_delete).visibility = View.VISIBLE
         }
@@ -82,13 +83,13 @@ class GroupListAdapter(private val groupDeleteListener: GroupDeleteListener, pri
         // 아이템 클릭 이벤트
         holder.itemView.setOnClickListener {
             // 이전에 선택된 아이템의 배경을 변경
-            previousSelectedPosition = selectedPosition
-            datalist[previousSelectedPosition].isSelected = false
-            selectedPosition = position
-            datalist[selectedPosition].isSelected = true
+            DataHolder.previousSelectedPosition = DataHolder.selectedPosition
+            datalist[DataHolder.previousSelectedPosition].isSelected = false
+            DataHolder.selectedPosition = position
+            datalist[DataHolder.selectedPosition].isSelected = true
             // 이전 & 현재 클릭된 아이템의 배경을 변경
-            notifyItemChanged(selectedPosition)
-            notifyItemChanged(previousSelectedPosition)
+            notifyItemChanged(DataHolder.selectedPosition)
+            notifyItemChanged(DataHolder.previousSelectedPosition)
 
             itemClickListener.onClick(it, position, datalist[position].id, datalist[position].name)
         }
