@@ -427,6 +427,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     marker = MapPOIItem()
                     binding.mapView.setMapCenterPoint(centerPoint, true)
                     marker.itemName = "마커"
+                    marker.isShowCalloutBalloonOnTouch = false
                     marker.mapPoint = MapPoint.mapPointWithGeoCoord(binding.mapView.mapCenterPoint.mapPointGeoCoord.latitude, binding.mapView.mapCenterPoint.mapPointGeoCoord.longitude)
                     latitude = binding.mapView.mapCenterPoint.mapPointGeoCoord.latitude
                     longitude = binding.mapView.mapCenterPoint.mapPointGeoCoord.longitude
@@ -539,7 +540,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // 그룹 생성 api
     private fun createGroup(name: String){
         viewModel.createGroup(CreateGroupRequest(name))
-        viewModel.checkGroup.observe(this, Observer {
+        viewModel.createGroup.observe(this, Observer {
             groupListAdapter.setData(viewModel.checkGroup.value!!)
         })
         viewModel.checkErrorGroup.observe(this, Observer {
@@ -562,7 +563,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // 그룹 삭제 api
     private fun deleteGroup(groupId: Long, position: Int){
         viewModel.deleteGroup(groupId, position)
-        viewModel.checkGroup.observe(this, Observer {
+        viewModel.deleteGroup.observe(this, Observer {
             groupListAdapter.setData(it)
             // 현재 선택한 리사이클러뷰 아이템의 그룹을 삭제했을 경우
             // 전체 고객을 조회하는 api 호출 후 전체 고객 마커 찍고 UserData 값 변경
@@ -577,7 +578,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     // 그룹 수정 api
     private fun modifyGroup(groupId: Long, name: String, position: Int){
         viewModel.modifyGroup(groupId, CreateGroupRequest(name), position)
-        viewModel.checkGroup.observe(this, Observer {
+        viewModel.modifyGroup.observe(this, Observer {
             groupListAdapter.setData(it)
 
             // 변경한 그룹 이름 저장 데이터에도 갱신
@@ -730,7 +731,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
     override fun onResume() {
         super.onResume()
-//        stopTracking()
+        GPSBtn = false
+        val bgShape = binding.ibGps.background as GradientDrawable
+        bgShape.setColor(resources.getColor(R.color.white))
+        binding.ibGps.setImageResource(R.drawable.ic_gray_gps)
+        stopTracking()
         plusBtnInactivation()
         clientMarker()
     }
