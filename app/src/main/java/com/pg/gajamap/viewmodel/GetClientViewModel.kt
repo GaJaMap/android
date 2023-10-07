@@ -66,6 +66,19 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
     private val _checkGroup = MutableLiveData<ArrayList<GroupListData>>()
     val checkGroup : LiveData<ArrayList<GroupListData>>
         get() = _checkGroup
+
+    private val _createGroup = MutableLiveData<ArrayList<GroupListData>>()
+    val createGroup : LiveData<ArrayList<GroupListData>>
+        get() = _createGroup
+
+    private val _deleteGroup = MutableLiveData<ArrayList<GroupListData>>()
+    val deleteGroup : LiveData<ArrayList<GroupListData>>
+        get() = _deleteGroup
+
+    private val _modifyGroup = MutableLiveData<ArrayList<GroupListData>>()
+    val modifyGroup : LiveData<ArrayList<GroupListData>>
+        get() = _modifyGroup
+
     private var checkItems = ArrayList<GroupListData>()
 
     private val _checkErrorGroup = SingleLiveEvent<String>()
@@ -82,7 +95,7 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
                 val data = response.body()
                 // MapFragment에서 observer가 실행되기 위해서는 postValue가 필요하다!
                 checkItems.add(GroupListData(img = Color.rgb(Random.nextInt(0, 255), Random.nextInt(0, 255), Random.nextInt(0, 255)), id = data!!, name = createRequest.name, person = "0", false, false))
-                _checkGroup.postValue(checkItems)
+                _createGroup.postValue(checkItems)
                 Log.d("createGroupSuccess", "${response.body()}")
             }else {
                 Log.d("createGroupError", "createGroup : ${response.message()}")
@@ -132,7 +145,7 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
             Log.d("deleteGroup", "$response\n${response.code()}")
             if(response.isSuccessful){
                 checkItems.removeAt(pos)
-                _checkGroup.postValue(checkItems)
+                _deleteGroup.postValue(checkItems)
                 Log.d("deleteGroupSuccess", "${response.body()}")
             }else {
                 Log.d("deleteGroupError", "deleteGroup : ${response.message()}")
@@ -147,7 +160,7 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
             Log.d("modifyGroup", "$response\n${response.code()}")
             if(response.isSuccessful){
                 checkItems.get(pos).name = createRequest.name
-                _checkGroup.postValue(checkItems)
+                _modifyGroup.postValue(checkItems)
                 Log.d("modifyGroupSuccess", "${response.body()}")
 
             }else {

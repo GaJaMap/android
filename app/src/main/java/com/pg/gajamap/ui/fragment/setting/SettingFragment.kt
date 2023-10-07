@@ -115,7 +115,6 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
             override fun handleOnBackPressed() {
                 if (doubleBackToExitPressedOnce) {
                     // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
-                    System.exit(0)
                     requireActivity().finish()
                 } else {
                     doubleBackToExitPressedOnce = true

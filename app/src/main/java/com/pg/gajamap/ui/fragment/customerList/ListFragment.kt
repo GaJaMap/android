@@ -44,6 +44,7 @@ import com.pg.gajamap.ui.adapter.GroupListAdapter
 import com.pg.gajamap.ui.fragment.map.MapFragment
 import com.pg.gajamap.ui.view.EditListActivity
 import com.pg.gajamap.viewmodel.GetClientViewModel
+import kotlin.system.exitProcess
 
 class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
     private var groupId: Int = -1
@@ -216,6 +217,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
                 sheetView!!.tvAddgroupMain.text = gname
                 pos = position
 
+
                 if (position == 0){
                     getAllClient()
                 }else{
@@ -227,7 +229,6 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
         // search bar 클릭 시 바텀 다이얼로그 띄우기
         binding.clSearch.setOnClickListener {
             // 그룹 더보기 바텀 다이얼로그 띄우기
-            checkGroup()
             sheetView!!.rvAddgroup.adapter = groupListAdapter
 
             groupDialog.setContentView(sheetView!!.root)
@@ -296,7 +297,6 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
             override fun handleOnBackPressed() {
                 if (doubleBackToExitPressedOnce) {
                     // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
-                    System.exit(0)
                     requireActivity().finish()
                 } else {
                     doubleBackToExitPressedOnce = true
@@ -430,7 +430,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
     // 그룹 생성 api
     private fun createGroup(name: String){
         viewModel.createGroup(CreateGroupRequest(name))
-        viewModel.checkGroup.observe(this, Observer {
+        viewModel.createGroup.observe(this, Observer {
             groupListAdapter.setData(viewModel.checkGroup.value!!)
         })
         viewModel.checkErrorGroup.observe(this, Observer {
@@ -453,7 +453,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
     // 그룹 삭제 api
     private fun deleteGroup(groupId: Long, position: Int){
         viewModel.deleteGroup(groupId, position)
-        viewModel.checkGroup.observe(this, Observer {
+        viewModel.deleteGroup.observe(this, Observer {
             groupListAdapter.setData(it)
             // 현재 선택한 리사이클러뷰 아이템의 그룹을 삭제했을 경우
             // 전체 고객을 조회하는 api 호출 후 전체 고객 마커 찍고 UserData 값 변경
@@ -468,7 +468,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
     // 그룹 수정 api
     private fun modifyGroup(groupId: Long, name: String, position: Int){
         viewModel.modifyGroup(groupId, CreateGroupRequest(name), position)
-        viewModel.checkGroup.observe(this, Observer {
+        viewModel.modifyGroup.observe(this, Observer {
             groupListAdapter.setData(it)
 
             // 변경한 그룹 이름 저장 데이터에도 갱신
@@ -531,6 +531,23 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
                 else -> clientList!!.clients // 기본값으로 정렬하지 않음
             }
             customerListAdapter.updateData(sortedData)
+        }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if(hidden) {
+            return
+        }
+        checkGroup()
+        clientList = UserData.clientListResponse
+        customerListAdapter = CustomerListAdapter(clientList!!.clients)
+        updateData()
+
+        // 그룹 더보기 및 검색창 그룹 이름, 현재 선택된 이름으로 변경
+        if (UserData.groupinfo != null) {
+            binding.tvSearch.text = UserData.groupinfo!!.groupName
+            sheetView!!.tvAddgroupMain.text = UserData.groupinfo!!.groupName
         }
     }
 }
