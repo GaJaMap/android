@@ -228,12 +228,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 val builder = AlertDialog.Builder(requireContext())
                 builder.setTitle("해당 그룹을 삭제하시겠습니까?")
                     .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
-                    .setPositiveButton("확인", { dialogInterface: DialogInterface, i: Int ->
+                    .setPositiveButton("확인") { _: DialogInterface, _: Int ->
                         // 그룹 삭제 서버 연동 함수 호출
                         deleteGroup(gid, position)
-                    })
-                    .setNegativeButton("취소", { dialogInterface: DialogInterface, i: Int ->
-                    })
+                    }
+                    .setNegativeButton("취소") { _: DialogInterface, _: Int ->
+                    }
                 val alertDialog = builder.create()
                 alertDialog.show()
                 gName = name
@@ -420,8 +420,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         binding.ibKm.setImageResource(R.drawable.ic_km)
                     }
 
-
-
                     // 지도에서 직접 추가하기 마커 위치
                     val centerPoint = binding.mapView.mapCenterPoint
                     marker = MapPOIItem()
@@ -597,21 +595,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         viewModel.wholeRadius(radius, latitude, longitude)
 
         viewModel.wholeRadius.observe(this, Observer {
-            if (viewModel.wholeRadius.value == null){
-//                val builder = AlertDialog.Builder(requireContext())
-//                builder.setMessage("시스템 오류")
-//                builder.setPositiveButton("확인") { dialog, which ->
-//                }
-//                builder.show()
-            }
-            else{
+            if (viewModel.wholeRadius.value != null){
                 UserData.clientListResponse = viewModel.wholeRadius.value
                 val data = viewModel.wholeRadius.value!!.clients
                 val num = data.count()
 
                 binding.mapView.removeAllPOIItems()
-                for (i in 0..num-1){
-                    val itemdata = data.get(i)
+                for (i in 0 until num){
+                    val itemdata = data[i]
                     // 지도에 마커 추가
                     val point = MapPOIItem()
                     point.apply {
@@ -632,22 +623,15 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
     private fun specificRadius(radius: Int, latitude: Double, longitude: Double, groupId: Long){
         viewModel.specificRadius(radius, latitude, longitude, groupId)
 
-        viewModel.wholeRadius.observe(this, Observer {
-            if (viewModel.wholeRadius.value == null){
-//                val builder = AlertDialog.Builder(requireContext())
-//                builder.setMessage("시스템 오류")
-//                builder.setPositiveButton("확인") { dialog, which ->
-//                }
-//                builder.show()
-            }
-            else{
-                UserData.clientListResponse = viewModel.wholeRadius.value
-                val data = viewModel.wholeRadius.value!!.clients
+        viewModel.specificRadius.observe(this, Observer {
+            if (viewModel.specificRadius.value != null){
+                UserData.clientListResponse = viewModel.specificRadius.value
+                val data = viewModel.specificRadius.value!!.clients
                 val num = data.count()
 
                 binding.mapView.removeAllPOIItems()
-                for (i in 0..num-1){
-                    val itemdata = data.get(i)
+                for (i in 0 until num){
+                    val itemdata = data[i]
                     // 지도에 마커 추가
                     val point = MapPOIItem()
                     point.apply {
@@ -957,7 +941,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     val bgShapebtn = binding.ibKm.background as GradientDrawable
                     bgShapebtn.setColor(resources.getColor(R.color.white))
                     binding.ibKm.setImageResource(R.drawable.ic_km)
-                    getGroupClient(UserData.groupinfo!!.groupId, UserData.groupinfo!!.groupName)
+                    if (binding.tvSearch.text == "전체") {
+                        getAllClient()
+                    } else {
+                        getGroupClient(UserData.groupinfo!!.groupId, UserData.groupinfo!!.groupName)
+                    }
                 }
             }
 
@@ -976,6 +964,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
                     if (a.first != 0.0 && a.second != 0.0) {
                         if (binding.tvSearch.text == "전체") {
+                            Log.d("okaybtn5km","okay")
                             wholeRadius(5000, a.first, a.second)
                         } else {
                             specificRadius(5000, a.first, a.second, UserData.groupinfo!!.groupId)
@@ -999,7 +988,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     val bgShapebtn = binding.ibKm.background as GradientDrawable
                     bgShapebtn.setColor(resources.getColor(R.color.white))
                     binding.ibKm.setImageResource(R.drawable.ic_km)
-                    getGroupClient(UserData.groupinfo!!.groupId, UserData.groupinfo!!.groupName)
+                    if (binding.tvSearch.text == "전체") {
+                        getAllClient()
+                    } else {
+                        getGroupClient(UserData.groupinfo!!.groupId, UserData.groupinfo!!.groupName)
+                    }
                 }
             }
         }else {

@@ -146,13 +146,18 @@ class MapViewModel: ViewModel() {
         }
     }
 
+    // 전체 고객 대상 반경 검색
+    private val _specificRadius = MutableLiveData<GetAllClientResponse>()
+    val specificRadius : LiveData<GetAllClientResponse>
+        get() = _specificRadius
+
     // 특정 그룹 내 고객 대상 반경 검색
     fun specificRadius(radius: Int, latitude: Double, longitude: Double, groupId: Long){
         viewModelScope.launch(Dispatchers.IO) {
             val response = radiusRepository.specificRadius(groupId, radius, latitude, longitude)
             Log.d("specificRadius", "$response\n${response.code()}")
             if(response.isSuccessful || response.code() == 422){
-                _wholeRadius.postValue(response.body())
+                _specificRadius.postValue(response.body())
                 Log.d("specificRadiusSuccess", "${response.body()}")
 
             }else {
