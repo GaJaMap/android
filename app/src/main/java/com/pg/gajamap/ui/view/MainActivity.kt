@@ -27,8 +27,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val TAG_MAP = "map_fragment"
     private val TAG_LIST = "list_fragment"
     private val TAG_SETTING = "setting_fragment"
-    // 뒤로가기 두 번 클릭 시 앱 종료
-    private var backPressedTime: Long = 0
 
     override val viewModel by viewModels<MainViewModel> {
         MainViewModel.MainViewModelFactory("tmp")
@@ -50,26 +48,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         bnMain.selectedItemId = R.id.menu_map
         // 프래그먼트 초기화 및 추가
         setFragment(TAG_MAP, mapFragment!!)
-//
-//        bnMain.setOnItemSelectedListener { menuItem ->
-//            val transaction = supportFragmentManager.beginTransaction()
-//
-//            when (menuItem.itemId) {
-//                R.id.menu_map -> {
-//                    transaction.replace(R.id.nav_fl, MapFragment(), TAG_MAP)
-//                }
-//                R.id.menu_list -> {
-//                    transaction.replace(R.id.nav_fl, ListFragment(), TAG_LIST)
-//                }
-//                R.id.menu_setting -> {
-//                    transaction.replace(R.id.nav_fl, SettingFragment(), TAG_SETTING)
-//                }
-//            }
-//
-//            transaction.addToBackStack(null)
-//            transaction.commit()
-//            true
-//        }
 
         bnMain.setOnItemSelectedListener {
             when (it.itemId) {
@@ -88,10 +66,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 R.id.menu_setting -> {}
             }
         }
-
-        // deprecated 된 onBackPressed() 대신 사용
-        // 위에서 생성한 콜백 인스턴스 붙여주기
-//        this.onBackPressedDispatcher.addCallback(this, callback)
     }
 
     // fragment 상태 유지를 위한 컨트롤 함수
@@ -161,8 +135,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     override fun onDestroy() {
         super.onDestroy()
-
-        // 여기에서 mapFragment.stopTracking()을 호출합니다.
         mapFragment?.stopTracking()
     }
 }
