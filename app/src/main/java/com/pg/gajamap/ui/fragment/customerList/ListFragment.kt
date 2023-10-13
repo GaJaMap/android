@@ -80,7 +80,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateAction() {
         clientList = UserData.clientListResponse
-        customerListAdapter = CustomerListAdapter(clientList!!.clients)
+        customerListAdapter = CustomerListAdapter(clientList!!.clients,requireContext())
         binding.listRv.apply {
             adapter = customerListAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -135,38 +135,6 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
 
             customerListAdapter.updateData(clientList!!.clients.sortedBy { it.distance })
         }
-
-        //내비게이션
-        customerListAdapter.setItemClickListener(object :
-            CustomerListAdapter.ItemClickListener {
-            override fun onClick(v: View, position: Int) {
-                val latitude = clientList!!.clients[position].location.latitude
-                val longitude = clientList!!.clients[position].location.longitude
-                val name = clientList!!.clients[position].clientName
-                Log.d("navi", latitude.toString())
-                Log.d("navi", longitude.toString())
-                //카카오내비
-                // 카카오내비 앱으로 길 안내
-                if (NaviClient.instance.isKakaoNaviInstalled(requireContext())) {
-                    // 카카오내비 앱으로 길 안내 - WGS84
-                    startActivity(
-                        NaviClient.instance.navigateIntent(
-                            //위도 경도를 장소이름으로 바꿔주기
-                            Location(name, longitude.toString(), latitude.toString()),
-                            NaviOption(coordType = CoordType.WGS84)
-                        )
-                    )
-                } else {
-                    // 카카오내비 설치 페이지로 이동
-                    startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(Constants.WEB_NAVI_INSTALL)
-                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    )
-                }
-            }
-        })
 
         // groupListAdapter를 우선적으로 초기화해줘야 함
         groupListAdapter = GroupListAdapter(object : GroupListAdapter.GroupDeleteListener{
@@ -400,6 +368,11 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
     override fun onResume() {
         super.onResume()
         updateData()
+        if(binding.tvSearch.text == "전체") {
+            getAllClient()
+        } else {
+            getGroupClient(UserData.groupinfo!!.groupId, UserData.groupinfo!!.groupName)
+        }
     }
 
     private fun updateData() {
@@ -407,7 +380,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
     }
 
     fun ListRv(it: GetAllClientResponse) {
-        customerListAdapter = CustomerListAdapter(it.clients)
+        customerListAdapter = CustomerListAdapter(it.clients,requireContext())
         sortedRVList()
     }
 
@@ -416,7 +389,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
             // 여기에서 clientName을 검색합니다. 대소문자를 무시하려면 equals를 equalsIgnoreCase로 바꿀 수 있습니다.
             client.clientName.contains(searchText, ignoreCase = true)
         }
-        customerListAdapter = clientList?.let { CustomerListAdapter(it.clients) }!!
+        customerListAdapter = clientList?.let { CustomerListAdapter(it.clients,requireContext()) }!!
         binding.listRv.apply {
             adapter = customerListAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -494,7 +467,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
             UserData.groupinfo = AutoLoginGroupInfo(groupId, num, gname)
 
             clientList = UserData.clientListResponse
-            customerListAdapter = CustomerListAdapter(clientList!!.clients)
+            customerListAdapter = CustomerListAdapter(clientList!!.clients,requireContext())
 
             sortedRVList()
         })
@@ -514,7 +487,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
             UserData.groupinfo = AutoLoginGroupInfo(-1, num, "전체")
 
             clientList = UserData.clientListResponse
-            customerListAdapter = CustomerListAdapter(clientList!!.clients)
+            customerListAdapter = CustomerListAdapter(clientList!!.clients,requireContext())
 
             sortedRVList()
         })
@@ -541,7 +514,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
         }
         checkGroup()
         clientList = UserData.clientListResponse
-        customerListAdapter = CustomerListAdapter(clientList!!.clients)
+        customerListAdapter = CustomerListAdapter(clientList!!.clients,requireContext())
         updateData()
 
         // 그룹 더보기 및 검색창 그룹 이름, 현재 선택된 이름으로 변경

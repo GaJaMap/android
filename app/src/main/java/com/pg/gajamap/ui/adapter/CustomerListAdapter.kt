@@ -1,5 +1,6 @@
 package com.pg.gajamap.ui.adapter
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -10,6 +11,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.kakao.sdk.navi.Constants
+import com.kakao.sdk.navi.NaviClient
+import com.kakao.sdk.navi.model.CoordType
+import com.kakao.sdk.navi.model.Location
+import com.kakao.sdk.navi.model.NaviOption
 import com.kakao.sdk.user.model.User
 import com.pg.gajamap.R
 import com.pg.gajamap.base.UserData
@@ -17,7 +23,7 @@ import com.pg.gajamap.data.model.Client
 import com.pg.gajamap.databinding.ItemListBinding
 import com.pg.gajamap.ui.view.CustomerInfoActivity
 
-class CustomerListAdapter(private var dataList: List<Client>) :
+class CustomerListAdapter(private var dataList: List<Client>, private val context: Context) :
     RecyclerView.Adapter<CustomerListAdapter.ViewHolder>() {
 
     inner class ViewHolder(private val binding: ItemListBinding) :
@@ -28,7 +34,6 @@ class CustomerListAdapter(private var dataList: List<Client>) :
 
         init {
             binding.itemProfilePhoneBtn.setOnClickListener {
-                Log.d("phone", "why")
                 val position = absoluteAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     val client = dataList[position]
@@ -39,6 +44,27 @@ class CustomerListAdapter(private var dataList: List<Client>) :
                     val intent = Intent(Intent.ACTION_DIAL)
                     intent.data = Uri.parse("tel:$phoneNumber")
                     binding.root.context.startActivity(intent)
+                }
+            }
+
+            binding.itemProfileCarBtn.setOnClickListener {
+                val position = absoluteAdapterPosition
+                if (NaviClient.instance.isKakaoNaviInstalled(context)) {
+                    context.startActivity(
+                        NaviClient.instance.navigateIntent(
+                            //위도 경도를 장소이름으로 바꿔주기
+                            Location(dataList[position].clientName, dataList[position].location.longitude.toString(), dataList[position].location.latitude.toString()),
+                            NaviOption(coordType = CoordType.WGS84)
+                        )
+                    )
+                } else {
+                    // 카카오내비 설치 페이지로 이동
+                    context.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(Constants.WEB_NAVI_INSTALL)
+                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    )
                 }
             }
         }
@@ -86,29 +112,13 @@ class CustomerListAdapter(private var dataList: List<Client>) :
         holder.mainCardView.setOnClickListener {
             intentToData(it, position)
         }
-        holder.buttonNavi.setOnClickListener {
-            naviClickListener.onClick(it, position)
-        }
     }
 
     interface OnItemClickListener {
         fun onClick(v: View, position: Int)
     }
 
-    interface ItemClickListener {
-        fun onClick(v: View, position: Int)
-    }
-
-    fun setOnItemClickListener(onItemClickListener: OnItemClickListener) {
-        this.itemClickListener = onItemClickListener
-    }
-
-    fun setItemClickListener(itemClickListener: ItemClickListener) {
-        this.naviClickListener = itemClickListener
-    }
-
     private lateinit var itemClickListener: OnItemClickListener
-    private lateinit var naviClickListener: ItemClickListener
 
     fun updateData(newDataList: List<Client>) {
         //differ.submitList(newDataList)
