@@ -403,63 +403,53 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
         // plus버튼, 지도에 직접 추가하기 dialog 보여짐
         binding.ibPlus.setOnClickListener{
-            if (groupNum == 1){
-                val builder = AlertDialog.Builder(requireContext())
-                builder.setTitle("현재 생성된 그룹이 없습니다.")
-                    .setMessage("그룹을 등록해주시기 바랍니다.")
-                    .setPositiveButton("확인"){ dialog, which ->
-                    }
-                val alertDialog = builder.create()
-                alertDialog.show()
+
+            if (!plusBtn){
+                // plus 버튼 클릭 상태로 변경
+                plusBtn = true
+                val bgShape = binding.ibPlus.background as GradientDrawable
+                bgShape.setColor(resources.getColor(R.color.main))
+                binding.ibPlus.setImageResource(R.drawable.ic_white_plus)
+
+                binding.mapView.removeAllPOIItems()
+                // 화면 변경
+                binding.clSearchWhole.visibility = View.GONE
+                binding.clSearchLocation.visibility = View.VISIBLE
+                binding.clLocation.visibility = View.VISIBLE
+                binding.ibPlus.visibility = View.GONE
+                binding.ibGps.visibility = View.GONE
+                binding.ibKm.visibility = View.GONE
+
+                if(threeCheck || fiveCheck) {
+                    binding.clKm.visibility = View.GONE
+                } else {
+                    binding.clKm.visibility = View.GONE
+                    val bgShape2 = binding.ibKm.background as GradientDrawable
+                    bgShape2.setColor(resources.getColor(R.color.white))
+                    binding.ibKm.setImageResource(R.drawable.ic_km)
+                }
+
+                // 지도에서 직접 추가하기 마커 위치
+                val centerPoint = binding.mapView.mapCenterPoint
+                marker = MapPOIItem()
+                binding.mapView.setMapCenterPoint(centerPoint, true)
+                marker.itemName = "마커"
+                marker.isShowCalloutBalloonOnTouch = false
+                marker.mapPoint = MapPoint.mapPointWithGeoCoord(binding.mapView.mapCenterPoint.mapPointGeoCoord.latitude, binding.mapView.mapCenterPoint.mapPointGeoCoord.longitude)
+                latitude = binding.mapView.mapCenterPoint.mapPointGeoCoord.latitude
+                longitude = binding.mapView.mapCenterPoint.mapPointGeoCoord.longitude
+                marker.markerType = MapPOIItem.MarkerType.RedPin
+                binding.mapView.addPOIItem(marker)
+                val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
+                mapGeoCoder.startFindingAddress()
+                markerCheck = true
             }
             else{
-                if (!plusBtn){
-                    // plus 버튼 클릭 상태로 변경
-                    plusBtn = true
-                    val bgShape = binding.ibPlus.background as GradientDrawable
-                    bgShape.setColor(resources.getColor(R.color.main))
-                    binding.ibPlus.setImageResource(R.drawable.ic_white_plus)
-
-                    binding.mapView.removeAllPOIItems()
-                    // 화면 변경
-                    binding.clSearchWhole.visibility = View.GONE
-                    binding.clSearchLocation.visibility = View.VISIBLE
-                    binding.clLocation.visibility = View.VISIBLE
-                    binding.ibPlus.visibility = View.GONE
-                    binding.ibGps.visibility = View.GONE
-                    binding.ibKm.visibility = View.GONE
-
-                    if(threeCheck || fiveCheck) {
-                        binding.clKm.visibility = View.GONE
-                    } else {
-                        binding.clKm.visibility = View.GONE
-                        val bgShape2 = binding.ibKm.background as GradientDrawable
-                        bgShape2.setColor(resources.getColor(R.color.white))
-                        binding.ibKm.setImageResource(R.drawable.ic_km)
-                    }
-
-                    // 지도에서 직접 추가하기 마커 위치
-                    val centerPoint = binding.mapView.mapCenterPoint
-                    marker = MapPOIItem()
-                    binding.mapView.setMapCenterPoint(centerPoint, true)
-                    marker.itemName = "마커"
-                    marker.isShowCalloutBalloonOnTouch = false
-                    marker.mapPoint = MapPoint.mapPointWithGeoCoord(binding.mapView.mapCenterPoint.mapPointGeoCoord.latitude, binding.mapView.mapCenterPoint.mapPointGeoCoord.longitude)
-                    latitude = binding.mapView.mapCenterPoint.mapPointGeoCoord.latitude
-                    longitude = binding.mapView.mapCenterPoint.mapPointGeoCoord.longitude
-                    marker.markerType = MapPOIItem.MarkerType.RedPin
-                    binding.mapView.addPOIItem(marker)
-                    val mapGeoCoder = MapReverseGeoCoder(KAKAO_API_KEY, marker.mapPoint, reverseGeoCodingResultListener, requireActivity())
-                    mapGeoCoder.startFindingAddress()
-                    markerCheck = true
-                }
-                else{
-                    // plus 버튼 클릭하지 않은 상태로 변경
-                    plusBtn = false
-                    val bgShape = binding.ibPlus.background as GradientDrawable
-                    bgShape.setColor(resources.getColor(R.color.white))
-                    binding.ibPlus.setImageResource(R.drawable.ic_plus)
-                }
+                // plus 버튼 클릭하지 않은 상태로 변경
+                plusBtn = false
+                val bgShape = binding.ibPlus.background as GradientDrawable
+                bgShape.setColor(resources.getColor(R.color.white))
+                binding.ibPlus.setImageResource(R.drawable.ic_plus)
             }
         }
 

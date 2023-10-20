@@ -22,6 +22,7 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
+import com.pg.gajamap.ui.fragment.loginTerms.LocationInfoFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,6 +63,24 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
         // deprecated 된 onBackPressed() 대신 사용
         // 위에서 생성한 콜백 인스턴스 붙여주기
         this.onBackPressedDispatcher.addCallback(this, callback)
+
+        binding.locationInfo.setOnClickListener {
+            val intent = Intent(this, TermsActivity::class.java)
+            intent.putExtra("fragmentType", "locationInfo")
+            startActivity(intent)
+        }
+
+        binding.serviceInfo.setOnClickListener {
+            val intent = Intent(this, TermsActivity::class.java)
+            intent.putExtra("fragmentType", "serviceInfo")
+            startActivity(intent)
+        }
+
+        binding.userInfo.setOnClickListener {
+            val intent = Intent(this, TermsActivity::class.java)
+            intent.putExtra("fragmentType", "userInfo")
+            startActivity(intent)
+        }
     }
 
     fun kakaoLogin() {

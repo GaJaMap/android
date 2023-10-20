@@ -17,6 +17,7 @@ import com.pg.gajamap.base.GajaMapApplication
 import com.pg.gajamap.databinding.FragmentSettingBinding
 import com.pg.gajamap.ui.fragment.map.MapFragment
 import com.pg.gajamap.ui.view.LoginActivity
+import com.pg.gajamap.ui.view.TermsActivity
 import com.pg.gajamap.viewmodel.ClientViewModel
 
 class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_setting) {
@@ -86,6 +87,24 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
         //카카오 프로필
         binding.settingKakaoTv.setOnClickListener {
             parentFragmentManager.beginTransaction().replace(R.id.nav_fl, KakaoProfileFragment()).addToBackStack(null).commit()
+        }
+
+        binding.settingPersonalInfoTv.setOnClickListener {
+            val intent = Intent(requireContext(), TermsActivity::class.java)
+            intent.putExtra("fragmentType", "userInfo")
+            startActivity(intent)
+        }
+
+        binding.settingLocationTv.setOnClickListener {
+            val intent = Intent(requireContext(), TermsActivity::class.java)
+            intent.putExtra("fragmentType", "locationInfo")
+            startActivity(intent)
+        }
+
+        binding.settingServiceTv.setOnClickListener {
+            val intent = Intent(requireContext(), TermsActivity::class.java)
+            intent.putExtra("fragmentType", "serviceInfo")
+            startActivity(intent)
         }
 
 

@@ -220,7 +220,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/setting_box_3"
                 android:layout_width="match_parent"
-                android:layout_height="214dp"
+                android:layout_height="246dp"
                 android:layout_marginStart="9dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="9dp"
@@ -269,7 +269,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/setting_use_1" />
 
                 <TextView
-                    android:id="@+id/setting_terms_tv"
+                    android:id="@+id/setting_service_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="13dp"
@@ -281,16 +281,18 @@
                     app:layout_constraintTop_toBottomOf="@+id/setting_version_tv" />
 
                 <TextView
-                    android:id="@+id/setting_inquire_tv"
+                    android:id="@+id/setting_location_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="13dp"
                     android:layout_marginTop="10dp"
-                    android:text="@string/setting_use_5"
+                    android:text="위치기반 서비스 이용약관"
                     android:textColor="@drawable/text_click"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/setting_terms_tv" />
+                    app:layout_constraintTop_toBottomOf="@+id/setting_service_tv" />
+
+
 
                 <TextView
                     android:id="@+id/setting_personal_info_tv"
@@ -302,7 +304,19 @@
                     android:textColor="@drawable/text_click"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/setting_inquire_tv" />
+                    app:layout_constraintTop_toBottomOf="@+id/setting_location_tv" />
+
+                <TextView
+                    android:id="@+id/setting_inquire_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="13dp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/setting_use_5"
+                    android:textColor="@drawable/text_click"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/setting_personal_info_tv" />
 
                 <TextView
                     android:id="@+id/setting_open_source_tv"
@@ -314,7 +328,7 @@
                     android:textColor="@drawable/text_click"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/setting_personal_info_tv" />
+                    app:layout_constraintTop_toBottomOf="@+id/setting_inquire_tv" />
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
