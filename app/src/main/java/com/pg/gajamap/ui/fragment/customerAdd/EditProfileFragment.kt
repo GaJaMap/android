@@ -23,6 +23,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.pg.gajamap.BR
 import com.pg.gajamap.R
 import com.pg.gajamap.base.BaseFragment
+import com.pg.gajamap.base.GajaMapApplication
 import com.pg.gajamap.base.UserData
 import com.pg.gajamap.databinding.FragmentEditProfileBinding
 import com.pg.gajamap.viewmodel.ClientViewModel
@@ -98,7 +99,11 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         }
 
         binding.infoProfileCameraBtn.setOnClickListener {
-            openImagePickOption()
+            if(GajaMapApplication.prefs.getString("authority", "") == "FREE") {
+                Toast.makeText(requireContext(),"VIP등급만 사용 가능합니다.",Toast.LENGTH_SHORT).show()
+            } else {
+                openImagePickOption()
+            }
         }
         if(!isCamera){
             sendImage1()

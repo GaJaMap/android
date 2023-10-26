@@ -26,6 +26,8 @@ android {
         // mainfest에서 쓸 수 있도록 지정
         manifestPlaceholders = [KAKAO_API_KEY : kakaoApiKey]
 
+        buildConfigField "String", "GOOGLE_MAP_KEY", properties['google_map_key']
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         multiDexEnabled true
@@ -38,7 +40,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -114,4 +116,6 @@ dependencies {
 
     //카카오 내비
     implementation "com.kakao.sdk:v2-navi:2.15.0" // 카카오내비
+
+    implementation 'androidx.core:core-splashscreen:1.0.0-rc01'
 }

@@ -139,7 +139,12 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
 
         binding.infoProfileCameraBtn.setOnClickListener {
 
-            openImagePickOption()
+            if(GajaMapApplication.prefs.getString("authority", "") == "FREE") {
+                Toast.makeText(this,"VIP등급만 사용 가능합니다.",Toast.LENGTH_SHORT).show()
+            } else {
+                openImagePickOption()
+            }
+
         }
         if(!isCamera){
             sendImage1()

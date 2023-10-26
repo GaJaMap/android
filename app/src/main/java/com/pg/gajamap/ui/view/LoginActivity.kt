@@ -2,10 +2,12 @@ package com.pg.gajamap.ui.view
 
 import android.content.Intent
 import android.util.Log
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import com.pg.gajamap.R
@@ -22,6 +24,7 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
+import com.pg.gajamap.ui.fragment.loginTerms.LocationInfoFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,6 +58,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
             UserData.groupinfo = it.groupInfo
             UserData.imageUrlPrefix = it.imageUrlPrefix
 
+            dialogHide()
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         })
@@ -62,9 +66,28 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
         // deprecated 된 onBackPressed() 대신 사용
         // 위에서 생성한 콜백 인스턴스 붙여주기
         this.onBackPressedDispatcher.addCallback(this, callback)
+
+        binding.locationInfo.setOnClickListener {
+            val intent = Intent(this, TermsActivity::class.java)
+            intent.putExtra("fragmentType", "locationInfo")
+            startActivity(intent)
+        }
+
+        binding.serviceInfo.setOnClickListener {
+            val intent = Intent(this, TermsActivity::class.java)
+            intent.putExtra("fragmentType", "serviceInfo")
+            startActivity(intent)
+        }
+
+        binding.userInfo.setOnClickListener {
+            val intent = Intent(this, TermsActivity::class.java)
+            intent.putExtra("fragmentType", "userInfo")
+            startActivity(intent)
+        }
     }
 
     fun kakaoLogin() {
+        dialogShow()
         // 카카오계정으로 로그인 공통 callback 구성
         // 카카오톡으로 로그인 할 수 없어 카카오계정으로 로그인할 경우 사용됨
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
@@ -126,6 +149,18 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
             GajaMapApplication.prefs.setString("createdDate", it.createdDate)
 
         })
+    }
+
+    private fun dialogShow() {
+        binding.progress.isVisible = true
+        window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun dialogHide() {
+        binding.progress.isVisible = false
+        window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
     // 뒤로가기 두 번 클릭 시 앱 종료

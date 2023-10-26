@@ -18,9 +18,9 @@ import com.kakao.sdk.navi.NaviClient
 import com.kakao.sdk.navi.model.CoordType
 import com.kakao.sdk.navi.model.Location
 import com.kakao.sdk.navi.model.NaviOption
+import com.pg.gajamap.BuildConfig
 import com.pg.gajamap.R
 import com.pg.gajamap.base.BaseFragment
-import com.pg.gajamap.base.GajaMapApplication
 import com.pg.gajamap.base.UserData
 import com.pg.gajamap.data.model.Client
 import com.pg.gajamap.databinding.FragmentCustomerInfoBinding
@@ -57,8 +57,17 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
             customerInfoActivity!!.finish()
         }
 
+        latitude = requireActivity().intent.getDoubleExtra("latitude", 0.0)
+        if(latitude == 0.0) {
+            latitude = null
+        }
+        longitude = requireActivity().intent.getDoubleExtra("longitude", 0.0)
+        if(longitude == 0.0) {
+            longitude = null
+        }
+
         Glide.with(this)
-            .load("https://maps.googleapis.com/maps/api/staticmap?center=Williamsburg,Brooklyn,NY&zoom=13&size=400x400&markers=color:blue%7Clabel:S%7C11211%7C11206%7C11222&key=AIzaSyA3kg7YWugGl1lTXmAmaBGPNhDW9pEh5bo")
+            .load("https://maps.googleapis.com/maps/api/staticmap?center=$latitude,$longitude&zoom=15&size=400x400&markers=color:red%7Clabel:S%7C$latitude,$longitude&language=ko&key=${BuildConfig.GOOGLE_MAP_KEY}")
             .error(R.drawable.location_not_found_text)
             .into(binding.mapImage)
 

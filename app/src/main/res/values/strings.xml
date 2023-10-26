@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GaJaMap</string>
+    <string name="app_name">가자맵</string>
 
     <!-- BottomNavigation -->
     <string name="list">List</string>
@@ -35,7 +35,7 @@
     <string name="cardview_distance">3.1</string>
     <string name="cardview_km">km</string>
 
-    <string name="list_search">고객 찾기</string>
+    <string name="list_search">장소 찾기</string>
     <string name="list_search_tv">서울특별시 고객들</string>
     <string name="list_category1">최신순</string>
     <string name="list_category2">오래된순</string>
@@ -48,7 +48,7 @@
     <string name="list_item_distance">5.0km</string>
     <string name="list_dialog_tv1">가자맵이 사용자의 위치에 액세스하도록</string>
     <string name="list_dialog_tv2">허용하시겠습니까?</string>
-    <string name="list_dialog_tv3">‘가자맵’이 고객 리스트에 대한 정보를 가져오기 위해</string>
+    <string name="list_dialog_tv3">‘가자맵’이 장소 리스트에 대한 정보를 가져오기 위해</string>
     <string name="list_dialog_tv4">위치 정보를 사용하도록 허용합니다.</string>
     <string name="list_dialog_tv5">정확한 위치</string>
     <string name="list_dialog_tv6">대략적인 위치</string>
@@ -63,14 +63,14 @@
     <string name="info_top">상세 보기</string>
     <string name="info_address1">서울 강남구 봉은사로33길 33 양지직매상가</string>
     <string name="info_address2">논현역, 학동역 근처</string>
-    <string name="direct_top">고객 추가하기</string>
-    <string name="direct_hint1">새 고객의 이름을 입력해주세요.</string>
+    <string name="direct_top">추가하기</string>
+    <string name="direct_hint1">새 장소의 이름을 입력해주세요.</string>
     <string name="direct_hint2">상세 주소 입력</string>
     <string name="direct_hint3">전화번호 입력</string>
     <string name="direct_warning">*필수 입력사항</string>
     <string name="direct_address_change">주소 변경</string>
     <string name="direct_check">확인</string>
-    <string name="direct_warning_group">*해당 고객을 저장할 그룹 선택</string>
+    <string name="direct_warning_group">*해당 장소를 저장할 그룹 선택</string>
     <string name="direct_group_select">그룹 선택</string>
     <string name="setting_tool">설정</string>
     <string name="setting_email">test@gmail.com</string>
@@ -78,7 +78,7 @@
     <string name="setting_1">/</string>
     <string name="setting_date">2023년 06월 25일</string>
     <string name="setting_subscribe">구독정보</string>
-    <string name="setting_add_1">고객 등록</string>
+    <string name="setting_add_1">장소 등록</string>
     <string name="setting_add_2">엑셀 파일 업로드</string>
     <string name="setting_add_3">카카오 프로필 업로드</string>
     <string name="setting_add_4">연락처 업로드</string>
@@ -98,9 +98,9 @@
     <string name="setting_inquire_4">내용</string>
     <string name="setting_inquire_5">전송하기</string>
     <string name="setting_excel_1">엑셀 파일 업로드</string>
-    <string name="setting_excel_2">www.가자맵.com</string>
+    <string name="setting_excel_2">www.gajamap.com</string>
     <string name="setting_excel_3">이 링크로 들어가시면,</string>
-    <string name="setting_excel_4">엑셀 파일 업로드를 통한 고객 등록이 가능합니다.</string>
+    <string name="setting_excel_4">엑셀 파일 업로드를 통한 장소 등록이 가능합니다.</string>
     <string name="setting_excel_5">PC에 최적화되어 있으므로</string>
     <string name="setting_excel_6">PC로 통한 웹사이트 접속을 권장합니다.</string>
     <string name="setting_phone_1">연락처 선택</string>
@@ -110,10 +110,19 @@
     <string name="setting_phone_5">1000</string>
     <string name="setting_phone_6">)</string>
     <string name="setting_phone_7">검색</string>
-    <string name="setting_phone_8">*해당 고객을 저장할 그룹 선택</string>
+    <string name="setting_phone_8">*해당 장소를 저장할 그룹 선택</string>
     <string name="setting_phone_9">전체선택</string>
     <string name="setting_phone_10">홍길동</string>
     <string name="setting_kakao_1">카카오 프로필 선택</string>
     <string name="setting_level_vip">VIP 등급</string>
+
+    <string name="location_Info"><u>위치정보,</u></string>
+    <string name="service_Info"><u> 서비스 이용 약관</u></string>
+    <string name="user_Info"><u> 개인정보처리방침</u></string>
+
+    <string name="location_Info_content">
+
+    </string>
+
 
 </resources>

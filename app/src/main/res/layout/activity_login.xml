@@ -13,14 +13,15 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.view.LoginActivity">
+    tools:context=".ui.view.LoginActivity"
+    android:id="@+id/location_fragment">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/logo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/logo_img"
-        android:layout_marginTop="53dp"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:src="@drawable/gajamapicon"
+        android:layout_marginTop="120dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
@@ -28,13 +29,76 @@
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/login_btn"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/kakao_login_img"
+        android:layout_height="60dp"
+        android:src="@drawable/kakao_login_image"
         android:onClick="@{() -> activity.kakaoLogin()}"
-        android:layout_marginBottom="112dp"
+        android:layout_marginBottom="140dp"
+        android:paddingLeft="40dp"
+        android:paddingRight="40dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/login_btn"
+        app:layout_constraintStart_toStartOf="@+id/login_btn"
+        app:layout_constraintTop_toBottomOf="@+id/login_btn">
+
+        <TextView
+            android:id="@+id/locationInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nanumsquareneo_regular"
+            android:text="@string/location_Info"
+            android:textColor="@color/black"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/serviceInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nanumsquareneo_regular"
+            android:text="@string/service_Info"
+            android:textColor="@color/black"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nanumsquareneo_regular"
+            android:text=" 및 "
+            android:textColor="@color/black"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/userInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nanumsquareneo_regular"
+            android:text="@string/user_Info"
+            android:textColor="@color/black"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:layout_marginTop="120dp"
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerInParent="true"
+        android:elevation="10dp"
+        android:indeterminateTint="@color/black"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
