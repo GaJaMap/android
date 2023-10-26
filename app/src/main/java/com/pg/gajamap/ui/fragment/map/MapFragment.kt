@@ -19,12 +19,14 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -312,6 +314,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 }else{
                     getGroupClient(gid, gname)
                 }
+
+                groupDialog.hide()
             }
         })
 
@@ -404,6 +408,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         // plus버튼, 지도에 직접 추가하기 dialog 보여짐
         binding.ibPlus.setOnClickListener{
 
+            if(UserData.groupinfo?.groupId == -1L) {
+                Toast.makeText(requireContext(), "전체 그룹일 때는 장소를 추가할 수 없습니다", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             if (!plusBtn){
                 // plus 버튼 클릭 상태로 변경
                 plusBtn = true
@@ -492,6 +501,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
 
         // 오른쪽 화살표를 누르면 화면 전환되는 것으로 구현
         binding.tvLocationSearchGo.setOnClickListener {
+            dialogShow()
             binding.clLocationSearch.visibility = View.VISIBLE
             binding.clLocation.visibility = View.GONE
             // 검색 키워드 받기
@@ -503,6 +513,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.etLocationSearch.setOnKeyListener { view, i, keyEvent ->
             // Enter Key Action
             if (keyEvent.action == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_ENTER) {
+                dialogShow()
                 // 키패드 내리기
                 val imm = requireContext().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(binding.etLocationSearch.windowToken, 0)
@@ -618,8 +629,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         tag = itemdata.clientId.toInt()
                         mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
                         userObject = itemdata.location
-                        markerType = MapPOIItem.MarkerType.BluePin
-                        selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                        markerType = MapPOIItem.MarkerType.RedPin
+                        selectedMarkerType = MapPOIItem.MarkerType.YellowPin
                     }
                     binding.mapView.addPOIItem(point)
                 }
@@ -647,8 +658,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                         tag = itemdata.clientId.toInt()
                         mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
                         userObject = itemdata.location
-                        markerType = MapPOIItem.MarkerType.BluePin
-                        selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                        markerType = MapPOIItem.MarkerType.RedPin
+                        selectedMarkerType = MapPOIItem.MarkerType.YellowPin
                     }
                     binding.mapView.addPOIItem(point)
                 }
@@ -680,8 +691,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     tag = itemdata.clientId.toInt()
                     mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
                     userObject = itemdata.location
-                    markerType = MapPOIItem.MarkerType.BluePin
-                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                    markerType = MapPOIItem.MarkerType.RedPin
+                    selectedMarkerType = MapPOIItem.MarkerType.YellowPin
                 }
                 binding.mapView.addPOIItem(point)
             }
@@ -713,8 +724,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                     tag = itemdata.clientId.toInt()
                     mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
                     userObject = itemdata.location
-                    markerType = MapPOIItem.MarkerType.BluePin
-                    selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                    markerType = MapPOIItem.MarkerType.RedPin
+                    selectedMarkerType = MapPOIItem.MarkerType.YellowPin
                 }
                 binding.mapView.addPOIItem(point)
             }
@@ -810,6 +821,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 }else{  /// 이곳은 에러 발생할 경우 실행됨
                     Log.d("LocationSearch", "fail : ${response.code()}")
                 }
+                dialogHide()
             }
             override fun onFailure(call: Call<ResultSearchKeywordData>, t: Throwable) {
                 Log.w("LocalSearch", "통신 실패: ${t.message}")
@@ -922,8 +934,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
                 tag = itemdata.clientId.toInt()
                 mapPoint = MapPoint.mapPointWithGeoCoord(itemdata.location.latitude!!, itemdata.location.longitude!!)
                 userObject = itemdata.location
-                markerType = MapPOIItem.MarkerType.BluePin
-                selectedMarkerType = MapPOIItem.MarkerType.RedPin
+                markerType = MapPOIItem.MarkerType.RedPin
+                selectedMarkerType = MapPOIItem.MarkerType.YellowPin
             }
             binding.mapView.addPOIItem(point)
         }
@@ -1073,6 +1085,18 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         }
     }
 
+    private fun dialogShow() {
+        binding.progress.isVisible = true
+        activity?.window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun dialogHide() {
+        binding.progress.isVisible = false
+        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
     // 위치추적 시작
     fun startTracking() {
         binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
@@ -1111,6 +1135,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map), Map
         binding.etSearch.text = null
         // 검색창 없애기
         binding.clSearchResult.visibility = View.GONE
+
+        val imm = requireContext().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.etLocationSearch.windowToken, 0)
 
         if(plusBtn){
             plusBtnInactivation()

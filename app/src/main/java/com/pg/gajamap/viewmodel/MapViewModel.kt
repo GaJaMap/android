@@ -55,11 +55,7 @@ class MapViewModel: ViewModel() {
                 Log.d("createGroupSuccess", "${response.body()}")
             }else {
                 Log.d("createGroupError", "createGroup : ${response.message()}")
-                if(response.code() == 403) {
-                    _checkErrorGroup.postValue("Free 등급은 그룹을 최대 하나만 생성 가능합니다.")
-                } else {
-                    _checkErrorGroup.postValue("${response.code()}: ${response.message()}")
-                }
+                _checkErrorGroup.postValue(response.errorBody()?.string())
             }
         }
     }
@@ -85,11 +81,7 @@ class MapViewModel: ViewModel() {
                 _checkGroup.value = checkItems
             }else {
                 Log.d("checkGroupError", "checkGroup : ${response.message()}")
-                if(response.code() == 403) {
-                    _checkErrorGroup.postValue("Free 등급은 그룹을 최대 하나만 생성 가능합니다.")
-                } else {
-                    _checkErrorGroup.postValue("${response.code()}: ${response.message()}")
-                }
+                _checkErrorGroup.postValue(response.errorBody()?.string())
             }
         }
     }

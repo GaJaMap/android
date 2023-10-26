@@ -67,7 +67,7 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
         }
 
         Glide.with(this)
-            .load("https://maps.googleapis.com/maps/api/staticmap?center=$latitude,$longitude&zoom=15&size=400x400&markers=color:red%7Clabel:S%7C$latitude,$longitude&key=${BuildConfig.GOOGLE_MAP_KEY}")
+            .load("https://maps.googleapis.com/maps/api/staticmap?center=$latitude,$longitude&zoom=15&size=400x400&markers=color:red%7Clabel:S%7C$latitude,$longitude&language=ko&key=${BuildConfig.GOOGLE_MAP_KEY}")
             .error(R.drawable.location_not_found_text)
             .into(binding.mapImage)
 

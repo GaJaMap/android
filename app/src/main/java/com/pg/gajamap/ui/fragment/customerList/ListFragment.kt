@@ -191,6 +191,8 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
                 }else{
                     getGroupClient(gid, gname)
                 }
+
+                groupDialog.hide()
             }
         })
 

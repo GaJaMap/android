@@ -32,6 +32,7 @@
                     android:layout_height="match_parent"
                     android:text="개인정보처리방침"
                     android:textColor="@color/black"
+                    android:fontFamily="@font/nanumsquareneo_regular"
                     android:gravity="center_horizontal"
                     android:textSize="30sp"
                     android:textStyle="bold"/>
@@ -39,13 +40,16 @@
                 <TextView
                     android:id="@+id/userInfoContent"
                     android:layout_marginTop="20dp"
+                    android:layout_marginBottom="40dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:fontFamily="@font/nanumsquareneo_regular"
                     android:text="서비스 이용약관"
                     android:textColor="@color/black"
                     android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="30dp"/>
+                    android:textStyle="bold"/>
             </LinearLayout>
         </ScrollView>
 
