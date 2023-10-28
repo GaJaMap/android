@@ -26,6 +26,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.snackbar.Snackbar
 import com.kakao.sdk.navi.Constants
 import com.kakao.sdk.navi.NaviClient
 import com.kakao.sdk.navi.model.CoordType
@@ -136,12 +137,13 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
                 val builder = AlertDialog.Builder(requireContext())
                 builder.setTitle("해당 그룹을 삭제하시겠습니까?")
                     .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
-                    .setPositiveButton("확인", { dialogInterface: DialogInterface, i: Int ->
+                    .setPositiveButton("확인") { _: DialogInterface, _: Int ->
                         // 그룹 삭제 서버 연동 함수 호출
                         deleteGroup(gid, position)
-                    })
-                    .setNegativeButton("취소", { dialogInterface: DialogInterface, i: Int ->
-                    })
+                        Toast.makeText(requireContext(),"그룹 삭제 완료", Toast.LENGTH_SHORT).show()
+                    }
+                    .setNegativeButton("취소") { _: DialogInterface, _: Int ->
+                    }
                 val alertDialog = builder.create()
                 alertDialog.show()
                 gName = name

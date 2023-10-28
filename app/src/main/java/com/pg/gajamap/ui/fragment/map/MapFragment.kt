@@ -296,6 +296,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     .setPositiveButton("확인") { _: DialogInterface, _: Int ->
                         // 그룹 삭제 서버 연동 함수 호출
                         deleteGroup(gid, position)
+                        groupDialog.hide()
+                        Toast.makeText(requireContext(),"그룹 삭제 완료", Toast.LENGTH_SHORT).show()
                     }
                     .setNegativeButton("취소") { _: DialogInterface, _: Int ->
                     }
