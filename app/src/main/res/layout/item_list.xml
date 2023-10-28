@@ -35,6 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/list_item_name"
+        android:fontFamily="@font/nanumsquareneo_bold"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/black"
@@ -48,11 +49,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/list_item_address"
+        android:fontFamily="@font/nanumsquareneo_bold"
         android:textSize="13sp"
         android:textStyle="bold"
         android:textColor="@color/black"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="5dp"
         app:layout_constraintStart_toEndOf="@+id/item_profile_img"
         app:layout_constraintTop_toBottomOf="@+id/item_profile_name"/>
 
@@ -61,6 +63,7 @@
         android:layout_width="180dp"
         android:layout_height="wrap_content"
         android:text="@string/list_item_address_detail"
+        android:fontFamily="@font/nanumsquareneo_regular"
         android:textSize="13sp"
         android:singleLine="true"
         android:ellipsize="marquee"
@@ -70,7 +73,7 @@
         android:focusableInTouchMode="true"
         android:textColor="@color/black"
         android:layout_marginStart="26dp"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="5dp"
         app:layout_constraintStart_toEndOf="@+id/item_profile_address"
         app:layout_constraintTop_toBottomOf="@+id/item_profile_name"/>
 
@@ -79,11 +82,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/list_item_phone"
+        android:fontFamily="@font/nanumsquareneo_bold"
         android:textSize="13sp"
         android:textStyle="bold"
         android:textColor="@color/black"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="6dp"
         app:layout_constraintStart_toEndOf="@+id/item_profile_img"
         app:layout_constraintTop_toBottomOf="@+id/item_profile_address"/>
 
@@ -91,6 +95,7 @@
         android:id="@+id/item_profile_phone_detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/nanumsquareneo_regular"
         android:text="@string/list_item_phone_detail"
         android:textSize="13sp"
         android:textColor="@color/black"
@@ -105,9 +110,10 @@
         android:layout_height="wrap_content"
         android:text="@string/list_item_distance"
         android:textSize="13sp"
+        android:fontFamily="@font/nanumsquareneo_bold"
         android:textColor="@color/main"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintStart_toEndOf="@+id/item_profile_img"
         app:layout_constraintTop_toBottomOf="@+id/item_profile_phone"/>
 
