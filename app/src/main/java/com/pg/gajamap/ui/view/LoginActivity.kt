@@ -63,10 +63,6 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
             finish()
         })
 
-        // deprecated 된 onBackPressed() 대신 사용
-        // 위에서 생성한 콜백 인스턴스 붙여주기
-        this.onBackPressedDispatcher.addCallback(this, callback)
-
         binding.locationInfo.setOnClickListener {
             val intent = Intent(this, TermsActivity::class.java)
             intent.putExtra("fragmentType", "locationInfo")
@@ -131,24 +127,13 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
                 viewModel.postLogin(LoginRequest(token))// postLogin 호출 및 결과 대기
                 //viewModel.autoLogin()
             }
-
-        }
-
-        viewModel.login.observe(this, Observer { it ->
-            viewModel.autoLogin.observe(this@LoginActivity, Observer {
-                GajaMapApplication.prefs.saveAutoLoginResponse(it)
-                // autoLogin이 완료된 후에 MainActivity로 이동합니다.
-                UserData.imageUrlPrefix = it.imageUrlPrefix
-
-                startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-                finish()
+            viewModel.login.observe(this@LoginActivity, Observer {
+                GajaMapApplication.prefs.setString("authority", it.authority)
+                GajaMapApplication.prefs.setString("email", it.email)
+                GajaMapApplication.prefs.setString("createdDate", it.createdDate)
             })
 
-            GajaMapApplication.prefs.setString("authority", it.authority)
-            GajaMapApplication.prefs.setString("email", it.email)
-            GajaMapApplication.prefs.setString("createdDate", it.createdDate)
-
-        })
+        }
     }
 
     private fun dialogShow() {
@@ -163,20 +148,4 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
         window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
-    // 뒤로가기 두 번 클릭 시 앱 종료
-    // 콜백 인스턴스 생성
-    private val callback = object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() {
-            // 뒤로가기 버튼 이벤트 처리
-            if(System.currentTimeMillis() - backPressedTime >= 2000) {
-                backPressedTime = System.currentTimeMillis()
-                Toast.makeText(this@LoginActivity, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
-            } else {
-                // 앱 자체 종료하기
-                ActivityCompat.finishAffinity(this@LoginActivity)
-                System.runFinalization()
-                System.exit(0)
-            }
-        }
-    }
 }
