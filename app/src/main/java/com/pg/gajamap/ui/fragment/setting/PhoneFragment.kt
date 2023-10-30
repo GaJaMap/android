@@ -201,7 +201,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                 val name =
                     contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
                 val number =
-                    PhoneNumberUtils.formatNumber(contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)))
+                    contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)).replace("-","")
 
                 if (name.length <= 10) {
                     // 중복 확인

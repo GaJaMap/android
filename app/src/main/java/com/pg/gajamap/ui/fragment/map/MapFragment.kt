@@ -139,6 +139,13 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("ResourceAsColor")
     override fun onCreateAction() {
+
+        val mapPoint = MapPoint.mapPointWithGeoCoord(
+            GajaMapApplication.prefs.getString("mapLatitude", "37.7").toDouble(),
+            GajaMapApplication.prefs.getString("mapLongitude", "127").toDouble()
+        )
+        binding.mapView.setMapCenterPoint(mapPoint, true)
+
         locationSearchAdapter = LocationSearchAdapter(requireContext(), locationSearchList)
         // 지도 타일 이미지 Persistent Cache 기능 : 네트워크를 통해 다운로드한 지도 이미지 데이터를 단말의 영구(persistent) 캐쉬 영역에 저장하는 기능
         setMapTilePersistentCacheEnabled(true)
@@ -258,13 +265,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     marker.mapPoint = MapPoint.mapPointWithGeoCoord(a.first, a.second)
                     marker.markerType = MapPOIItem.MarkerType.RedPin
                     binding.mapView.addPOIItem(marker)
-                    val mapGeoCoder = MapReverseGeoCoder(
-                        KAKAO_API_KEY,
-                        marker.mapPoint,
-                        reverseGeoCodingResultListener,
-                        requireActivity()
-                    )
-                    mapGeoCoder.startFindingAddress()
+//                    val mapGeoCoder = MapReverseGeoCoder(
+//                        KAKAO_API_KEY,
+//                        marker.mapPoint,
+//                        reverseGeoCodingResultListener,
+//                        requireActivity()
+//                    )
+//                    mapGeoCoder.startFindingAddress()
+                    reverseGeoCoderFoundAddress(marker.mapPoint.mapPointGeoCoord.longitude.toString(),marker.mapPoint.mapPointGeoCoord.latitude.toString())
                     markerCheck = true
                 } else {
                     // GPS가 꺼져있을 경우
@@ -297,7 +305,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                         // 그룹 삭제 서버 연동 함수 호출
                         deleteGroup(gid, position)
                         groupDialog.hide()
-                        Toast.makeText(requireContext(),"그룹 삭제 완료", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "그룹 삭제 완료", Toast.LENGTH_SHORT).show()
                     }
                     .setNegativeButton("취소") { _: DialogInterface, _: Int ->
                     }
@@ -323,8 +331,16 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
                 mDialogView.btnDialogSubmit.setOnClickListener {
                     // 그룹 수정 api 연동
-                    modifyGroup(gid, mDialogView.etName.text.toString(), position)
-                    addDialog.dismiss()
+
+                    if (mDialogView.etName.text.toString() == "전체" ||
+                        mDialogView.etName.text.toString().isEmpty()
+                    ) {
+                        Toast.makeText(requireContext(), "사용할 수 없는 그룹 이름입니다", Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        modifyGroup(gid, mDialogView.etName.text.toString(), position)
+                        addDialog.dismiss()
+                    }
                 }
             }
         })
@@ -392,7 +408,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     if (mDialogView.etName.text.toString() == "전체" ||
                         mDialogView.etName.text.toString().isEmpty()
                     ) {
-                        Toast.makeText(requireContext(), "사용할 수 없는 그룹 이름입니다.", Toast.LENGTH_SHORT)
+                        Toast.makeText(requireContext(), "사용할 수 없는 그룹 이름입니다", Toast.LENGTH_SHORT)
                             .show()
                     } else {
                         createGroup(mDialogView.etName.text.toString())
@@ -401,24 +417,23 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 }
             }
         }
-
-        // 위도, 경도 값으로 주소 받기
-        reverseGeoCodingResultListener = object : ReverseGeoCodingResultListener {
-            override fun onReverseGeoCoderFoundAddress(
-                mapReverseGeoCoder: MapReverseGeoCoder,
-                addressString: String
-            ) {
-                // 주소를 찾은 경우
-
-                address = addressString
-                binding.tvLocationAddress.text = addressString
-            }
-
-            override fun onReverseGeoCoderFailedToFindAddress(mapReverseGeoCoder: MapReverseGeoCoder) {
-                // 호출에 실패한 경우
-                Log.e("ReverseGeocoding", "주소를 찾을 수 없습니다.")
-            }
-        }
+//
+//        // 위도, 경도 값으로 주소 받기
+//        reverseGeoCodingResultListener = object : ReverseGeoCodingResultListener {
+//            override fun onReverseGeoCoderFoundAddress(
+//                mapReverseGeoCoder: MapReverseGeoCoder,
+//                addressString: String
+//            ) {
+//                // 주소를 찾은 경우
+//                address = addressString
+//                binding.tvLocationAddress.text = addressString
+//            }
+//
+//            override fun onReverseGeoCoderFailedToFindAddress(mapReverseGeoCoder: MapReverseGeoCoder) {
+//                // 호출에 실패한 경우
+//                Log.e("ReverseGeocoding", "주소를 찾을 수 없습니다.")
+//            }
+//        }
 
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -514,13 +529,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 longitude = binding.mapView.mapCenterPoint.mapPointGeoCoord.longitude
                 marker.markerType = MapPOIItem.MarkerType.RedPin
                 binding.mapView.addPOIItem(marker)
-                val mapGeoCoder = MapReverseGeoCoder(
-                    KAKAO_API_KEY,
-                    marker.mapPoint,
-                    reverseGeoCodingResultListener,
-                    requireActivity()
-                )
-                mapGeoCoder.startFindingAddress()
+//                val mapGeoCoder = MapReverseGeoCoder(
+//                    KAKAO_API_KEY,
+//                    marker.mapPoint,
+//                    reverseGeoCodingResultListener,
+//                    requireActivity()
+//                )
+//                mapGeoCoder.startFindingAddress()
+                reverseGeoCoderFoundAddress(longitude.toString(),latitude.toString())
                 markerCheck = true
             } else {
                 // plus 버튼 클릭하지 않은 상태로 변경
@@ -974,6 +990,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     binding.mapView.removePOIItem(marker)
                     markerCheck = false
                     addItemsAndMarkers(response.body())
+                    Log.d("LocationSearch", "Success : ${response.body()}")
                 } else {  /// 이곳은 에러 발생할 경우 실행됨
                     Log.d("LocationSearch", "fail : ${response.code()}")
                 }
@@ -1191,6 +1208,46 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         }
     }
 
+    private fun reverseGeoCoderFoundAddress(x:String, y:String) {
+        KakaoSearchClient.kakaoSearchService?.getCoord2address(
+            BuildConfig.KAKAO_REST_API_KEY, x,y)
+            ?.enqueue(object : Callback<ResultSearchCoord2addressData> {
+
+                override fun onResponse(
+                    call: Call<ResultSearchCoord2addressData>,
+                    response: Response<ResultSearchCoord2addressData>
+                ) {
+                    if (response.isSuccessful) {
+                        // 직접 지도에 추가하기 위해 기존에 존재한 마커는 없애주기
+                        if(response.body()!!.meta.total_count >= 1) {
+                            if(response.body()!!.documents[0].road_address == null ) {
+                                binding.tvLocationAddress.text = response.body()!!.documents[0].address.address_name
+                                address = binding.tvLocationAddress.text as String
+                            } else {
+                                binding.tvLocationAddress.text = response.body()!!.documents[0].road_address.address_name
+                                address = binding.tvLocationAddress.text as String
+                            }
+                        } else {
+                            Toast.makeText(requireContext(), "잘못된 위치 접근", Toast.LENGTH_SHORT).show()
+                        }
+
+
+
+                        Log.d("LocationSearch", "Success : ${response.body()}")
+                    } else {  /// 이곳은 에러 발생할 경우 실행됨
+                        Log.d("LocationSearch", "fail : ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(
+                    call: Call<ResultSearchCoord2addressData>,
+                    t: Throwable
+                ) {
+                    Log.w("LocalSearch", "통신 실패: ${t.message}")
+                }
+            })
+    }
+
     private fun plusBtnInactivation() {
         plusBtn = false
         val bgShape = binding.ibPlus.background as GradientDrawable
@@ -1276,6 +1333,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
     override fun onMapViewInitialized(p0: MapView?) {
 
+
     }
 
     // 지도에 직접 추가하기 부분 기능들 구현
@@ -1329,17 +1387,16 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
     override fun onMapViewDragEnded(p0: MapView?, p1: MapPoint?) {
         if (markerCheck) {
-            val mapGeoCoder = MapReverseGeoCoder(
-                KAKAO_API_KEY,
-                marker.mapPoint,
-                reverseGeoCodingResultListener,
-                requireActivity()
-            )
-            mapGeoCoder.startFindingAddress()
+
+            reverseGeoCoderFoundAddress(marker.mapPoint.mapPointGeoCoord.longitude.toString(),marker.mapPoint.mapPointGeoCoord.latitude.toString())
         }
     }
 
     override fun onMapViewMoveFinished(p0: MapView?, p1: MapPoint?) {
+        val mapLatitude = p1?.mapPointGeoCoord?.latitude ?: 0.0
+        val mapLongitude = p1?.mapPointGeoCoord?.longitude ?: 0.0
+        GajaMapApplication.prefs.setString("mapLatitude", mapLatitude.toString())
+        GajaMapApplication.prefs.setString("mapLongitude", mapLongitude.toString())
 
     }
 

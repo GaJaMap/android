@@ -2,6 +2,7 @@ package com.pg.gajamap.ui.adapter
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.telephony.PhoneNumberUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,7 +44,7 @@ class CustomerAnyListAdapter(private val dataList: List<Client>, context: Contex
                 .into(binding.itemProfileImg)
             binding.itemProfileAddressDetail.text = address
             binding.itemProfileName.text = data.clientName
-            binding.itemProfilePhoneDetail.text = data.phoneNumber
+            binding.itemProfilePhoneDetail.text = PhoneNumberUtils.formatNumber(data.phoneNumber)
             itemView.background = background
             binding.itemProfileAddressDetail.isSelected = true
 

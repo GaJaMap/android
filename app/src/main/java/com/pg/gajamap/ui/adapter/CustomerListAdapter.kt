@@ -3,6 +3,7 @@ package com.pg.gajamap.ui.adapter
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.telephony.PhoneNumberUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -92,7 +93,7 @@ class CustomerListAdapter(private var dataList: List<Client>, private val contex
                 .into(binding.itemProfileImg)
             binding.itemProfileAddressDetail.text = address
             binding.itemProfileName.text = data.clientName
-            binding.itemProfilePhoneDetail.text = data.phoneNumber
+            binding.itemProfilePhoneDetail.text = PhoneNumberUtils.formatNumber(data.phoneNumber)
             binding.itemProfileAddressDetail.isSelected = true
         }
     }

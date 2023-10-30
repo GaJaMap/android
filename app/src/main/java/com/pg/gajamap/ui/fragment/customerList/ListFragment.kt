@@ -141,6 +141,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
                         // 그룹 삭제 서버 연동 함수 호출
                         deleteGroup(gid, position)
                         Toast.makeText(requireContext(),"그룹 삭제 완료", Toast.LENGTH_SHORT).show()
+                        groupDialog.hide()
                     }
                     .setNegativeButton("취소") { _: DialogInterface, _: Int ->
                     }
@@ -166,8 +167,15 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
 
                 mDialogView.btnDialogSubmit.setOnClickListener {
                     // 그룹 수정 api 연동
-                    modifyGroup(gid, mDialogView.etName.text.toString(), position)
-                    addDialog.dismiss()
+                    if (mDialogView.etName.text.toString() == "전체" ||
+                        mDialogView.etName.text.toString().isEmpty()
+                    ) {
+                        Toast.makeText(requireContext(), "사용할 수 없는 그룹 이름입니다", Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        modifyGroup(gid, mDialogView.etName.text.toString(), position)
+                        addDialog.dismiss()
+                    }
                 }
             }
         })
@@ -217,7 +225,7 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
 
                     if(mDialogView.etName.text.toString() == "전체" ||
                         mDialogView.etName.text.toString().isEmpty()) {
-                        Toast.makeText(requireContext(), "사용할 수 없는 그룹 이름입니다.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "사용할 수 없는 그룹 이름입니다", Toast.LENGTH_SHORT).show()
                     } else {
                         createGroup(mDialogView.etName.text.toString())
                         addDialog.dismiss()
