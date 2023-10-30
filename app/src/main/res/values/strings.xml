@@ -116,9 +116,9 @@
     <string name="setting_kakao_1">카카오 프로필 선택</string>
     <string name="setting_level_vip">VIP 등급</string>
 
-    <string name="location_Info"><u>위치정보,</u></string>
+    <string name="location_Info"><u>위치정보</u></string>
     <string name="service_Info"><u> 서비스 이용 약관</u></string>
-    <string name="user_Info"><u> 개인정보처리방침</u></string>
+    <string name="user_Info"><u>개인정보처리방침</u></string>
 
     <string name="location_Info_content">
 

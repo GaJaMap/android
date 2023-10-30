@@ -199,7 +199,7 @@
             android:textSize="11sp"
             android:paddingStart="11dp"
             android:textColor="@color/black"
-            android:maxLength="20"
+            android:maxLength="40"
             android:singleLine="true"
             android:fontFamily="@font/nanumsquareneo_regular"
             android:background="@drawable/fragment_add_bottom_gray"

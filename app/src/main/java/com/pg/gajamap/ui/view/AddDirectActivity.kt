@@ -270,7 +270,7 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             val groupId1 = groupId.toString()
             val groupId = groupId1.toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
-            val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val phoneNumber = phoneNumber1.toString().replace("-","").toRequestBody("text/plain".toMediaTypeOrNull())
             val mainAddress1 = binding.infoProfileAddressTv1.text.toString()
             val mainAddress = mainAddress1.toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text
@@ -309,7 +309,7 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
             val groupId1 = groupId.toString()
             val groupId = groupId1.toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
-            val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val phoneNumber = phoneNumber1.toString().replace("-","").toRequestBody("text/plain".toMediaTypeOrNull())
             val mainAddress1 = binding.infoProfileAddressTv1.text.toString()
             val mainAddress = mainAddress1.toRequestBody("text/plain".toMediaTypeOrNull())
             val detail1 = binding.infoProfileAddressTv2.text

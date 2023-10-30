@@ -223,7 +223,7 @@
             android:textSize="11sp"
             android:singleLine="true"
             android:paddingStart="11dp"
-            android:maxLength="20"
+            android:maxLength="40"
             android:textColor="@color/black"
             android:background="@drawable/fragment_add_bottom_gray"
             android:layout_marginStart="18dp"
