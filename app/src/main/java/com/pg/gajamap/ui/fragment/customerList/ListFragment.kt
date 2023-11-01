@@ -1,13 +1,8 @@
 package com.pg.gajamap.ui.fragment.customerList
 
-import android.Manifest
 import android.app.AlertDialog
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.LocationManager
-import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -18,20 +13,11 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.view.isEmpty
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.snackbar.Snackbar
-import com.kakao.sdk.navi.Constants
-import com.kakao.sdk.navi.NaviClient
-import com.kakao.sdk.navi.model.CoordType
-import com.kakao.sdk.navi.model.Location
-import com.kakao.sdk.navi.model.NaviOption
 import com.pg.gajamap.BR
 import com.pg.gajamap.R
 import com.pg.gajamap.base.BaseFragment
@@ -46,7 +32,6 @@ import com.pg.gajamap.ui.adapter.GroupListAdapter
 import com.pg.gajamap.ui.fragment.map.MapFragment
 import com.pg.gajamap.ui.view.EditListActivity
 import com.pg.gajamap.viewmodel.GetClientViewModel
-import kotlin.system.exitProcess
 
 class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
     private var groupId: Int = -1
@@ -65,9 +50,6 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
     var gid: Long = 0
     var itemId: Long = 0
     private var state = 1
-
-    private val ACCESS_FINE_LOCATION = 1000
-    private val CALL_PHONE_PERMISSION_CODE = 101
 
     override val viewModel by viewModels<GetClientViewModel> {
         GetClientViewModel.AddViewModelFactory("tmp")
@@ -188,7 +170,6 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
                 sheetView!!.tvAddgroupMain.text = gname
                 pos = position
 
-
                 if (position == 0){
                     getAllClient()
                 }else{
@@ -222,7 +203,6 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
 
                 mDialogView.btnDialogSubmit.setOnClickListener {
                     // 그룹 생성 api 연동
-
                     if(mDialogView.etName.text.toString() == "전체" ||
                         mDialogView.etName.text.toString().isEmpty()) {
                         Toast.makeText(requireContext(), "사용할 수 없는 그룹 이름입니다", Toast.LENGTH_SHORT).show()
@@ -305,14 +285,13 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
         clientList?.let { ListRv(it) }
     }
 
-    fun ListRv(it: GetAllClientResponse) {
+    private fun ListRv(it: GetAllClientResponse) {
         customerListAdapter = CustomerListAdapter(it.clients,requireContext())
         sortedRVList()
     }
 
     fun filterClientList(searchText: String) {
         val filteredList = clientList?.clients?.filter { client ->
-            // 여기에서 clientName을 검색합니다. 대소문자를 무시하려면 equals를 equalsIgnoreCase로 바꿀 수 있습니다.
             client.clientName.contains(searchText, ignoreCase = true)
         }
         customerListAdapter = clientList?.let { CustomerListAdapter(it.clients,requireContext()) }!!

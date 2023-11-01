@@ -55,18 +55,11 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
     var client = UserData.clientListResponse
     var clientList = UserData.clientListResponse?.clients
     var groupInfo = UserData.groupinfo
-    val regex = """^\d{2,3}-\d{3,4}-\d{4}$""".toRegex()
 
     private var isBtnActivated = false // 버튼 활성화 되었는지 여부, true면 활성화, false면 비활성화
 
-    companion object {
-        const val PERMISSION_REQUEST_CODE = 100
-    }
-
     private var contactsList = ArrayList<ContactsData>()
     private var phoneListAdapter: PhoneListAdapter? = null
-    private val ACCESS_FINE_LOCATION = 1000
-
 
     override val viewModel by viewModels<ClientViewModel> {
         ClientViewModel.SettingViewModelFactory("tmp")
@@ -86,9 +79,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
         //스피너
         viewModel.checkGroup()
         viewModel.checkGroup.observe(this, Observer { it ->
-            // GroupResponse에서 GroupInfoResponse의 groupName 속성을 추출하여 리스트로 변환합니다.
             val groupNames = mutableListOf<String>()
-            // groupResponse의 groupInfos에서 각 GroupInfoResponse의 groupName을 추출하여 리스트에 추가합니다.
             it.groupInfos.forEach { groupInfo ->
                 groupNames.add(groupInfo.groupName)
             }

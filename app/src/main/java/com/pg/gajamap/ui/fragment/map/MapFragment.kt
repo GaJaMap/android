@@ -408,11 +408,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
                 searchResultList.clear()
                 val size = UserData.clientListResponse?.clients!!.size
                 for (i in 0 until size) {
@@ -454,7 +452,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
         // plus버튼, 지도에 직접 추가하기 dialog 보여짐
         binding.ibPlus.setOnClickListener {
-
             if (!plusBtn) {
                 // plus 버튼 클릭 상태로 변경
                 plusBtn = true
@@ -507,27 +504,26 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
         // km 메인 버튼 클릭 이벤트, 3km와 5km 버튼 띄우기
         binding.ibKm.setOnClickListener {
-
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                // 전화걸기 권한을 요청합니다.
-                requestPermission()
-                return@setOnClickListener
-            }
-
             if (!kmBtn) {
-                // km 버튼 클릭 상태로 변경
-                // GPS가 켜져있을 경우
-                searchLocationsGPS()
+                if (checkLocationService()) {
+                    if (ContextCompat.checkSelfPermission(
+                            requireContext(),
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        requestPermission()
+                        return@setOnClickListener
+                    }
 
-                if (!GPSBtn) {
-                    stopTracking()
+                    searchLocationsGPS()
+
+                    if (!GPSBtn) {
+                        stopTracking()
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                // 두 번 클릭 시 원상태로 돌아오게 하기
                 if (threeCheck || fiveCheck) {
                     binding.clKm.visibility = View.VISIBLE
                 } else {
@@ -1083,9 +1079,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                             ), false
                         )
                     }
-                }
-                // 3km 버튼이 이미 눌려있을 경우
-                else {
+                } else {
                     threeCheck = false
                     binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
                     binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
@@ -1108,14 +1102,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             }
 
             binding.btn5km.setOnClickListener {
-
                 if (!fiveCheck) {
                     if (threeCheck) {
                         threeCheck = false
                         binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
                         binding.btn3km.setTextColor(resources.getColor(R.color.main))
                     }
-
                     fiveCheck = true
                     binding.btn5km.setBackgroundResource(R.drawable.bg_km_click)
                     binding.btn5km.setTextColor(resources.getColor(R.color.white))
@@ -1133,9 +1125,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                             ), false
                         )
                     }
-                }
-                // 5km 버튼이 이미 눌려있을 경우
-                else {
+                } else {
                     fiveCheck = false
                     binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
                     binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
@@ -1201,7 +1191,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                         Log.d("LocationSearch", "fail : ${response.code()}")
                     }
                 }
-
                 override fun onFailure(
                     call: Call<ResultSearchCoord2addressData>,
                     t: Throwable
