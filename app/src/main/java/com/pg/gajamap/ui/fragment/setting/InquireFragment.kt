@@ -26,12 +26,13 @@ class InquireFragment: BaseFragment<FragmentInquireBinding>(R.layout.fragment_in
     override fun onCreateAction() {
         hideBottomNavigation(true)
         binding.topBackBtn.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
+            requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
+            requireActivity().supportFragmentManager.popBackStack()
         }
     }
 
     // 프래그먼트 바텀 네비게이션 뷰 숨기기
-    fun hideBottomNavigation(bool: Boolean) {
+    private fun hideBottomNavigation(bool: Boolean) {
         val bottomNavigation = requireActivity().findViewById<BottomNavigationView>(R.id.nav_bn)
         if (bool) bottomNavigation.visibility = View.GONE else bottomNavigation.visibility =
             View.VISIBLE

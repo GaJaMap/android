@@ -27,7 +27,8 @@ class ExcelFragment : BaseFragment<FragmentExcelBinding>(R.layout.fragment_excel
         hideBottomNavigation(true)
 
         binding.topBackBtn.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
+            requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
+            requireActivity().supportFragmentManager.popBackStack()
         }
     }
 

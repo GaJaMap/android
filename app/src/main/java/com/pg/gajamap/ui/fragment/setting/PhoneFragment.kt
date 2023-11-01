@@ -135,9 +135,9 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
 
                     if (pos != 0) {
-                        val selectedGroupInfoResponse: GroupInfoResponse = viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
+                        val selectedGroupInfoResponse: GroupInfoResponse =
+                            viewModel.checkGroup.value?.groupInfos?.get(pos - 1) ?: return
                         groupId = selectedGroupInfoResponse.groupId
-                        Log.d("groupId", groupId.toString())
                     }
                 }
 
@@ -173,7 +173,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
 
     private fun chkBtnActivate() {
         // 버튼이 활성화되어 있지 않은 상황에서 확인
-        if (selectedClients.size >=1 && groupId != -1L) {
+        if (selectedClients.size >= 1 && groupId != -1L) {
             isBtnActivated = true
             binding.btnSubmit.apply {
                 isEnabled = true
@@ -201,7 +201,8 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                 val name =
                     contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
                 val number =
-                    contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)).replace("-","")
+                    contacts.getString(contacts.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                        .replace("-", "")
 
                 if (name.length <= 10) {
                     // 중복 확인
@@ -239,7 +240,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
             if (isChecked) {
                 selectedClients.addAll(contactsList.map {
                     Clients(it.name, it.number)
-                } ?: emptyList())
+                })
             } else {
                 selectedClients.clear()
             }
@@ -323,14 +324,12 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                                                         phoneNumber = selectedClient.phoneNumber, // 선택된 클라이언트의 전화번호를 사용합니다
                                                         createdAt = "" // 적절한 값으로 대체하세요
                                                     )
-                                                    Log.d("selectNew", newClient.toString())
                                                     newClients.add(newClient)
                                                 }
                                             }
 
                                             // 새로운 Clients를 기존 clientList에 추가합니다.
                                             clientList?.addAll(newClients)
-                                            Log.d("selectList", clientList.toString())
                                         }
                                     }
 
@@ -341,7 +340,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                                 })
 
                             viewModel.postErrorClient.observe(viewLifecycleOwner, Observer {
-                                Toast.makeText(requireContext(), it , Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                                 dialogHide()
                                 requireActivity().supportFragmentManager.beginTransaction()
                                     .remove(this@PhoneFragment).commit()
@@ -400,8 +399,6 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
     override fun onItemClick(position: Int, isChecked: Boolean) {
         val item = contactsList[position]
         if (isChecked) {
-
-
             selectedClients.add(Clients(item.name, item.number))
 
             binding.topTvNumber1.text = selectedClients.size.toString()
@@ -423,12 +420,14 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
         // 필터링된 결과를 어댑터에 설정합니다.
         phoneListAdapter?.updateData(filteredList as ArrayList<ContactsData>)
     }
+
     private fun dialogShow() {
         binding.progress.isVisible = true
         binding.btnSubmit.text = ""
         activity?.window?.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
     }
 
     private fun dialogHide() {
