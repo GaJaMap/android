@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
-import android.content.Context.MODE_PRIVATE
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -26,7 +25,6 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -38,7 +36,6 @@ import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import com.pg.gajamap.BR
 import com.pg.gajamap.BuildConfig
-import com.pg.gajamap.BuildConfig.KAKAO_API_KEY
 import com.pg.gajamap.R
 import com.pg.gajamap.api.retrofit.KakaoSearchClient
 import com.pg.gajamap.base.BaseFragment
@@ -59,8 +56,6 @@ import com.pg.gajamap.ui.view.MainActivity
 import com.pg.gajamap.viewmodel.MapViewModel
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
-import net.daum.mf.map.api.MapReverseGeoCoder
-import net.daum.mf.map.api.MapReverseGeoCoder.ReverseGeoCodingResultListener
 import net.daum.mf.map.api.MapView
 import net.daum.mf.map.api.MapView.clearMapTilePersistentCache
 import net.daum.mf.map.api.MapView.setMapTilePersistentCacheEnabled
@@ -73,16 +68,13 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     MapView.POIItemEventListener, MapView.MapViewEventListener {
     // 그룹 리스트 recyclerview
     lateinit var groupListAdapter: GroupListAdapter
-    private val ACCESS_FINE_LOCATION = 1000   // Request Code
     var gName: String = ""
     var pos: Int = 0
-    private var groupInfo = UserData.groupinfo
     var posDelete: Int = 0
     var markerCheck = false
 
     // 지도에서 직접 추가하기를 위한 중심 위치 point
     private lateinit var marker: MapPOIItem
-    private lateinit var reverseGeoCodingResultListener: ReverseGeoCodingResultListener
 
     // LocationSearch recyclerview
     private val locationSearchList = arrayListOf<LocationSearchData>()
@@ -265,14 +257,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     marker.mapPoint = MapPoint.mapPointWithGeoCoord(a.first, a.second)
                     marker.markerType = MapPOIItem.MarkerType.RedPin
                     binding.mapView.addPOIItem(marker)
-//                    val mapGeoCoder = MapReverseGeoCoder(
-//                        KAKAO_API_KEY,
-//                        marker.mapPoint,
-//                        reverseGeoCodingResultListener,
-//                        requireActivity()
-//                    )
-//                    mapGeoCoder.startFindingAddress()
-                    reverseGeoCoderFoundAddress(marker.mapPoint.mapPointGeoCoord.longitude.toString(),marker.mapPoint.mapPointGeoCoord.latitude.toString())
+                    reverseGeoCoderFoundAddress(
+                        marker.mapPoint.mapPointGeoCoord.longitude.toString(),
+                        marker.mapPoint.mapPointGeoCoord.latitude.toString()
+                    )
                     markerCheck = true
                 } else {
                     // GPS가 꺼져있을 경우
@@ -417,23 +405,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 }
             }
         }
-//
-//        // 위도, 경도 값으로 주소 받기
-//        reverseGeoCodingResultListener = object : ReverseGeoCodingResultListener {
-//            override fun onReverseGeoCoderFoundAddress(
-//                mapReverseGeoCoder: MapReverseGeoCoder,
-//                addressString: String
-//            ) {
-//                // 주소를 찾은 경우
-//                address = addressString
-//                binding.tvLocationAddress.text = addressString
-//            }
-//
-//            override fun onReverseGeoCoderFailedToFindAddress(mapReverseGeoCoder: MapReverseGeoCoder) {
-//                // 호출에 실패한 경우
-//                Log.e("ReverseGeocoding", "주소를 찾을 수 없습니다.")
-//            }
-//        }
 
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -484,7 +455,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         // plus버튼, 지도에 직접 추가하기 dialog 보여짐
         binding.ibPlus.setOnClickListener {
 
-            if (UserData.groupinfo?.groupId == -1L) {
+            if (binding.tvSearch.text == "전체") {
                 Toast.makeText(requireContext(), "전체 그룹일 때는 장소를 추가할 수 없습니다", Toast.LENGTH_SHORT)
                     .show()
                 return@setOnClickListener
@@ -529,14 +500,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 longitude = binding.mapView.mapCenterPoint.mapPointGeoCoord.longitude
                 marker.markerType = MapPOIItem.MarkerType.RedPin
                 binding.mapView.addPOIItem(marker)
-//                val mapGeoCoder = MapReverseGeoCoder(
-//                    KAKAO_API_KEY,
-//                    marker.mapPoint,
-//                    reverseGeoCodingResultListener,
-//                    requireActivity()
-//                )
-//                mapGeoCoder.startFindingAddress()
-                reverseGeoCoderFoundAddress(longitude.toString(),latitude.toString())
+                reverseGeoCoderFoundAddress(longitude.toString(), latitude.toString())
                 markerCheck = true
             } else {
                 // plus 버튼 클릭하지 않은 상태로 변경
@@ -628,7 +592,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
         binding.tvLocationBtn.setOnClickListener {
             // 고객 추가하기 activity로 이동
-            val intent = Intent(getActivity(), AddDirectActivity::class.java)
+            val intent = Intent(activity, AddDirectActivity::class.java)
             intent.putExtra("address", address)
             intent.putExtra("latitude", latitude)
             intent.putExtra("longitude", longitude)
@@ -1052,10 +1016,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         userNowLocation?.let {
             userLatitude = it.latitude
             userLongitude = it.longitude
-
-            Log.d("permissioncheckbtn", userLatitude.toString())
         }
-
 
         return Pair(userLatitude, userLongitude)
     }
@@ -1166,7 +1127,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
                     if (a.first != 0.0 && a.second != 0.0) {
                         if (binding.tvSearch.text == "전체") {
-                            Log.d("okaybtn5km", "okay")
                             wholeRadius(5000, a.first, a.second)
                         } else {
                             specificRadius(5000, a.first, a.second, UserData.groupinfo!!.groupId)
@@ -1208,9 +1168,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         }
     }
 
-    private fun reverseGeoCoderFoundAddress(x:String, y:String) {
+    private fun reverseGeoCoderFoundAddress(x: String, y: String) {
         KakaoSearchClient.kakaoSearchService?.getCoord2address(
-            BuildConfig.KAKAO_REST_API_KEY, x,y)
+            BuildConfig.KAKAO_REST_API_KEY, x, y
+        )
             ?.enqueue(object : Callback<ResultSearchCoord2addressData> {
 
                 override fun onResponse(
@@ -1219,19 +1180,26 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 ) {
                     if (response.isSuccessful) {
                         // 직접 지도에 추가하기 위해 기존에 존재한 마커는 없애주기
-                        if(response.body()!!.meta.total_count >= 1) {
-                            if(response.body()!!.documents[0].road_address == null ) {
-                                binding.tvLocationAddress.text = response.body()!!.documents[0].address.address_name
+                        if (response.body()!!.meta.total_count >= 1) {
+                            if (response.body()!!.documents[0].road_address == null) {
+                                binding.tvLocationAddress.text =
+                                    response.body()!!.documents[0].address.address_name
                                 address = binding.tvLocationAddress.text as String
+
+                                binding.tvLocationBtn.isEnabled = true
+                                binding.tvLocationBtn.setBackgroundResource(R.drawable.fragment_add_bottom_purple)
                             } else {
-                                binding.tvLocationAddress.text = response.body()!!.documents[0].road_address.address_name
+                                binding.tvLocationAddress.text =
+                                    response.body()!!.documents[0].road_address.address_name
                                 address = binding.tvLocationAddress.text as String
+
+                                binding.tvLocationBtn.isEnabled = true
+                                binding.tvLocationBtn.setBackgroundResource(R.drawable.fragment_add_bottom_purple)
                             }
                         } else {
-                            Toast.makeText(requireContext(), "잘못된 위치 접근", Toast.LENGTH_SHORT).show()
+                            binding.tvLocationBtn.isEnabled = false
+                            binding.tvLocationBtn.setBackgroundResource(R.drawable.bg_notworkbtn)
                         }
-
-
 
                         Log.d("LocationSearch", "Success : ${response.body()}")
                     } else {  /// 이곳은 에러 발생할 경우 실행됨
@@ -1263,7 +1231,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         binding.clLocationSearch.visibility = View.GONE
         binding.clCardview.visibility = View.GONE
         markerCheck = false
-//        binding.mapView.removePOIItem(marker)
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -1291,7 +1258,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         if (hidden) {
             return
         }
-        Log.d("userdatacorrect", UserData.groupinfo!!.groupId.toString())
 
         checkGroup()
         plusBtnInactivation()
@@ -1332,7 +1298,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     }
 
     override fun onMapViewInitialized(p0: MapView?) {
-
 
     }
 
@@ -1388,7 +1353,10 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     override fun onMapViewDragEnded(p0: MapView?, p1: MapPoint?) {
         if (markerCheck) {
 
-            reverseGeoCoderFoundAddress(marker.mapPoint.mapPointGeoCoord.longitude.toString(),marker.mapPoint.mapPointGeoCoord.latitude.toString())
+            reverseGeoCoderFoundAddress(
+                marker.mapPoint.mapPointGeoCoord.longitude.toString(),
+                marker.mapPoint.mapPointGeoCoord.latitude.toString()
+            )
         }
     }
 
