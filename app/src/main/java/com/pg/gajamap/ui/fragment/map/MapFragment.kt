@@ -455,12 +455,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         // plus버튼, 지도에 직접 추가하기 dialog 보여짐
         binding.ibPlus.setOnClickListener {
 
-            if (binding.tvSearch.text == "전체") {
-                Toast.makeText(requireContext(), "전체 그룹일 때는 장소를 추가할 수 없습니다", Toast.LENGTH_SHORT)
-                    .show()
-                return@setOnClickListener
-            }
-
             if (!plusBtn) {
                 // plus 버튼 클릭 상태로 변경
                 plusBtn = true
@@ -678,7 +672,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     // 전체 고객 대상 반경 검색 api
     private fun wholeRadius(radius: Int, latitude: Double, longitude: Double) {
         viewModel.wholeRadius(radius, latitude, longitude)
-
         viewModel.wholeRadius.observe(this, Observer {
             if (viewModel.wholeRadius.value != null) {
                 UserData.clientListResponse = viewModel.wholeRadius.value
@@ -705,12 +698,14 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 }
             }
         })
+        viewModel.checkErrorGroup.observe(this, Observer {
+            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        })
     }
 
     // 특정 그룹 내에 고객 대상 반경 검색 api
     private fun specificRadius(radius: Int, latitude: Double, longitude: Double, groupId: Long) {
         viewModel.specificRadius(radius, latitude, longitude, groupId)
-
         viewModel.specificRadius.observe(this, Observer {
             if (viewModel.specificRadius.value != null) {
                 UserData.clientListResponse = viewModel.specificRadius.value
@@ -736,6 +731,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     binding.mapView.addPOIItem(point)
                 }
             }
+        })
+        viewModel.checkErrorGroup.observe(this, Observer {
+            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
         })
     }
 
@@ -778,7 +776,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     private fun getAllClient() {
         viewModel.getAllClient()
         viewModel.allClients.observe(this, Observer {
-
             val data = viewModel.allClients.value!!.clients
             val num = data.count()
 
@@ -997,8 +994,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             }
             locationSearchAdapter.notifyDataSetChanged()
         } else {
-            // 검색 결과 없음
-            Toast.makeText(requireContext(), "검색 결과가 없습니다", Toast.LENGTH_SHORT).show()
         }
     }
 
