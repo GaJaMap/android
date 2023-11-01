@@ -85,7 +85,7 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
 
         //스피너
         viewModel.checkGroup()
-        viewModel.checkGroup.observe(this, Observer {
+        viewModel.checkGroup.observe(this, Observer { it ->
             // GroupResponse에서 GroupInfoResponse의 groupName 속성을 추출하여 리스트로 변환합니다.
             val groupNames = mutableListOf<String>()
             // groupResponse의 groupInfos에서 각 GroupInfoResponse의 groupName을 추출하여 리스트에 추가합니다.
@@ -127,6 +127,8 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
 
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.settingPhoneSpinner.adapter = adapter
+
+            binding.settingPhoneSpinner.setSelection(it.groupInfos.indexOfFirst { it.groupId == UserData.groupinfo!!.groupId } + 1)
 
         })
 
