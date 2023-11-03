@@ -114,25 +114,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         bt.commitAllowingStateLoss()
     }
 
-    // MapFragment에서 위치 권한 요청 후 행동
-    @SuppressLint("ResourceAsColor")
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == ACCESS_FINE_LOCATION) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // 권한 요청 후 승인됨 (추적 시작)
-                Toast.makeText(this, "위치 권한 승인", Toast.LENGTH_SHORT).show()
-                mapFragment?.startTracking()
-            } else {
-                // 권한 요청 후 거절됨 (다시 요청 or 토스트)
-                Toast.makeText(this, "위치 권한 거절", Toast.LENGTH_SHORT).show()
-                val bgShape = findViewById<ImageButton>(R.id.ib_gps).background as GradientDrawable
-                bgShape.setColor(resources.getColor(R.color.white))
-                findViewById<ImageButton>(R.id.ib_gps).setImageResource(R.drawable.ic_gray_gps)
-            }
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         mapFragment?.stopTracking()

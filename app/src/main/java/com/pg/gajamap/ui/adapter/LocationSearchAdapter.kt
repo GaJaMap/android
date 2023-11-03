@@ -26,7 +26,11 @@ class LocationSearchAdapter(val context: Context, val itemList: ArrayList<Locati
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.name.text = itemList[position].name
-        holder.road.text = itemList[position].address
+        if(itemList[position].road == "") {
+            holder.road.text = itemList[position].address
+        } else {
+            holder.road.text = itemList[position].road
+        }
 
         // 아이템의 배경 설정
         if(position == selectedPosition){
@@ -54,7 +58,7 @@ class LocationSearchAdapter(val context: Context, val itemList: ArrayList<Locati
             val intent = Intent(context, AddDirectActivity::class.java)
             intent.putExtra("latitude", itemList[position].y)
             intent.putExtra("longitude", itemList[position].x)
-            intent.putExtra("address", itemList[position].address)
+            intent.putExtra("address", holder.road.text)
             context.startActivity(intent)
         }
     }

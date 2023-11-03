@@ -41,6 +41,10 @@ class MapViewModel: ViewModel() {
     val checkErrorGroup : LiveData<String>
         get() = _checkErrorGroup
 
+    private val _radiusError = MutableLiveData<String>()
+    val radiusError : LiveData<String>
+        get() = _radiusError
+
     // 그룹 생성
     fun createGroup(createRequest: CreateGroupRequest){
         viewModelScope.launch(Dispatchers.IO) {
@@ -107,7 +111,7 @@ class MapViewModel: ViewModel() {
             val response = groupRepository.modifyGroup(groupId, createRequest)
             Log.d("modifyGroup", "$response\n${response.code()}")
             if(response.isSuccessful){
-                checkItems.get(pos).name = createRequest.name
+                checkItems[pos].name = createRequest.name
                 _modifyGroup.postValue(checkItems)
                 Log.d("modifyGroupSuccess", "${response.body()}")
 
@@ -126,14 +130,13 @@ class MapViewModel: ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val response = radiusRepository.wholeRadius(radius, latitude, longitude)
             Log.d("wholeRadius", "$response\n${response.code()}")
-            if(response.isSuccessful || response.code() == 422){
-                // Livedata의 값을 변경해주는 함수 postValue()
-                // setValue()와 다른점은 백그라운드에서 값을 변경해준다는 것, 백그라운드 쓰레드에서 동작하다가 메인 쓰레드에 값을 post 하는 방식으로 사용
+            if(response.isSuccessful){
                 _wholeRadius.postValue(response.body())
                 Log.d("wholeRadiusSuccess", "${response.body()}")
 
             }else {
                 Log.d("wholeRadiusError", "wholeRadius : ${response.message()}")
+                _radiusError.postValue(response.errorBody()?.string())
             }
         }
     }
@@ -148,12 +151,13 @@ class MapViewModel: ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val response = radiusRepository.specificRadius(groupId, radius, latitude, longitude)
             Log.d("specificRadius", "$response\n${response.code()}")
-            if(response.isSuccessful || response.code() == 422){
+            if(response.isSuccessful){
                 _specificRadius.postValue(response.body())
                 Log.d("specificRadiusSuccess", "${response.body()}")
 
             }else {
                 Log.d("specificRadiusError", "specificRadius : ${response.message()}")
+                _radiusError.postValue(response.errorBody()?.string())
             }
         }
     }

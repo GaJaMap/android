@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
+import android.telephony.PhoneNumberUtils
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -66,10 +67,18 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
             longitude = null
         }
 
-        Glide.with(this)
-            .load("https://maps.googleapis.com/maps/api/staticmap?center=$latitude,$longitude&zoom=15&size=400x400&markers=color:red%7Clabel:S%7C$latitude,$longitude&language=ko&key=${BuildConfig.GOOGLE_MAP_KEY}")
-            .error(R.drawable.location_not_found_text)
-            .into(binding.mapImage)
+        if(latitude != null && longitude != null) {
+            Glide.with(this)
+                .load("https://maps.googleapis.com/maps/api/staticmap?center=$latitude,$longitude&zoom=15&size=400x400&markers=color:red%7Clabel:S%7C$latitude,$longitude&language=ko&key=${BuildConfig.GOOGLE_MAP_KEY}")
+                .error(R.drawable.location_not_found_text)
+                .into(binding.mapImage)
+        }  else {
+            Glide.with(this)
+                .load(R.drawable.location_not_found_text)
+                .error(R.drawable.location_not_found_text)
+                .into(binding.mapImage)
+        }
+
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -88,7 +97,7 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
                 customerInfoActivity!!.finish()
             })
             // 액티비티 꺼지게 하는 코드 추가
-            Toast.makeText(requireContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "삭제 완료", Toast.LENGTH_SHORT).show()
 
         }
         val negativeButtonClick = { dialogInterface: DialogInterface, i: Int ->
@@ -198,7 +207,7 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
         binding.infoProfileNameTv.text = name
         binding.infoProfileAddressTv1.text = address1
         binding.infoProfileAddressTv2.text = address2
-        binding.infoProfilePhoneTv.text = phone
+        binding.infoProfilePhoneTv.text = PhoneNumberUtils.formatNumber(phone)
     }
 
     override fun onResume() {

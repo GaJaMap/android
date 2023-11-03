@@ -97,7 +97,8 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
         }
 
         binding.topBackBtn.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(R.id.nav_fl, SettingFragment()).addToBackStack(null).commit()
+            requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
+            requireActivity().supportFragmentManager.popBackStack()
         }
 
         // 친구 목록 요청
@@ -208,7 +209,6 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
         val groupId1 = GajaMapApplication.prefs.getString("groupIdSpinner", "")
         binding.btnSubmit.setOnClickListener {
             viewModel.postKakaoPhoneClient(PostKakaoPhoneRequest(selectedClients, groupId1.toInt()))
-            Log.d("select", selectedClients.toString())
             viewModel.postKakaoPhoneClient.observe(this, Observer {
 
             })
@@ -219,7 +219,6 @@ class KakaoProfileFragment: BaseFragment<FragmentKakaoProfileBinding>(R.layout.f
     private fun updateSelectedClientsCount() {
         val selectedCount = selectedClients.size.toString()
         binding.topTvNumber1.text = selectedCount
-        Log.d("SelectedCount", "Updated to $selectedCount")
     }
 
     // 프래그먼트 바텀 네비게이션 뷰 숨기기

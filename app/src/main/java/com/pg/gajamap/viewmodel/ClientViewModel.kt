@@ -174,8 +174,8 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                 _postKakaoPhoneClient.postValue(response)
                 Log.d("postKakaoPhoneClientSuccess", "${response.body()}")
             }else {
-                Log.d("postKakaoPhoneClientError", "postKakaoPhoneClient : ${response.message()}")
-                _postErrorClient.postValue("${response.code()}: ${response.message()}")
+                Log.d("postKakaoPhoneClientError", "postKakaoPhoneClient : ${response.errorBody()?.string()}")
+                _postErrorClient.postValue("${response.code()}: ${response.errorBody()?.string()}")
             }
         }
     }

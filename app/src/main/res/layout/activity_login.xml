@@ -58,6 +58,14 @@
             android:textSize="11sp" />
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nanumsquareneo_regular"
+            android:text=", "
+            android:textColor="@color/black"
+            android:textSize="11sp" />
+
+        <TextView
             android:id="@+id/serviceInfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

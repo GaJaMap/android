@@ -1,9 +1,7 @@
 package com.pg.gajamap.ui.view
 
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import com.pg.gajamap.R
 import com.pg.gajamap.base.BaseActivity

@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.telephony.PhoneNumberFormattingTextWatcher
+import android.telephony.PhoneNumberUtils
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
@@ -85,7 +86,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         binding.infoProfileNameEt.setText(name)
         binding.infoProfileAddressTv1.text = address1
         binding.infoProfileAddressTv2.setText(address2)
-        binding.infoProfilePhoneEt.setText(phone)
+        binding.infoProfilePhoneEt.setText(PhoneNumberUtils.formatNumber(phone))
         binding.infoProfilePhoneEt.addTextChangedListener(PhoneNumberFormattingTextWatcher())
 
         if(image != null){
@@ -199,7 +200,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             val groupId = groupId1.toRequestBody("text/plain".toMediaTypeOrNull())
             val phoneNumber1 = binding.infoProfilePhoneEt.text
             Log.d("edit", phoneNumber1.toString())
-            val phoneNumber = phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val phoneNumber = phoneNumber1.toString().replace("-","").toRequestBody("text/plain".toMediaTypeOrNull())
             val mainAddress1 = binding.infoProfileAddressTv1.text
             Log.d("edit", mainAddress1.toString())
             val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
@@ -241,7 +242,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                         this.groupInfo.groupId = it.groupInfo.groupId
                         this.groupInfo.groupName = it.groupInfo.groupName
                         this.clientName = it.clientName
-                        this.phoneNumber = it.phoneNumber
+                        this.phoneNumber = it.phoneNumber.replace("-","")
                         this.address.mainAddress = it.address.mainAddress
                         this.address.detail = it.address.detail
                         this.location.latitude = it.location.latitude
@@ -259,7 +260,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                         bundle.putString("clientName", this.clientName)
                         bundle.putString("address1", it.address.mainAddress)
                         bundle.putString("address2", it.address.detail)
-                        bundle.putString("phone", it.phoneNumber)
+                        bundle.putString("phone", it.phoneNumber.replace("-",""))
                         bundle.putString("image", it.image.filePath)
 
                         val customerInfoFragment = CustomerInfoFragment()
@@ -293,7 +294,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             val phoneNumber1 = binding.infoProfilePhoneEt.text
             Log.d("edit", phoneNumber1.toString())
             val phoneNumber =
-                phoneNumber1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+                phoneNumber1.toString().replace("-","").toRequestBody("text/plain".toMediaTypeOrNull())
             val mainAddress1 = binding.infoProfileAddressTv1.text
             Log.d("edit", mainAddress1.toString())
             val mainAddress = mainAddress1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
@@ -348,7 +349,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                         this.groupInfo.groupId = it.groupInfo.groupId
                         this.groupInfo.groupName = it.groupInfo.groupName
                         this.clientName = it.clientName
-                        this.phoneNumber = it.phoneNumber
+                        this.phoneNumber = it.phoneNumber.replace("-","")
                         this.address.mainAddress = it.address.mainAddress
                         this.address.detail = it.address.detail
                         this.location.latitude = it.location.latitude

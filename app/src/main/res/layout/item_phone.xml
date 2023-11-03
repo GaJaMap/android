@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:text="@string/setting_phone_10"
+        android:fontFamily="@font/nanumsquareneo_regular"
         android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"

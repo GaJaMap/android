@@ -3,6 +3,7 @@ package com.pg.gajamap.ui.adapter
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.telephony.PhoneNumberUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -71,7 +72,7 @@ class ViewPagerAdapter (private val itemList: ArrayList<ViewPagerData>, private 
             }
             binding.tvCardName.text = item.name
             binding.tvCardAddressDetail.text = item.address
-            binding.tvCardPhoneDetail.text = item.phoneNumber
+            binding.tvCardPhoneDetail.text = PhoneNumberUtils.formatNumber(item.phoneNumber)
             binding.tvCardAddressDetail.isSelected = true
             binding.itemViewpager.setOnClickListener {
                 intentToData(position)

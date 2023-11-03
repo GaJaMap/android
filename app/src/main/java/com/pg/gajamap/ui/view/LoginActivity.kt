@@ -1,5 +1,6 @@
 package com.pg.gajamap.ui.view
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.util.Log
 import android.view.WindowManager
@@ -24,6 +25,7 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
+import com.pg.gajamap.base.NetworkManager
 import com.pg.gajamap.ui.fragment.loginTerms.LocationInfoFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,22 +52,29 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
 
         // val keyHash = Utility.getKeyHash(this)
         // Log.d("Hash", keyHash)
+        // 이곳에 화면 기능 구현
+        if (!NetworkManager.checkNetworkState(this)) {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("네트워크 연결 확인")
+            builder.setMessage("네트워크에 연결되어 있지 않습니다. 네트워크 연결을 확인해주세요.")
+            builder.setPositiveButton("확인") { dialog, _ ->
+                finish()
+                dialog.dismiss()
+            }
+            builder.create().show()
+        } else {
+            viewModel.autoLogin()
+            viewModel.autoLogin.observe(this, Observer {
+                // 싱글톤 패턴을 이용하여 자동 로그인 response 데이터 값 저장
+                UserData.clientListResponse = it.clientListResponse
+                UserData.groupinfo = it.groupInfo
+                UserData.imageUrlPrefix = it.imageUrlPrefix
 
-        viewModel.autoLogin()
-        viewModel.autoLogin.observe(this, Observer {
-            // 싱글톤 패턴을 이용하여 자동 로그인 response 데이터 값 저장
-            UserData.clientListResponse = it.clientListResponse
-            UserData.groupinfo = it.groupInfo
-            UserData.imageUrlPrefix = it.imageUrlPrefix
-
-            dialogHide()
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-        })
-
-        // deprecated 된 onBackPressed() 대신 사용
-        // 위에서 생성한 콜백 인스턴스 붙여주기
-        this.onBackPressedDispatcher.addCallback(this, callback)
+                dialogHide()
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            })
+        }
 
         binding.locationInfo.setOnClickListener {
             val intent = Intent(this, TermsActivity::class.java)
@@ -131,24 +140,13 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
                 viewModel.postLogin(LoginRequest(token))// postLogin 호출 및 결과 대기
                 //viewModel.autoLogin()
             }
-
-        }
-
-        viewModel.login.observe(this, Observer { it ->
-            viewModel.autoLogin.observe(this@LoginActivity, Observer {
-                GajaMapApplication.prefs.saveAutoLoginResponse(it)
-                // autoLogin이 완료된 후에 MainActivity로 이동합니다.
-                UserData.imageUrlPrefix = it.imageUrlPrefix
-
-                startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-                finish()
+            viewModel.login.observe(this@LoginActivity, Observer {
+                GajaMapApplication.prefs.setString("authority", it.authority)
+                GajaMapApplication.prefs.setString("email", it.email)
+                GajaMapApplication.prefs.setString("createdDate", it.createdDate)
             })
 
-            GajaMapApplication.prefs.setString("authority", it.authority)
-            GajaMapApplication.prefs.setString("email", it.email)
-            GajaMapApplication.prefs.setString("createdDate", it.createdDate)
-
-        })
+        }
     }
 
     private fun dialogShow() {
@@ -163,20 +161,4 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
         window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
-    // 뒤로가기 두 번 클릭 시 앱 종료
-    // 콜백 인스턴스 생성
-    private val callback = object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() {
-            // 뒤로가기 버튼 이벤트 처리
-            if(System.currentTimeMillis() - backPressedTime >= 2000) {
-                backPressedTime = System.currentTimeMillis()
-                Toast.makeText(this@LoginActivity, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
-            } else {
-                // 앱 자체 종료하기
-                ActivityCompat.finishAffinity(this@LoginActivity)
-                System.runFinalization()
-                System.exit(0)
-            }
-        }
-    }
 }

@@ -1,13 +1,8 @@
 package com.pg.gajamap.ui.fragment.customerList
 
-import android.Manifest
 import android.app.AlertDialog
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.LocationManager
-import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -18,18 +13,11 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.kakao.sdk.navi.Constants
-import com.kakao.sdk.navi.NaviClient
-import com.kakao.sdk.navi.model.CoordType
-import com.kakao.sdk.navi.model.Location
-import com.kakao.sdk.navi.model.NaviOption
 import com.pg.gajamap.BR
 import com.pg.gajamap.R
 import com.pg.gajamap.base.BaseFragment
@@ -44,7 +32,6 @@ import com.pg.gajamap.ui.adapter.GroupListAdapter
 import com.pg.gajamap.ui.fragment.map.MapFragment
 import com.pg.gajamap.ui.view.EditListActivity
 import com.pg.gajamap.viewmodel.GetClientViewModel
-import kotlin.system.exitProcess
 
 class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
     private var groupId: Int = -1
@@ -63,9 +50,6 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
     var gid: Long = 0
     var itemId: Long = 0
     private var state = 1
-
-    private val ACCESS_FINE_LOCATION = 1000
-    private val CALL_PHONE_PERMISSION_CODE = 101
 
     override val viewModel by viewModels<GetClientViewModel> {
         GetClientViewModel.AddViewModelFactory("tmp")
@@ -125,14 +109,6 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
             binding.fragmentListCategory3.setBackgroundResource(R.drawable.list_distance_purple)
             state = 3
 
-            if (checkLocationService()) {
-                // GPS가 켜져있을 경우
-                permissionCheck()
-            } else {
-                // GPS가 꺼져있을 경우
-                Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
-            }
-
             customerListAdapter.updateData(clientList!!.clients.sortedBy { it.distance })
         }
 
@@ -143,12 +119,14 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
                 val builder = AlertDialog.Builder(requireContext())
                 builder.setTitle("해당 그룹을 삭제하시겠습니까?")
                     .setMessage("그룹을 삭제하시면 영구 삭제되어 복구할 수 없습니다.")
-                    .setPositiveButton("확인", { dialogInterface: DialogInterface, i: Int ->
+                    .setPositiveButton("확인") { _: DialogInterface, _: Int ->
                         // 그룹 삭제 서버 연동 함수 호출
                         deleteGroup(gid, position)
-                    })
-                    .setNegativeButton("취소", { dialogInterface: DialogInterface, i: Int ->
-                    })
+                        Toast.makeText(requireContext(),"그룹 삭제 완료", Toast.LENGTH_SHORT).show()
+                        groupDialog.hide()
+                    }
+                    .setNegativeButton("취소") { _: DialogInterface, _: Int ->
+                    }
                 val alertDialog = builder.create()
                 alertDialog.show()
                 gName = name
@@ -171,8 +149,15 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
 
                 mDialogView.btnDialogSubmit.setOnClickListener {
                     // 그룹 수정 api 연동
-                    modifyGroup(gid, mDialogView.etName.text.toString(), position)
-                    addDialog.dismiss()
+                    if (mDialogView.etName.text.toString() == "전체" ||
+                        mDialogView.etName.text.toString().isEmpty()
+                    ) {
+                        Toast.makeText(requireContext(), "사용할 수 없는 그룹 이름입니다", Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        modifyGroup(gid, mDialogView.etName.text.toString(), position)
+                        addDialog.dismiss()
+                    }
                 }
             }
         })
@@ -184,7 +169,6 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
                 binding.tvSearch.text = gname
                 sheetView!!.tvAddgroupMain.text = gname
                 pos = position
-
 
                 if (position == 0){
                     getAllClient()
@@ -219,8 +203,13 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
 
                 mDialogView.btnDialogSubmit.setOnClickListener {
                     // 그룹 생성 api 연동
-                    createGroup(mDialogView.etName.text.toString())
-                    addDialog.dismiss()
+                    if(mDialogView.etName.text.toString() == "전체" ||
+                        mDialogView.etName.text.toString().isEmpty()) {
+                        Toast.makeText(requireContext(), "사용할 수 없는 그룹 이름입니다", Toast.LENGTH_SHORT).show()
+                    } else {
+                        createGroup(mDialogView.etName.text.toString())
+                        addDialog.dismiss()
+                    }
                 }
             }
         }
@@ -282,91 +271,6 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
 
     }
 
-    // GPS가 켜져있는지 확인
-    private fun checkLocationService(): Boolean {
-        val locationManager =
-            requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-    }
-
-    // 위치 권한 확인
-    private fun permissionCheck() {
-        val preference = requireActivity().getPreferences(Context.MODE_PRIVATE)
-        val isFirstCheck = preference.getBoolean("isFirstPermissionCheck", true)
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // 권한이 없는 상태
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    requireActivity(),
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
-            ) {
-                // 권한 거절 (다시 한 번 물어봄)
-                val builder = AlertDialog.Builder(requireContext())
-                builder.setMessage("현재 위치를 확인하시려면 위치 권한을 허용해주세요.")
-                builder.setPositiveButton("확인") { dialog, which ->
-                    ActivityCompat.requestPermissions(
-                        requireActivity(),
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        ACCESS_FINE_LOCATION
-                    )
-                }
-                builder.setNegativeButton("취소") { dialog, which ->
-
-                }
-                builder.show()
-            } else {
-                if (isFirstCheck) {
-                    // 최초 권한 요청
-                    preference.edit().putBoolean("isFirstPermissionCheck", false).apply()
-                    ActivityCompat.requestPermissions(
-                        requireActivity(),
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        ACCESS_FINE_LOCATION
-                    )
-                } else {
-                    // 다시 묻지 않음 클릭 (앱 정보 화면으로 이동)
-                    val builder = AlertDialog.Builder(requireContext())
-                    builder.setMessage("현재 위치를 확인하시려면 설정에서 위치 권한을 허용해주세요.")
-                    builder.setPositiveButton("확인") { dialog, which ->
-
-                    }
-                    builder.setNegativeButton("취소") { dialog, which ->
-
-                    }
-                    builder.show()
-                }
-            }
-        } else {
-            // 권한이 있는 상태
-            // 위치추적 시작하는 코드 추가
-        }
-    }
-
-
-    // 권한 요청 후 행동
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == ACCESS_FINE_LOCATION) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // 권한 요청 후 승인됨 (추적 시작)
-                Toast.makeText(requireContext(), "위치 권한 승인", Toast.LENGTH_SHORT).show()
-                //startTracking()
-            } else {
-                // 권한 요청 후 거절됨 (다시 요청 or 토스트)
-                Toast.makeText(requireContext(), "위치 권한 거절", Toast.LENGTH_SHORT).show()
-                permissionCheck()
-            }
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         updateData()
@@ -381,14 +285,13 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
         clientList?.let { ListRv(it) }
     }
 
-    fun ListRv(it: GetAllClientResponse) {
+    private fun ListRv(it: GetAllClientResponse) {
         customerListAdapter = CustomerListAdapter(it.clients,requireContext())
         sortedRVList()
     }
 
     fun filterClientList(searchText: String) {
         val filteredList = clientList?.clients?.filter { client ->
-            // 여기에서 clientName을 검색합니다. 대소문자를 무시하려면 equals를 equalsIgnoreCase로 바꿀 수 있습니다.
             client.clientName.contains(searchText, ignoreCase = true)
         }
         customerListAdapter = clientList?.let { CustomerListAdapter(it.clients,requireContext()) }!!
@@ -506,6 +409,12 @@ class ListFragment : BaseFragment<FragmentListBinding>(R.layout.fragment_list) {
                 else -> clientList!!.clients // 기본값으로 정렬하지 않음
             }
             customerListAdapter.updateData(sortedData)
+
+            if(customerListAdapter.itemCount == 0) {
+                binding.userAddTv.visibility = View.VISIBLE
+            } else {
+                binding.userAddTv.visibility = View.GONE
+            }
         }
     }
 
