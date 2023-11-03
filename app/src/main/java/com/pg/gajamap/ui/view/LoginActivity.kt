@@ -1,5 +1,6 @@
 package com.pg.gajamap.ui.view
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.util.Log
 import android.view.WindowManager
@@ -24,6 +25,7 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
+import com.pg.gajamap.base.NetworkManager
 import com.pg.gajamap.ui.fragment.loginTerms.LocationInfoFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,18 +52,29 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
 
         // val keyHash = Utility.getKeyHash(this)
         // Log.d("Hash", keyHash)
+        // 이곳에 화면 기능 구현
+        if (!NetworkManager.checkNetworkState(this)) {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("네트워크 연결 확인")
+            builder.setMessage("네트워크에 연결되어 있지 않습니다. 네트워크 연결을 확인해주세요.")
+            builder.setPositiveButton("확인") { dialog, _ ->
+                finish()
+                dialog.dismiss()
+            }
+            builder.create().show()
+        } else {
+            viewModel.autoLogin()
+            viewModel.autoLogin.observe(this, Observer {
+                // 싱글톤 패턴을 이용하여 자동 로그인 response 데이터 값 저장
+                UserData.clientListResponse = it.clientListResponse
+                UserData.groupinfo = it.groupInfo
+                UserData.imageUrlPrefix = it.imageUrlPrefix
 
-        viewModel.autoLogin()
-        viewModel.autoLogin.observe(this, Observer {
-            // 싱글톤 패턴을 이용하여 자동 로그인 response 데이터 값 저장
-            UserData.clientListResponse = it.clientListResponse
-            UserData.groupinfo = it.groupInfo
-            UserData.imageUrlPrefix = it.imageUrlPrefix
-
-            dialogHide()
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-        })
+                dialogHide()
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            })
+        }
 
         binding.locationInfo.setOnClickListener {
             val intent = Intent(this, TermsActivity::class.java)
