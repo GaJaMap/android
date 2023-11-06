@@ -76,6 +76,13 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 .commit()
         }
 
+//        binding.infoProfileAddressChangeBtn.setOnClickListener {
+//            parentFragmentManager.beginTransaction()
+//                .replace(R.id.frame_fragment, EditAddressMapFragment())
+//                .addToBackStack(null)
+//                .commit()
+//        }
+
         val name = requireActivity().intent.getStringExtra("name")
         val address1 = requireActivity().intent.getStringExtra("address1")
         val address2 = requireActivity().intent.getStringExtra("address2")
@@ -164,7 +171,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         imageResult.launch(intent)
     }
 
-    fun openImagePickOption() {
+    private fun openImagePickOption() {
         val items = arrayOf<CharSequence>("앨범에서 사진 선택", "기본 이미지로 변경")
         val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
         builder.setTitle("프로필 사진")
