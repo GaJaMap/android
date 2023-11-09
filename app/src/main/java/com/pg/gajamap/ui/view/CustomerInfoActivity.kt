@@ -16,6 +16,10 @@ class CustomerInfoActivity : BaseActivity<ActivityCustomerInfoBinding>(R.layout.
     override val viewModel by viewModels<GetClientViewModel> {
         GetClientViewModel.AddViewModelFactory("tmp")
     }
+
+    override fun preLoad() {
+    }
+
     override fun initViewModel(viewModel: ViewModel) {
         binding.lifecycleOwner = this@CustomerInfoActivity
         binding.viewModel = this.viewModel

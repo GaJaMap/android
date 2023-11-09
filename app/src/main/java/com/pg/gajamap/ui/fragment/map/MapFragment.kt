@@ -457,10 +457,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 val builder = AlertDialog.Builder(requireContext())
                 builder.setTitle("현재 생성된 그룹이 없습니다.")
                     .setMessage("그룹을 생성 하시겠습니까?")
-                    .setPositiveButton("취소"){ dialog, which ->
-
-                    }
-                    .setNegativeButton("확인"){ dialog, which ->
+                    .setPositiveButton("확인"){ dialog, which ->
                         sheetView!!.rvAddgroup.adapter = groupListAdapter
 
                         groupDialog.setContentView(sheetView!!.root)
@@ -489,6 +486,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                                 addDialog.dismiss()
                             }
                         }
+                    }
+                    .setNegativeButton("취소"){ dialog, which ->
+
                     }
                 val alertDialog = builder.create()
                 alertDialog.show()

@@ -43,6 +43,9 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
         LoginViewModel.LoginViewModelFactory("tmp")
     }
 
+    override fun preLoad() {
+    }
+
     override fun initViewModel(viewModel: ViewModel) {
         binding.lifecycleOwner = this@LoginActivity
         binding.activity = this@LoginActivity
@@ -63,7 +66,6 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
             }
             builder.create().show()
         } else {
-            viewModel.autoLogin()
             viewModel.autoLogin.observe(this, Observer {
                 // 싱글톤 패턴을 이용하여 자동 로그인 response 데이터 값 저장
                 UserData.clientListResponse = it.clientListResponse

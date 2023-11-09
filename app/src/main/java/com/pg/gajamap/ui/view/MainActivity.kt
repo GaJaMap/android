@@ -1,16 +1,10 @@
 package com.pg.gajamap.ui.view
 
-import android.annotation.SuppressLint
-import android.content.pm.PackageManager
-import android.graphics.drawable.GradientDrawable
-import android.widget.ImageButton
-import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pg.gajamap.R
 import com.pg.gajamap.base.BaseActivity
 import com.pg.gajamap.databinding.ActivityMainBinding
@@ -18,7 +12,6 @@ import com.pg.gajamap.ui.fragment.customerList.ListFragment
 import com.pg.gajamap.ui.fragment.map.MapFragment
 import com.pg.gajamap.ui.fragment.setting.SettingFragment
 import com.pg.gajamap.viewmodel.MainViewModel
-import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val ACCESS_FINE_LOCATION = 1000   // Request Code
@@ -30,6 +23,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     override val viewModel by viewModels<MainViewModel> {
         MainViewModel.MainViewModelFactory("tmp")
+    }
+
+    override fun preLoad() {
     }
 
     override fun initViewModel(viewModel: ViewModel) {

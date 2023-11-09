@@ -48,6 +48,9 @@ class AddDirectActivity : BaseActivity<ActivityAddDirectBinding>(R.layout.activi
         ClientViewModel.SettingViewModelFactory("tmp")
     }
 
+    override fun preLoad() {
+    }
+
     private var groupId: Long = -1
     override fun initViewModel(viewModel: ViewModel) {
         binding.lifecycleOwner = this@AddDirectActivity

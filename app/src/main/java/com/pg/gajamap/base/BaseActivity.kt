@@ -16,10 +16,13 @@ abstract class BaseActivity<VD: ViewDataBinding>(@LayoutRes val layoutRes: Int) 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        preLoad()
         binding
         initViewModel(viewModel)
         onCreateAction()
     }
+
+    abstract fun preLoad()
 
     abstract fun initViewModel(viewModel: ViewModel)
     abstract fun onCreateAction()
