@@ -25,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="40dp">
+                android:layout_marginTop="60dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -49,7 +49,7 @@
 
                 <TextView
                     android:id="@+id/locationInfoContent"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="40dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
                     android:fontFamily="@font/nanumsquareneo_regular"
@@ -59,7 +59,7 @@
                     android:textColor="@color/black"
                     android:textSize="10sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="40dp"/>
+                    android:layout_marginBottom="80dp"/>
             </LinearLayout>
         </ScrollView>
 
