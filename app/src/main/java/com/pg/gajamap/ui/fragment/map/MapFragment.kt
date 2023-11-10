@@ -180,7 +180,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                             Manifest.permission.ACCESS_FINE_LOCATION
                         ) != PackageManager.PERMISSION_GRANTED
                     ) {
-                        // 전화걸기 권한을 요청합니다.
                         requestPermission()
                         return@setOnClickListener
                     }
@@ -207,7 +206,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             } else {
 
                 GPSBtn = false
-                Log.d("permissioncheckbtn2", GPSBtn.toString())
                 val bgShape = binding.ibGps.background as GradientDrawable
                 bgShape.setColor(resources.getColor(R.color.white))
                 binding.ibGps.setImageResource(R.drawable.ic_gray_gps)
@@ -217,6 +215,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 bgShape2.setColor(resources.getColor(R.color.white))
                 binding.ibBottomGps.setImageResource(R.drawable.ic_gray_gps)
                 stopTracking()
+                binding.mapView.setShowCurrentLocationMarker(false)
             }
         }
 
@@ -566,16 +565,21 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 } else {
                     Toast.makeText(requireContext(), "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
                 }
+
+                if (threeCheck || fiveCheck) {
+                    binding.clKm.visibility = View.GONE
+                    kmBtn = true
+                }
             } else {
                 if (threeCheck || fiveCheck) {
                     binding.clKm.visibility = View.VISIBLE
                 } else {
-                    kmBtn = false
                     val bgShape = binding.ibKm.background as GradientDrawable
                     bgShape.setColor(resources.getColor(R.color.white))
                     binding.ibKm.setImageResource(R.drawable.ic_km)
                     binding.clKm.visibility = View.GONE
                 }
+                kmBtn = false
             }
         }
 
@@ -859,6 +863,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         binding.ibBottomGps.setImageResource(R.drawable.ic_gray_gps)
 
         stopTracking()
+        binding.mapView.setShowCurrentLocationMarker(false)
         plusBtnInactivation()
         clientMarker()
 
