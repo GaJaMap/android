@@ -76,12 +76,12 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 .commit()
         }
 
-//        binding.infoProfileAddressChangeBtn.setOnClickListener {
-//            parentFragmentManager.beginTransaction()
-//                .replace(R.id.frame_fragment, EditAddressMapFragment())
-//                .addToBackStack(null)
-//                .commit()
-//        }
+        binding.infoProfileAddressChangeBtn.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frame_fragment, EditAddressMapFragment())
+                .addToBackStack(null)
+                .commit()
+        }
 
         val name = requireActivity().intent.getStringExtra("name")
         val address1 = requireActivity().intent.getStringExtra("address1")

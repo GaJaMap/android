@@ -168,13 +168,13 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <net.daum.mf.map.api.MapView
-            android:id="@+id/map_view"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+    <RelativeLayout
+        android:id="@+id/kakaoMapContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_location"

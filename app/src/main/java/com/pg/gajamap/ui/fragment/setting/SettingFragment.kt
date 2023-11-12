@@ -1,5 +1,6 @@
 package com.pg.gajamap.ui.fragment.setting
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
@@ -48,20 +49,22 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
         Toast.makeText(requireContext(), "취소", Toast.LENGTH_SHORT).show()
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateAction() {
 
         val authority = GajaMapApplication.prefs.getString("authority", "")
         if(authority == "FREE"){
             binding.infoProfileImg.setBackgroundResource(R.drawable.setting_profile)
-            binding.settingLevelTv.setText(R.string.setting_level)
             binding.settingLevelTv.resources.getColor(R.color.setting_level_yellow)
         }
-        else if (authority == "VIP"){
+        else {
             binding.infoProfileImg.setBackgroundResource(R.drawable.setting_profile_vip)
-            binding.settingLevelTv.setText(R.string.setting_level_vip)
             binding.settingLevelTv.resources.getColor(R.color.setting_level_purple)
             binding.settingLevelTv.setBackgroundResource(R.color.setting_level_purple_background)
         }
+
+        binding.settingLevelTv.text = "$authority 등급"
+
 
         val email = GajaMapApplication.prefs.getString("email", "")
         val createDate = GajaMapApplication.prefs.getString("createdDate", "")

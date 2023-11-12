@@ -19,13 +19,16 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.annotation.RequiresApi
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.contains
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -52,6 +55,7 @@ import com.pg.gajamap.ui.adapter.LocationSearchAdapter
 import com.pg.gajamap.ui.adapter.SearchResultAdapter
 import com.pg.gajamap.ui.adapter.ViewPagerAdapter
 import com.pg.gajamap.ui.view.AddDirectActivity
+import com.pg.gajamap.ui.view.CustomerInfoActivity
 import com.pg.gajamap.ui.view.MainActivity
 import com.pg.gajamap.viewmodel.MapViewModel
 import net.daum.mf.map.api.MapPOIItem
@@ -64,6 +68,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.lang.Integer.min
 
+
 class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     MapView.POIItemEventListener, MapView.MapViewEventListener {
     // 그룹 리스트 recyclerview
@@ -72,6 +77,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     var pos: Int = 0
     var posDelete: Int = 0
     var markerCheck = false
+
+    private lateinit var mapView: MapView
 
     // 지도에서 직접 추가하기를 위한 중심 위치 point
     private lateinit var marker: MapPOIItem
@@ -131,12 +138,13 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("ResourceAsColor")
     override fun onCreateAction() {
-
+        mapView = MapView(context)
+        binding.kakaoMapContainer.addView(mapView)
         val mapPoint = MapPoint.mapPointWithGeoCoord(
             GajaMapApplication.prefs.getString("mapLatitude", "37.7").toDouble(),
             GajaMapApplication.prefs.getString("mapLongitude", "127").toDouble()
         )
-        binding.mapView.setMapCenterPoint(mapPoint, true)
+        mapView.setMapCenterPoint(mapPoint, true)
 
         locationSearchAdapter = LocationSearchAdapter(requireContext(), locationSearchList)
         // 지도 타일 이미지 Persistent Cache 기능 : 네트워크를 통해 다운로드한 지도 이미지 데이터를 단말의 영구(persistent) 캐쉬 영역에 저장하는 기능
@@ -161,8 +169,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             sheetView!!.tvAddgroupMain.text = groupInfo.groupName
         }
 
-        binding.mapView.setMapViewEventListener(this)
-        binding.mapView.setPOIItemEventListener(this)
+        mapView.setMapViewEventListener(this)
+        mapView.setPOIItemEventListener(this)
 
         binding.vpClient.orientation = ViewPager2.ORIENTATION_HORIZONTAL // 방향을 가로로
 
@@ -215,7 +223,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 bgShape2.setColor(resources.getColor(R.color.white))
                 binding.ibBottomGps.setImageResource(R.drawable.ic_gray_gps)
                 stopTracking()
-                binding.mapView.setShowCurrentLocationMarker(false)
+                mapView.setShowCurrentLocationMarker(false)
             }
         }
 
@@ -249,13 +257,13 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     bgShape2.setColor(resources.getColor(R.color.main))
                     binding.ibGps.setImageResource(R.drawable.ic_white_gps)
 
-                    binding.mapView.removePOIItem(marker)
+                    mapView.removePOIItem(marker)
                     // 지도에서 직접 추가하기 마커 위치
                     marker = MapPOIItem()
                     marker.itemName = "Marker"
                     marker.mapPoint = MapPoint.mapPointWithGeoCoord(a.first, a.second)
                     marker.markerType = MapPOIItem.MarkerType.RedPin
-                    binding.mapView.addPOIItem(marker)
+                    mapView.addPOIItem(marker)
                     reverseGeoCoderFoundAddress(
                         marker.mapPoint.mapPointGeoCoord.longitude.toString(),
                         marker.mapPoint.mapPointGeoCoord.latitude.toString()
@@ -278,6 +286,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 bgShape2.setColor(resources.getColor(R.color.white))
                 binding.ibGps.setImageResource(R.drawable.ic_gray_gps)
                 stopTracking()
+                mapView.setShowCurrentLocationMarker(false)
             }
         }
 
@@ -445,18 +454,18 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     itemData!!.location.latitude!!,
                     itemData.location.longitude!!
                 )
-                binding.mapView.setMapCenterPoint(mapPoint, true)
+                mapView.setMapCenterPoint(mapPoint, true)
             }
         })
 
         // plus버튼, 지도에 직접 추가하기 dialog 보여짐
         binding.ibPlus.setOnClickListener {
             checkGroup()
-            if (groupNum == 1){
+            if (groupNum == 1) {
                 val builder = AlertDialog.Builder(requireContext())
                 builder.setTitle("현재 생성된 그룹이 없습니다.")
                     .setMessage("그룹을 생성 하시겠습니까?")
-                    .setPositiveButton("확인"){ dialog, which ->
+                    .setPositiveButton("확인") { dialog, which ->
                         sheetView!!.rvAddgroup.adapter = groupListAdapter
 
                         groupDialog.setContentView(sheetView!!.root)
@@ -478,7 +487,11 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                             if (mDialogView.etName.text.toString() == "전체" ||
                                 mDialogView.etName.text.toString().isEmpty()
                             ) {
-                                Toast.makeText(requireContext(), "사용할 수 없는 그룹 이름입니다", Toast.LENGTH_SHORT)
+                                Toast.makeText(
+                                    requireContext(),
+                                    "사용할 수 없는 그룹 이름입니다",
+                                    Toast.LENGTH_SHORT
+                                )
                                     .show()
                             } else {
                                 createGroup(mDialogView.etName.text.toString())
@@ -486,7 +499,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                             }
                         }
                     }
-                    .setNegativeButton("취소"){ dialog, which ->
+                    .setNegativeButton("취소") { dialog, which ->
 
                     }
                 val alertDialog = builder.create()
@@ -499,7 +512,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     bgShape.setColor(resources.getColor(R.color.main))
                     binding.ibPlus.setImageResource(R.drawable.ic_white_plus)
 
-                    binding.mapView.removeAllPOIItems()
+                    mapView.removeAllPOIItems()
                     // 화면 변경
                     binding.clSearchWhole.visibility = View.GONE
                     binding.clSearchLocation.visibility = View.VISIBLE
@@ -518,19 +531,19 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     }
 
                     // 지도에서 직접 추가하기 마커 위치
-                    val centerPoint = binding.mapView.mapCenterPoint
+                    val centerPoint = mapView.mapCenterPoint
                     marker = MapPOIItem()
-                    binding.mapView.setMapCenterPoint(centerPoint, true)
+                    mapView.setMapCenterPoint(centerPoint, true)
                     marker.itemName = "마커"
                     marker.isShowCalloutBalloonOnTouch = false
                     marker.mapPoint = MapPoint.mapPointWithGeoCoord(
-                        binding.mapView.mapCenterPoint.mapPointGeoCoord.latitude,
-                        binding.mapView.mapCenterPoint.mapPointGeoCoord.longitude
+                        mapView.mapCenterPoint.mapPointGeoCoord.latitude,
+                        mapView.mapCenterPoint.mapPointGeoCoord.longitude
                     )
-                    latitude = binding.mapView.mapCenterPoint.mapPointGeoCoord.latitude
-                    longitude = binding.mapView.mapCenterPoint.mapPointGeoCoord.longitude
+                    latitude = mapView.mapCenterPoint.mapPointGeoCoord.latitude
+                    longitude = mapView.mapCenterPoint.mapPointGeoCoord.longitude
                     marker.markerType = MapPOIItem.MarkerType.RedPin
-                    binding.mapView.addPOIItem(marker)
+                    mapView.addPOIItem(marker)
                     reverseGeoCoderFoundAddress(longitude.toString(), latitude.toString())
                     markerCheck = true
                 } else {
@@ -593,7 +606,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     locationSearchList[position].y,
                     locationSearchList[position].x
                 )
-                binding.mapView.setMapCenterPoint(mapPoint, true)
+                mapView.setMapCenterPoint(mapPoint, true)
 
             }
         })
@@ -721,7 +734,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 val data = viewModel.wholeRadius.value!!.clients
                 val num = data.count()
 
-                binding.mapView.removeAllPOIItems()
+                mapView.removeAllPOIItems()
                 for (i in 0 until num) {
                     val itemdata = data[i]
                     // 지도에 마커 추가
@@ -737,7 +750,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                         markerType = MapPOIItem.MarkerType.RedPin
                         selectedMarkerType = MapPOIItem.MarkerType.YellowPin
                     }
-                    binding.mapView.addPOIItem(point)
+                    mapView.addPOIItem(point)
                 }
             }
         })
@@ -755,7 +768,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 val data = viewModel.specificRadius.value!!.clients
                 val num = data.count()
 
-                binding.mapView.removeAllPOIItems()
+                mapView.removeAllPOIItems()
                 for (i in 0 until num) {
                     val itemdata = data[i]
                     // 지도에 마커 추가
@@ -771,7 +784,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                         markerType = MapPOIItem.MarkerType.RedPin
                         selectedMarkerType = MapPOIItem.MarkerType.YellowPin
                     }
-                    binding.mapView.addPOIItem(point)
+                    mapView.addPOIItem(point)
                 }
             }
         })
@@ -792,7 +805,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             // groupinfo 값도 변경
             UserData.groupinfo = AutoLoginGroupInfo(groupId, num, gname)
 
-            binding.mapView.removeAllPOIItems()
+            mapView.removeAllPOIItems()
             for (i in 0 until num) {
                 val itemdata = data[i]
                 if (itemdata.location.latitude == null)
@@ -810,7 +823,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     markerType = MapPOIItem.MarkerType.RedPin
                     selectedMarkerType = MapPOIItem.MarkerType.YellowPin
                 }
-                binding.mapView.addPOIItem(point)
+                mapView.addPOIItem(point)
             }
         })
     }
@@ -827,7 +840,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             // groupinfo 값도 변경
             UserData.groupinfo = AutoLoginGroupInfo(-1, num, "전체")
 
-            binding.mapView.removeAllPOIItems()
+            mapView.removeAllPOIItems()
             for (i in 0 until num) {
                 val itemdata = data[i]
                 if (itemdata.location.latitude == null)
@@ -845,13 +858,23 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     markerType = MapPOIItem.MarkerType.RedPin
                     selectedMarkerType = MapPOIItem.MarkerType.YellowPin
                 }
-                binding.mapView.addPOIItem(point)
+                mapView.addPOIItem(point)
             }
         })
     }
 
     override fun onResume() {
         super.onResume()
+
+        if (!binding.kakaoMapContainer.contains(mapView)) {
+            try {
+                mapView = MapView(context)
+                binding.kakaoMapContainer.addView(mapView)
+            } catch (e: RuntimeException) {
+                Log.d("error", e.toString())
+            }
+        }
+
         GPSBtn = false
         val bgShape = binding.ibGps.background as GradientDrawable
         bgShape.setColor(resources.getColor(R.color.white))
@@ -863,7 +886,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         binding.ibBottomGps.setImageResource(R.drawable.ic_gray_gps)
 
         stopTracking()
-        binding.mapView.setShowCurrentLocationMarker(false)
+        mapView.setShowCurrentLocationMarker(false)
         plusBtnInactivation()
         clientMarker()
 
@@ -893,7 +916,18 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         // 저장된 지도 타일 캐쉬 데이터를 모두 삭제
         // MapView가 동작 중인 상태에서도 사용 가능
         clearMapTilePersistentCache()
+//`        binding.kakaoMapContainer.removeView(mapView)`
     }
+
+    override fun onPause() {
+        super.onPause()
+        binding.kakaoMapContainer.removeView(mapView)
+    }
+
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//        binding.kakaoMapContainer.removeView(mapView)
+//    }
 
     // ViewPager에 들어갈 아이템
     private fun getClientList(userObject: Any) {
@@ -992,7 +1026,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             ) {
                 if (response.isSuccessful) {
                     // 직접 지도에 추가하기 위해 기존에 존재한 마커는 없애주기
-                    binding.mapView.removePOIItem(marker)
+                    mapView.removePOIItem(marker)
                     markerCheck = false
                     addItemsAndMarkers(response.body())
                     Log.d("LocationSearch", "Success : ${response.body()}")
@@ -1014,7 +1048,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             // 검색 결과 있을 경우
             locationSearchList.clear()           // 리사이클러뷰 초기화
 
-            binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
+            mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
             for (document in searchResult!!.documents) {
                 // 결과를 리사이클러뷰에 추가
                 val item = LocationSearchData(
@@ -1034,7 +1068,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     markerType = MapPOIItem.MarkerType.BluePin
                     selectedMarkerType = MapPOIItem.MarkerType.RedPin
                 }
-                binding.mapView.addPOIItem(point)
+                mapView.addPOIItem(point)
             }
             locationSearchAdapter.notifyDataSetChanged()
         } else {
@@ -1089,7 +1123,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 markerType = MapPOIItem.MarkerType.RedPin
                 selectedMarkerType = MapPOIItem.MarkerType.YellowPin
             }
-            binding.mapView.addPOIItem(point)
+            mapView.addPOIItem(point)
         }
     }
 
@@ -1120,7 +1154,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                         } else {
                             specificRadius(3000, a.first, a.second, UserData.groupinfo!!.groupId)
                         }
-                        binding.mapView.setMapCenterPoint(
+                        mapView.setMapCenterPoint(
                             MapPoint.mapPointWithGeoCoord(
                                 a.first,
                                 a.second
@@ -1129,7 +1163,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     }
                 } else {
                     threeCheck = false
-                    binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
+                    mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
                     binding.btn3km.setBackgroundResource(R.drawable.bg_km_notclick)
                     binding.btn3km.setTextColor(resources.getColor(R.color.main))
                 }
@@ -1166,7 +1200,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                         } else {
                             specificRadius(5000, a.first, a.second, UserData.groupinfo!!.groupId)
                         }
-                        binding.mapView.setMapCenterPoint(
+                        mapView.setMapCenterPoint(
                             MapPoint.mapPointWithGeoCoord(
                                 a.first,
                                 a.second
@@ -1175,7 +1209,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                     }
                 } else {
                     fiveCheck = false
-                    binding.mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
+                    mapView.removeAllPOIItems()  // 지도의 마커 모두 제거
                     binding.btn5km.setBackgroundResource(R.drawable.bg_km_notclick)
                     binding.btn5km.setTextColor(resources.getColor(R.color.main))
                 }
@@ -1239,6 +1273,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                         Log.d("LocationSearch", "fail : ${response.code()}")
                     }
                 }
+
                 override fun onFailure(
                     call: Call<ResultSearchCoord2addressData>,
                     t: Throwable
@@ -1259,7 +1294,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         binding.ibPlus.visibility = View.VISIBLE
         binding.ibGps.visibility = View.VISIBLE
         binding.ibKm.visibility = View.VISIBLE
-        binding.mapView.removeAllPOIItems()
+        mapView.removeAllPOIItems()
         binding.clLocationSearch.visibility = View.GONE
         binding.clCardview.visibility = View.GONE
         markerCheck = false
@@ -1319,13 +1354,13 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
     // 위치추적 시작
     fun startTracking() {
-        binding.mapView.currentLocationTrackingMode =
+        mapView.currentLocationTrackingMode =
             MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
     }
 
     // 위치추적 중지
     fun stopTracking() {
-        binding.mapView.currentLocationTrackingMode =
+        mapView.currentLocationTrackingMode =
             MapView.CurrentLocationTrackingMode.TrackingModeOff
     }
 

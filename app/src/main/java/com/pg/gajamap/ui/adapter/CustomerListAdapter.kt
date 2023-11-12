@@ -54,7 +54,11 @@ class CustomerListAdapter(private var dataList: List<Client>, private val contex
                     context.startActivity(
                         NaviClient.instance.navigateIntent(
                             //위도 경도를 장소이름으로 바꿔주기
-                            Location(dataList[position].clientName, dataList[position].location.longitude.toString(), dataList[position].location.latitude.toString()),
+                            Location(
+                                dataList[position].clientName,
+                                dataList[position].location.longitude.toString(),
+                                dataList[position].location.latitude.toString()
+                            ),
                             NaviOption(coordType = CoordType.WGS84)
                         )
                     )
@@ -79,7 +83,8 @@ class CustomerListAdapter(private var dataList: List<Client>, private val contex
             } else {
                 val distanceInMeters = data.distance // data.distance는 미터(m) 단위로 가정
                 val distanceInKilometers = distanceInMeters?.div(1000.0) // 미터를 킬로미터로 변환
-                val formattedDistance = String.format("%.1f km", distanceInKilometers) // 소수점 한 자리까지 표시
+                val formattedDistance =
+                    String.format("%.1f km", distanceInKilometers) // 소수점 한 자리까지 표시
                 binding.itemProfileDistance.text = formattedDistance
             }
             val imageUrl = UserData.imageUrlPrefix
