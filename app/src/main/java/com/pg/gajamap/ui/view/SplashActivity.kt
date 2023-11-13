@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Observer
@@ -73,6 +74,11 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_spl
                     startActivity(Intent(this@SplashActivity, MainActivity::class.java))
                     finish()
                 })
+                viewModel.autoLoginError.observe(this@SplashActivity) {
+                    Toast.makeText(this@SplashActivity,it,Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+                    finish()
+                }
             }
         }
     }

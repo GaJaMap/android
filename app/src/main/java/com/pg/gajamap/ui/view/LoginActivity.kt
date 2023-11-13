@@ -76,6 +76,10 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
             })
+            viewModel.autoLoginError.observe(this) {
+                Toast.makeText(this,it,Toast.LENGTH_SHORT).show()
+                dialogHide()
+            }
         }
 
         binding.locationInfo.setOnClickListener {
