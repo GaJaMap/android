@@ -19,14 +19,12 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.annotation.RequiresApi
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.contains
 import androidx.core.view.isVisible
@@ -55,7 +53,6 @@ import com.pg.gajamap.ui.adapter.LocationSearchAdapter
 import com.pg.gajamap.ui.adapter.SearchResultAdapter
 import com.pg.gajamap.ui.adapter.ViewPagerAdapter
 import com.pg.gajamap.ui.view.AddDirectActivity
-import com.pg.gajamap.ui.view.CustomerInfoActivity
 import com.pg.gajamap.ui.view.MainActivity
 import com.pg.gajamap.viewmodel.MapViewModel
 import net.daum.mf.map.api.MapPOIItem
@@ -611,6 +608,18 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             }
         })
 
+        locationSearchAdapter.setItemClickListener2(object :
+            LocationSearchAdapter.OnItemClickListener2 {
+            override fun onClick(v: View, position: Int, text: String) {
+                val intent = Intent(context, AddDirectActivity::class.java)
+                intent.putExtra("latitude", locationSearchList[position].y)
+                intent.putExtra("longitude", locationSearchList[position].x)
+                intent.putExtra("address", text)
+                context?.startActivity(intent)
+
+            }
+        })
+
         // 오른쪽 화살표를 누르면 화면 전환되는 것으로 구현
         binding.tvLocationSearchGo.setOnClickListener {
             dialogShow()
@@ -865,11 +874,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
     override fun onResume() {
         super.onResume()
-
         if (!binding.kakaoMapContainer.contains(mapView)) {
             try {
                 mapView = MapView(context)
                 binding.kakaoMapContainer.addView(mapView)
+                mapView.setPOIItemEventListener(this)
+                mapView.setMapViewEventListener(this)
             } catch (e: RuntimeException) {
                 Log.d("error", e.toString())
             }
@@ -1075,7 +1085,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         }
     }
 
-    fun getLocation(): Pair<Double, Double> {
+    private fun getLocation(): Pair<Double, Double> {
         var userLatitude = 0.0
         var userLongitude = 0.0
 
