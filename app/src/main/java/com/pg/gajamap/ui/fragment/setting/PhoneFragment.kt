@@ -117,6 +117,73 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
 
         })
 
+        binding.btnSubmit.setOnClickListener {
+            Log.d("phonebtnsubmit","okay")
+            dialogShow()
+            viewModel.postKakaoPhoneClient(
+                PostKakaoPhoneRequest(
+                    selectedClients,
+                    groupId.toInt()
+                )
+            )
+            viewModel.postKakaoPhoneClient.observe(
+                viewLifecycleOwner,
+                Observer { response ->
+
+                    if (groupId == groupInfo?.groupId || groupInfo?.groupId == -1L) {
+                        val ids = response.body() // Response에서 Int 리스트를 가져옵니다.
+
+                        if (ids != null) {
+                            val newClients = mutableListOf<Client>()
+
+                            for (i in ids.indices) {
+                                val clientId = ids[i] // List에서 현재 순서의 Int 값을 가져옵니다.
+                                val selectedClient =
+                                    selectedClients.getOrNull(i) // selectedClients에서 현재 순서의 선택된 클라이언트를 가져옵니다.
+
+                                if (selectedClient != null) {
+                                    val newClient = Client(
+                                        address = Address("", ""), // 적절한 값으로 대체하세요
+                                        clientId = clientId.toLong(), // List에서 가져온 clientId 값을 할당합니다.
+                                        clientName = selectedClient.clientName, // 선택된 클라이언트의 이름을 사용합니다
+                                        distance = null, // 적절한 값으로 대체하세요
+                                        groupInfo = GroupInfo(
+                                            groupId,
+                                            groupName
+                                        ), // 적절한 값으로 대체하세요
+                                        image = Image(null, null), // 적절한 값으로 대체하세요
+                                        location = Location(
+                                            null,
+                                            null
+                                        ), // 적절한 값으로 대체하세요
+                                        phoneNumber = selectedClient.phoneNumber, // 선택된 클라이언트의 전화번호를 사용합니다
+                                        createdAt = "" // 적절한 값으로 대체하세요
+                                    )
+                                    newClients.add(newClient)
+                                }
+                            }
+
+                            // 새로운 Clients를 기존 clientList에 추가합니다.
+                            clientList?.addAll(newClients)
+                        }
+                    }
+
+                    dialogHide()
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .remove(this@PhoneFragment).commit()
+                    requireActivity().supportFragmentManager.popBackStack()
+                })
+
+            viewModel.postErrorClient.observe(viewLifecycleOwner, Observer {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                dialogHide()
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .remove(this@PhoneFragment).commit()
+                requireActivity().supportFragmentManager.popBackStack()
+            })
+
+        }
+
         binding.settingPhoneSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
@@ -269,72 +336,6 @@ class PhoneFragment : BaseFragment<FragmentPhoneBinding>(R.layout.fragment_phone
                         groupId = selectedGroupInfoResponse.groupId
                         groupName = selectedGroupInfoResponse.groupName
                         chkBtnActivate()
-
-                        binding.btnSubmit.setOnClickListener {
-                            dialogShow()
-                            viewModel.postKakaoPhoneClient(
-                                PostKakaoPhoneRequest(
-                                    selectedClients,
-                                    groupId.toInt()
-                                )
-                            )
-                            viewModel.postKakaoPhoneClient.observe(
-                                viewLifecycleOwner,
-                                Observer { response ->
-
-                                    if (groupId == groupInfo?.groupId || groupInfo?.groupId == -1L) {
-                                        val ids = response.body() // Response에서 Int 리스트를 가져옵니다.
-
-                                        if (ids != null) {
-                                            val newClients = mutableListOf<Client>()
-
-                                            for (i in ids.indices) {
-                                                val clientId = ids[i] // List에서 현재 순서의 Int 값을 가져옵니다.
-                                                val selectedClient =
-                                                    selectedClients.getOrNull(i) // selectedClients에서 현재 순서의 선택된 클라이언트를 가져옵니다.
-
-                                                if (selectedClient != null) {
-                                                    val newClient = Client(
-                                                        address = Address("", ""), // 적절한 값으로 대체하세요
-                                                        clientId = clientId.toLong(), // List에서 가져온 clientId 값을 할당합니다.
-                                                        clientName = selectedClient.clientName, // 선택된 클라이언트의 이름을 사용합니다
-                                                        distance = null, // 적절한 값으로 대체하세요
-                                                        groupInfo = GroupInfo(
-                                                            groupId,
-                                                            groupName
-                                                        ), // 적절한 값으로 대체하세요
-                                                        image = Image(null, null), // 적절한 값으로 대체하세요
-                                                        location = Location(
-                                                            null,
-                                                            null
-                                                        ), // 적절한 값으로 대체하세요
-                                                        phoneNumber = selectedClient.phoneNumber, // 선택된 클라이언트의 전화번호를 사용합니다
-                                                        createdAt = "" // 적절한 값으로 대체하세요
-                                                    )
-                                                    newClients.add(newClient)
-                                                }
-                                            }
-
-                                            // 새로운 Clients를 기존 clientList에 추가합니다.
-                                            clientList?.addAll(newClients)
-                                        }
-                                    }
-
-                                    dialogHide()
-                                    requireActivity().supportFragmentManager.beginTransaction()
-                                        .remove(this@PhoneFragment).commit()
-                                    requireActivity().supportFragmentManager.popBackStack()
-                                })
-
-                            viewModel.postErrorClient.observe(viewLifecycleOwner, Observer {
-                                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-                                dialogHide()
-                                requireActivity().supportFragmentManager.beginTransaction()
-                                    .remove(this@PhoneFragment).commit()
-                                requireActivity().supportFragmentManager.popBackStack()
-                            })
-
-                        }
                     } else {
                         groupId = -1L
                         chkBtnActivate()

@@ -22,6 +22,10 @@ class LoginViewModel(private val tmp: String): ViewModel() {
     val autoLogin : LiveData<AutoLoginResponse>
     get() = _autoLogin
 
+    private val _autoLoginError = MutableLiveData<String>()
+    val autoLoginError : LiveData<String>
+        get() = _autoLoginError
+
 
     fun autoLogin(){
         viewModelScope.launch  (Dispatchers.IO){
@@ -32,6 +36,7 @@ class LoginViewModel(private val tmp: String): ViewModel() {
                 _autoLogin.postValue(response.body())
                 Log.d("autologinSuccess", "${response.body()}")
             }else {
+                _autoLoginError.postValue(response.errorBody()?.string())
                 Log.d("autologinError", "autologin : ${response.message()}")
             }
         }

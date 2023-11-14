@@ -44,6 +44,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     private var groupId : Int = -1
     private var latitude1 : Double? = null
     private var longitude1 : Double? = null
+    private lateinit var address1 : String
     override fun initViewModel(viewModel: ViewModel) {
         binding.setVariable(BR.viewModel, viewModel)
         binding.lifecycleOwner = this@EditProfileFragment
@@ -76,13 +77,22 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 .commit()
         }
 
+        val bundle= arguments
         val name = requireActivity().intent.getStringExtra("name")
-        val address1 = requireActivity().intent.getStringExtra("address1")
+
+        if(bundle != null) {
+            address1 = arguments?.getString("address")!!
+            latitude1 = arguments?.getDouble("latitude", 0.0)
+            longitude1 = arguments?.getDouble("longitude", 0.0)
+        } else {
+            address1 = requireActivity().intent.getStringExtra("address1")?: ""
+            latitude1 = requireActivity().intent.getDoubleExtra("latitude", 0.0)
+            longitude1 = requireActivity().intent.getDoubleExtra("longitude", 0.0)
+        }
         val address2 = requireActivity().intent.getStringExtra("address2")
         val phone = requireActivity().intent.getStringExtra("phoneNumber")
         val image = requireActivity().intent.getStringExtra("filePath")
-        val latitude = requireActivity().intent.getDoubleExtra("latitude", 0.0)
-        val longitude = requireActivity().intent.getDoubleExtra("longtitude", 0.0)
+
         binding.infoProfileNameEt.setText(name)
         binding.infoProfileAddressTv1.text = address1
         binding.infoProfileAddressTv2.setText(address2)
@@ -98,6 +108,23 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 .error(R.drawable.profile_img_origin)
                 .into(binding.infoProfileImg)
         }
+
+        binding.infoProfileAddressChangeBtn.setOnClickListener {
+
+            val bundle = Bundle()
+            bundle.putString("address", address1)
+            bundle.putDouble("latitude", latitude1 ?: 0.0)
+            bundle.putDouble("longitude", longitude1 ?: 0.0)
+
+            val editAddressMapFragment = EditAddressMapFragment()
+            editAddressMapFragment.arguments = bundle
+
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frame_fragment, editAddressMapFragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
 
         binding.infoProfileCameraBtn.setOnClickListener {
             if(GajaMapApplication.prefs.getString("authority", "") == "FREE") {
@@ -164,7 +191,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
         imageResult.launch(intent)
     }
 
-    fun openImagePickOption() {
+    private fun openImagePickOption() {
         val items = arrayOf<CharSequence>("앨범에서 사진 선택", "기본 이미지로 변경")
         val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
         builder.setTitle("프로필 사진")
@@ -208,16 +235,12 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             Log.d("edit", detail1.toString())
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            latitude1 = requireActivity().intent.getDoubleExtra("latitude", 0.0)
             if(latitude1 == 0.0) {
                 latitude1 = null
             }
-            longitude1 = requireActivity().intent.getDoubleExtra("longitude", 0.0)
             if(longitude1 == 0.0) {
                 longitude1 = null
             }
-            Log.d("edit", latitude1.toString())
-            Log.d("edit", longitude1.toString())
             val latitude = latitude1
             val longitude = longitude1
             val isBasicImage1 = false
@@ -301,11 +324,9 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
             val detail1 = binding.infoProfileAddressTv2.text
             Log.d("edit", detail1.toString())
             val detail = detail1.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            latitude1 = requireActivity().intent.getDoubleExtra("latitude", 0.0)
             if(latitude1 == 0.0) {
                 latitude1 = null
             }
-            longitude1 = requireActivity().intent.getDoubleExtra("longitude", 0.0)
             if(longitude1 == 0.0) {
                 longitude1 = null
             }

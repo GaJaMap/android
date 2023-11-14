@@ -176,7 +176,7 @@ class GetClientViewModel(private val tmp: String): ViewModel() {
                 _deleteClient.postValue(response.body())
                 Log.d("deleteClientSuccess", "${response.body()}")
             }else {
-                Log.d("deleteClientError", "deleteClient : ${response.message()}")
+                Log.d("deleteClientError", "deleteClient : ${response.errorBody()?.string()}")
             }
         }
     }

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <import type="android.view.View"/>
         <variable
             name="fragment"
-            type="com.pg.gajamap.ui.fragment.map.MapFragment" />
+            type="com.pg.gajamap.ui.fragment.customerAdd.EditAddressMapFragment" />
         <variable
             name="viewModel"
-            type="com.pg.gajamap.viewmodel.MapViewModel" />
+            type="com.pg.gajamap.viewmodel.GetClientViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -19,105 +19,10 @@
         tools:context=".ui.fragment.map.MapFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_search_whole"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/fragment_list_tool"
-            android:visibility="visible"
-            android:elevation="15dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginHorizontal="16dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_search"
-                android:layout_width="138dp"
-                android:layout_height="48dp"
-                android:background="@drawable/fragment_list_search_purple"
-                app:layout_constraintStart_toStartOf="@+id/cl_search_whole"
-                app:layout_constraintTop_toTopOf="@+id/cl_search_whole"
-                app:layout_constraintBottom_toBottomOf="@+id/cl_search_whole">
-
-                <TextView
-                    android:id="@+id/tv_search"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/nanumsquareneo_bold"
-                    android:text="@string/addgroup_total"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:textAlignment="center"
-                    app:layout_constraintEnd_toStartOf="@id/iv_search_drop"
-                    app:layout_constraintStart_toStartOf="@+id/cl_search"
-                    app:layout_constraintTop_toTopOf="@+id/cl_search"
-                    app:layout_constraintBottom_toBottomOf="@+id/cl_search"/>
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/iv_search_drop"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/ic_search_drop"
-                    android:layout_marginEnd="6dp"
-                    app:layout_constraintEnd_toEndOf="@+id/cl_search"
-                    app:layout_constraintTop_toTopOf="@+id/tv_search"
-                    app:layout_constraintBottom_toBottomOf="@+id/tv_search"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <EditText
-                android:id="@+id/et_search"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:hint="이름을 검색해주세요."
-                android:textColorHint="@color/et_hint_gray"
-                android:background="@drawable/fragment_list_search_et_background"
-                app:layout_constraintStart_toEndOf="@+id/cl_search"
-                app:layout_constraintEnd_toEndOf="@+id/cl_search_whole"
-                app:layout_constraintTop_toTopOf="@+id/cl_search_whole"
-                app:layout_constraintBottom_toBottomOf="@+id/cl_search_whole"
-                android:textSize="13sp"
-                android:singleLine="true"
-                android:maxLines="1"
-                android:fontFamily="@font/nanumsquareneo_regular"
-                android:textColor="@color/black"
-                android:paddingStart="12dp"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_search_result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/fragment_list_tool"
-            android:visibility="invisible"
-            android:elevation="15dp"
-            android:layout_marginHorizontal="16dp"
-            app:layout_constraintTop_toBottomOf="@id/cl_search_whole"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_search"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                android:overScrollMode="never"
-                tools:listitem="@layout/item_search_result"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_search_location"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="@drawable/fragment_list_tool"
-            android:visibility="invisible"
             android:elevation="15dp"
             android:layout_marginTop="28dp"
             android:layout_marginHorizontal="16dp"
@@ -168,19 +73,20 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <RelativeLayout
-        android:id="@+id/kakaoMapContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        <RelativeLayout
+            android:id="@+id/kakaoMapContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:context=".ui.fragment.customerAdd.EditAddressMapFragment" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_location"
             android:layout_width="match_parent"
             android:layout_height="212dp"
-            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -307,109 +213,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <ImageButton
-            android:id="@+id/ib_plus"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/bg_roundbtn"
-            android:src="@drawable/ic_plus"
-            android:visibility="visible"
-            android:elevation="15dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginBottom="12dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/ib_gps"/>
-
-        <ImageButton
-            android:id="@+id/ib_gps"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/bg_roundbtn"
-            android:visibility="visible"
-            android:src="@drawable/ic_gray_gps"
-            android:elevation="15dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginBottom="12dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/ib_km"/>
-
-        <ImageButton
-            android:id="@+id/ib_km"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/bg_roundbtn"
-            android:src="@drawable/ic_km"
-            android:visibility="visible"
-            android:elevation="15dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="12dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_km"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_whitebox"
-            android:padding="8dp"
-            android:visibility="invisible"
-            android:layout_marginBottom="4dp"
-            app:layout_constraintBottom_toTopOf="@+id/ib_km"
-            app:layout_constraintEnd_toEndOf="@+id/ib_km">
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn_3km"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/bg_km_notclick"
-                android:fontFamily="@font/nanumsquareneo_regular"
-                android:text="@string/map_button_3km"
-                android:textSize="12sp"
-                android:textColor="@color/main"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btn_5km"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn_5km"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/bg_km_notclick"
-                android:fontFamily="@font/nanumsquareneo_regular"
-                android:text="@string/map_button_5km"
-                android:textSize="12sp"
-                android:textColor="@color/main"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/btn_3km"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_cardview"
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:visibility="invisible"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="20dp"
-            android:paddingHorizontal="12dp"
-            android:elevation="10dp"
-            android:backgroundTint="@color/inform"
-            android:background="@drawable/fragment_list_tool"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/vp_client"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
         <ProgressBar
             android:id="@+id/progress"
             style="?android:attr/progressBarStyle"
@@ -425,5 +228,4 @@
             app:layout_constraintTop_toTopOf="@+id/kakaoMapContainer" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </layout>

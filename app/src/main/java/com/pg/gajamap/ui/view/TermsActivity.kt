@@ -16,6 +16,10 @@ class TermsActivity : BaseActivity<ActivityTermsBinding>(R.layout.activity_terms
     override val viewModel by viewModels<GetClientViewModel> {
         GetClientViewModel.AddViewModelFactory("tmp")
     }
+
+    override fun preLoad() {
+    }
+
     override fun initViewModel(viewModel: ViewModel) {
         binding.lifecycleOwner = this@TermsActivity
     }

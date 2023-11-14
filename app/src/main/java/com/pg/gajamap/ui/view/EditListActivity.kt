@@ -37,6 +37,9 @@ class EditListActivity : BaseActivity<ActivityEditListBinding>(R.layout.activity
         GetClientViewModel.AddViewModelFactory("tmp")
     }
 
+    override fun preLoad() {
+    }
+
     override fun initViewModel(viewModel: ViewModel) {
         binding.lifecycleOwner = this@EditListActivity
         binding.viewModel = this.viewModel
