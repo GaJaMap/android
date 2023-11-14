@@ -75,7 +75,6 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>(R.layout.activity_spl
                     finish()
                 })
                 viewModel.autoLoginError.observe(this@SplashActivity) {
-                    Toast.makeText(this@SplashActivity,it,Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
                     finish()
                 }

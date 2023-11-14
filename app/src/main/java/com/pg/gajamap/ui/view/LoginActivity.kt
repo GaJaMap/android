@@ -77,7 +77,6 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>(R.layout.activity_login
                 finish()
             })
             viewModel.autoLoginError.observe(this) {
-                Toast.makeText(this,it,Toast.LENGTH_SHORT).show()
                 dialogHide()
             }
         }
