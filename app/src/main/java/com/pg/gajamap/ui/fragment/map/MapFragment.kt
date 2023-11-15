@@ -365,6 +365,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 binding.ibKm.setImageResource(R.drawable.ic_km)
                 binding.clKm.visibility = View.GONE
 
+                binding.clSearchResult.visibility = View.GONE
+                binding.clCardview.visibility = View.GONE
+
                 if (position == 0) {
                     getAllClient()
                 } else {

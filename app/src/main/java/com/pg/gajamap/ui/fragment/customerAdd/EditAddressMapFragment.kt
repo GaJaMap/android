@@ -55,8 +55,11 @@ class EditAddressMapFragment: BaseFragment<FragmentEditAddressMapBinding>(R.layo
     private var keyword = "" // 검색 키워드
     var latitude = 0.0
     var longitude = 0.0
+    var latitude1 = 0.0
+    var longitude1 = 0.0
     var address = ""
     var markerCheck = false
+    var isSearchTrue = false
 
     override val viewModel by viewModels<GetClientViewModel> {
         GetClientViewModel.AddViewModelFactory("tmp")
@@ -71,11 +74,6 @@ class EditAddressMapFragment: BaseFragment<FragmentEditAddressMapBinding>(R.layo
     override fun onCreateAction() {
         mapView = MapView(context)
         binding.kakaoMapContainer.addView(mapView)
-//        val mapPoint = MapPoint.mapPointWithGeoCoord(
-//            GajaMapApplication.prefs.getString("mapLatitude", "37.7").toDouble(),
-//            GajaMapApplication.prefs.getString("mapLongitude", "127").toDouble()
-//        )
-//        mapView.setMapCenterPoint(mapPoint, true)
 
         mapView.setMapViewEventListener(this)
         mapView.setPOIItemEventListener(this)
@@ -84,19 +82,29 @@ class EditAddressMapFragment: BaseFragment<FragmentEditAddressMapBinding>(R.layo
         // 지도 타일 이미지 Persistent Cache 기능 : 네트워크를 통해 다운로드한 지도 이미지 데이터를 단말의 영구(persistent) 캐쉬 영역에 저장하는 기능
         MapView.setMapTilePersistentCacheEnabled(true)
 
-        val centerPoint = mapView.mapCenterPoint
-        marker = MapPOIItem()
-        mapView.setMapCenterPoint(centerPoint, true)
-        marker.itemName = "마커"
-        marker.isShowCalloutBalloonOnTouch = false
-        marker.mapPoint = MapPoint.mapPointWithGeoCoord(
-            mapView.mapCenterPoint.mapPointGeoCoord.latitude,
-            mapView.mapCenterPoint.mapPointGeoCoord.longitude
-        )
-        latitude = mapView.mapCenterPoint.mapPointGeoCoord.latitude
-        longitude = mapView.mapCenterPoint.mapPointGeoCoord.longitude
-        marker.markerType = MapPOIItem.MarkerType.RedPin
-        mapView.addPOIItem(marker)
+
+        stopTracking()
+
+        address = arguments?.getString("address")!!
+        latitude1 = arguments?.getDouble("latitude", 0.0)!!
+        longitude1 = arguments?.getDouble("longitude", 0.0)!!
+        if(latitude1 != 0.0) {
+            binding.tvLocationAddress.text = address
+
+            val centerPoint = MapPoint.mapPointWithGeoCoord(latitude1, longitude1) //여기 수정하기
+            marker = MapPOIItem()
+            mapView.setMapCenterPoint(centerPoint, true)
+            marker.itemName = "마커"
+            marker.isShowCalloutBalloonOnTouch = false
+            marker.mapPoint = MapPoint.mapPointWithGeoCoord(latitude1, longitude1)
+            latitude = latitude1
+            longitude = longitude1
+            marker.markerType = MapPOIItem.MarkerType.RedPin
+            mapView.addPOIItem(marker)
+        } else {
+            setCurrentLocationAndMarker()
+        }
+
         reverseGeoCoderFoundAddress(longitude.toString(), latitude.toString())
         markerCheck = true
 
@@ -128,7 +136,8 @@ class EditAddressMapFragment: BaseFragment<FragmentEditAddressMapBinding>(R.layo
                     mapView.removePOIItem(marker)
                     // 지도에서 직접 추가하기 마커 위치
                     marker = MapPOIItem()
-                    marker.itemName = "Marker"
+                    marker.itemName = "마커"
+                    marker.isShowCalloutBalloonOnTouch = false
                     marker.mapPoint = MapPoint.mapPointWithGeoCoord(a.first, a.second)
                     marker.markerType = MapPOIItem.MarkerType.RedPin
                     mapView.addPOIItem(marker)
@@ -164,6 +173,8 @@ class EditAddressMapFragment: BaseFragment<FragmentEditAddressMapBinding>(R.layo
                     locationSearchList[position].y,
                     locationSearchList[position].x
                 )
+                latitude = locationSearchList[position].y
+                longitude = locationSearchList[position].x
                 mapView.setMapCenterPoint(mapPoint, true)
 
             }
@@ -195,6 +206,7 @@ class EditAddressMapFragment: BaseFragment<FragmentEditAddressMapBinding>(R.layo
             // 검색 키워드 받기
             keyword = binding.etLocationSearch.text.toString()
             searchKeyword(keyword)
+            isSearchTrue = true
         }
 
         // edittext 완료 클릭 시 화면 전환되는 것으로 추가 구현
@@ -211,6 +223,7 @@ class EditAddressMapFragment: BaseFragment<FragmentEditAddressMapBinding>(R.layo
                 // 검색 키워드 받기
                 keyword = binding.etLocationSearch.text.toString()
                 searchKeyword(keyword)
+                isSearchTrue = true
                 true
             }
             false
@@ -235,12 +248,41 @@ class EditAddressMapFragment: BaseFragment<FragmentEditAddressMapBinding>(R.layo
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.frame_fragment, EditProfileFragment())
-                    .addToBackStack(null)
-                    .commit()
+
+                if(isSearchTrue) {
+                    binding.clLocationSearch.visibility = View.GONE
+                    binding.clLocation.visibility = View.VISIBLE
+                    mapView.removeAllPOIItems()
+                    isSearchTrue = false
+                    markerCheck = true
+
+                    stopTracking()
+
+                    setCurrentLocationAndMarker()
+
+                    reverseGeoCoderFoundAddress(latitude.toString(), longitude.toString())
+                    binding.tvLocationAddress.text = address
+                } else {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.frame_fragment, EditProfileFragment())
+                        .addToBackStack(null)
+                        .commit()
+                }
             }
         })
+    }
+
+    private fun setCurrentLocationAndMarker () {
+        val centerPoint = mapView.mapCenterPoint //여기 수정하기
+        marker = MapPOIItem()
+        mapView.setMapCenterPoint(centerPoint, true)
+        marker.itemName = "마커"
+        marker.isShowCalloutBalloonOnTouch = false
+        marker.mapPoint = MapPoint.mapPointWithGeoCoord(mapView.mapCenterPoint.mapPointGeoCoord.latitude, mapView.mapCenterPoint.mapPointGeoCoord.longitude)
+        latitude = mapView.mapCenterPoint.mapPointGeoCoord.latitude
+        longitude = mapView.mapCenterPoint.mapPointGeoCoord.longitude
+        marker.markerType = MapPOIItem.MarkerType.RedPin
+        mapView.addPOIItem(marker)
     }
 
     private fun getLocation(): Pair<Double, Double> {
@@ -425,10 +467,14 @@ class EditAddressMapFragment: BaseFragment<FragmentEditAddressMapBinding>(R.layo
                 binding.kakaoMapContainer.addView(mapView)
                 mapView.setPOIItemEventListener(this)
                 mapView.setMapViewEventListener(this)
+
+                setCurrentLocationAndMarker()
             } catch (e: RuntimeException) {
                 Log.d("error", e.toString())
             }
         }
+
+        stopTracking()
     }
 
     override fun onPause() {
@@ -443,8 +489,13 @@ class EditAddressMapFragment: BaseFragment<FragmentEditAddressMapBinding>(R.layo
 
     // 위치추적 중지
     private fun stopTracking() {
+        val bgShape = binding.ibBottomGps.background as GradientDrawable
+        bgShape.setColor(resources.getColor(R.color.white))
+        binding.ibBottomGps.setImageResource(R.drawable.ic_gray_gps)
+
         mapView.currentLocationTrackingMode =
             MapView.CurrentLocationTrackingMode.TrackingModeOff
+        mapView.setShowCurrentLocationMarker(false)
     }
 
     override fun onPOIItemSelected(p0: MapView?, p1: MapPOIItem?) {
