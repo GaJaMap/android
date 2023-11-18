@@ -145,6 +145,8 @@ class EditAddressMapFragment: BaseFragment<FragmentEditAddressMapBinding>(R.layo
                         marker.mapPoint.mapPointGeoCoord.longitude.toString(),
                         marker.mapPoint.mapPointGeoCoord.latitude.toString()
                     )
+                    latitude = marker.mapPoint.mapPointGeoCoord.latitude
+                    longitude = marker.mapPoint.mapPointGeoCoord.longitude
                     markerCheck = true
                 } else {
                     // GPS가 꺼져있을 경우
