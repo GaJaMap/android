@@ -111,6 +111,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     var bottomGPSBtn = false
     var kmBtn = false
     var GPSBtn = false
+    var isSearchTrue = false
     var latitude = 0.0
     var longitude = 0.0
     var address = ""
@@ -633,6 +634,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             // 검색 키워드 받기
             keyword = binding.etLocationSearch.text.toString()
             searchKeyword(keyword)
+            isSearchTrue = true
         }
 
         // edittext 완료 클릭 시 화면 전환되는 것으로 추가 구현
@@ -649,6 +651,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 // 검색 키워드 받기
                 keyword = binding.etLocationSearch.text.toString()
                 searchKeyword(keyword)
+                isSearchTrue = true
                 true
             }
             false
@@ -667,21 +670,46 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if(plusBtn) {
-                        plusBtnInactivation()
-                    } else {
-                        if (doubleBackToExitPressedOnce) {
-                            // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
-                            requireActivity().finish()
-                        } else {
-                            doubleBackToExitPressedOnce = true
-                            Toast.makeText(requireContext(), "한번 더 누르면 종료 됩니다.", Toast.LENGTH_SHORT)
-                                .show()
+                    if(isSearchTrue) {
+                        binding.clLocationSearch.visibility = View.GONE
+                        binding.clLocation.visibility = View.VISIBLE
+                        mapView.removeAllPOIItems()
+                        isSearchTrue = false
+                        markerCheck = true
 
-                            // 2초 후에 doubleBackToExitPressedOnce 값을 초기화합니다.
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                doubleBackToExitPressedOnce = false
-                            }, 2000)
+                        stopTracking()
+
+                        val centerPoint = mapView.mapCenterPoint //여기 수정하기
+                        marker = MapPOIItem()
+                        mapView.setMapCenterPoint(centerPoint, true)
+                        marker.itemName = "마커"
+                        marker.isShowCalloutBalloonOnTouch = false
+                        marker.mapPoint = MapPoint.mapPointWithGeoCoord(mapView.mapCenterPoint.mapPointGeoCoord.latitude, mapView.mapCenterPoint.mapPointGeoCoord.longitude)
+                        latitude = mapView.mapCenterPoint.mapPointGeoCoord.latitude
+                        longitude = mapView.mapCenterPoint.mapPointGeoCoord.longitude
+                        marker.markerType = MapPOIItem.MarkerType.RedPin
+                        mapView.addPOIItem(marker)
+
+                        reverseGeoCoderFoundAddress(latitude.toString(), longitude.toString())
+                        binding.tvLocationAddress.text = address
+
+                    } else {
+                        if(plusBtn) {
+                            plusBtnInactivation()
+                        } else {
+                            if (doubleBackToExitPressedOnce) {
+                                // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
+                                requireActivity().finish()
+                            } else {
+                                doubleBackToExitPressedOnce = true
+                                Toast.makeText(requireContext(), "한번 더 누르면 종료 됩니다.", Toast.LENGTH_SHORT)
+                                    .show()
+
+                                // 2초 후에 doubleBackToExitPressedOnce 값을 초기화합니다.
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    doubleBackToExitPressedOnce = false
+                                }, 2000)
+                            }
                         }
                     }
                 }
@@ -1408,6 +1436,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         binding.etSearch.text = null
         // 검색창 없애기
         binding.clSearchResult.visibility = View.GONE
+
+        isSearchTrue = false
 
         val imm = requireContext().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(binding.etLocationSearch.windowToken, 0)
