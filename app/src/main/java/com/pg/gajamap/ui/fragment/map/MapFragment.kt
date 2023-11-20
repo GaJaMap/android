@@ -667,18 +667,22 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (doubleBackToExitPressedOnce) {
-                        // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
-                        requireActivity().finish()
+                    if(plusBtn) {
+                        plusBtnInactivation()
                     } else {
-                        doubleBackToExitPressedOnce = true
-                        Toast.makeText(requireContext(), "한번 더 누르면 종료 됩니다.", Toast.LENGTH_SHORT)
-                            .show()
+                        if (doubleBackToExitPressedOnce) {
+                            // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
+                            requireActivity().finish()
+                        } else {
+                            doubleBackToExitPressedOnce = true
+                            Toast.makeText(requireContext(), "한번 더 누르면 종료 됩니다.", Toast.LENGTH_SHORT)
+                                .show()
 
-                        // 2초 후에 doubleBackToExitPressedOnce 값을 초기화합니다.
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            doubleBackToExitPressedOnce = false
-                        }, 2000)
+                            // 2초 후에 doubleBackToExitPressedOnce 값을 초기화합니다.
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                doubleBackToExitPressedOnce = false
+                            }, 2000)
+                        }
                     }
                 }
             })
@@ -931,18 +935,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         // 저장된 지도 타일 캐쉬 데이터를 모두 삭제
         // MapView가 동작 중인 상태에서도 사용 가능
         clearMapTilePersistentCache()
-//`        binding.kakaoMapContainer.removeView(mapView)`
     }
 
     override fun onPause() {
         super.onPause()
         binding.kakaoMapContainer.removeView(mapView)
     }
-
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//        binding.kakaoMapContainer.removeView(mapView)
-//    }
 
     // ViewPager에 들어갈 아이템
     private fun getClientList(userObject: Any) {
