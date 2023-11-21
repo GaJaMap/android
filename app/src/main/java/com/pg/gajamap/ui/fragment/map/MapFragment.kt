@@ -677,7 +677,6 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                         isSearchTrue = false
                         markerCheck = true
 
-                        stopTracking()
 
                         val centerPoint = mapView.mapCenterPoint //여기 수정하기
                         marker = MapPOIItem()
@@ -936,6 +935,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         mapView.setShowCurrentLocationMarker(false)
         plusBtnInactivation()
         clientMarker()
+
+        isSearchTrue = false
 
         kmBtn = false
         threeCheck = false
@@ -1371,6 +1372,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         plusBtnInactivation()
         clientMarker()
 
+        isSearchTrue = false
+
         binding.clSearchResult.visibility = View.GONE
 
         // 그룹 더보기 및 검색창 그룹 이름, 현재 선택된 이름으로 변경
@@ -1427,25 +1430,25 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
     // MapView를 클릭하면 호출되는 콜백 메서드
     override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {
-        binding.clCardview.visibility = View.GONE
-        binding.ibPlus.visibility = View.VISIBLE
-        binding.ibGps.visibility = View.VISIBLE
-        binding.ibKm.visibility = View.VISIBLE
+//        binding.clCardview.visibility = View.GONE
+//        binding.ibPlus.visibility = View.VISIBLE
+//        binding.ibGps.visibility = View.VISIBLE
+//        binding.ibKm.visibility = View.VISIBLE
+//
+//        // 검색한 값 지우기
+//        binding.etSearch.text = null
+//        // 검색창 없애기
+//        binding.clSearchResult.visibility = View.GONE
+//
+//        isSearchTrue = false
 
-        // 검색한 값 지우기
-        binding.etSearch.text = null
-        // 검색창 없애기
-        binding.clSearchResult.visibility = View.GONE
+//        val imm = requireContext().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+//        imm.hideSoftInputFromWindow(binding.etLocationSearch.windowToken, 0)
 
-        isSearchTrue = false
-
-        val imm = requireContext().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(binding.etLocationSearch.windowToken, 0)
-
-        if (plusBtn) {
-            plusBtnInactivation()
-            clientMarker()
-        }
+//        if (plusBtn) {
+//            plusBtnInactivation()
+//            clientMarker()
+//        }
     }
 
     override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {
