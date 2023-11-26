@@ -294,7 +294,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 }
                 Log.d("editlist", clientList.toString())
             })
-            viewModel.postErrorClient.observe(this, Observer {
+            viewModel.putErrorClient.observe(this, Observer {
                 Toast.makeText(requireContext(), it , Toast.LENGTH_SHORT).show()
                 dialogHide()
                 activity?.finish()
@@ -390,7 +390,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 dialogHide()
                 activity?.finish()
             })
-            viewModel.postErrorClient.observe(this, Observer {
+            viewModel.putErrorClient.observe(this, Observer {
                 Toast.makeText(requireContext(), it , Toast.LENGTH_SHORT).show()
                 dialogHide()
                 activity?.finish()
