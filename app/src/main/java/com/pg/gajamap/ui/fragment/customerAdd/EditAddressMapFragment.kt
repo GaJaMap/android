@@ -262,8 +262,12 @@ class EditAddressMapFragment: BaseFragment<FragmentEditAddressMapBinding>(R.layo
 
                     setCurrentLocationAndMarker()
 
-                    reverseGeoCoderFoundAddress(latitude.toString(), longitude.toString())
-                    binding.tvLocationAddress.text = address
+                    if (markerCheck) {
+                        reverseGeoCoderFoundAddress(
+                            marker.mapPoint.mapPointGeoCoord.longitude.toString(),
+                            marker.mapPoint.mapPointGeoCoord.latitude.toString()
+                        )
+                    }
                 } else {
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.frame_fragment, EditProfileFragment())

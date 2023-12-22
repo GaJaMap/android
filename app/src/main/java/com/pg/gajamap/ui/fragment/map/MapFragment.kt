@@ -670,7 +670,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if(isSearchTrue) {
+                    if (isSearchTrue) {
                         binding.clLocationSearch.visibility = View.GONE
                         binding.clLocation.visibility = View.VISIBLE
                         mapView.removeAllPOIItems()
@@ -683,25 +683,36 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                         mapView.setMapCenterPoint(centerPoint, true)
                         marker.itemName = "마커"
                         marker.isShowCalloutBalloonOnTouch = false
-                        marker.mapPoint = MapPoint.mapPointWithGeoCoord(mapView.mapCenterPoint.mapPointGeoCoord.latitude, mapView.mapCenterPoint.mapPointGeoCoord.longitude)
+                        marker.mapPoint = MapPoint.mapPointWithGeoCoord(
+                            mapView.mapCenterPoint.mapPointGeoCoord.latitude,
+                            mapView.mapCenterPoint.mapPointGeoCoord.longitude
+                        )
                         latitude = mapView.mapCenterPoint.mapPointGeoCoord.latitude
                         longitude = mapView.mapCenterPoint.mapPointGeoCoord.longitude
                         marker.markerType = MapPOIItem.MarkerType.RedPin
                         mapView.addPOIItem(marker)
 
-                        reverseGeoCoderFoundAddress(latitude.toString(), longitude.toString())
-                        binding.tvLocationAddress.text = address
-
+                        if (markerCheck) {
+                            reverseGeoCoderFoundAddress(
+                                marker.mapPoint.mapPointGeoCoord.longitude.toString(),
+                                marker.mapPoint.mapPointGeoCoord.latitude.toString()
+                            )
+                        }
                     } else {
-                        if(plusBtn) {
+                        if (plusBtn) {
                             plusBtnInactivation()
+                            clientMarker()
                         } else {
                             if (doubleBackToExitPressedOnce) {
                                 // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
                                 requireActivity().finish()
                             } else {
                                 doubleBackToExitPressedOnce = true
-                                Toast.makeText(requireContext(), "한번 더 누르면 종료 됩니다.", Toast.LENGTH_SHORT)
+                                Toast.makeText(
+                                    requireContext(),
+                                    "한번 더 누르면 종료 됩니다.",
+                                    Toast.LENGTH_SHORT
+                                )
                                     .show()
 
                                 // 2초 후에 doubleBackToExitPressedOnce 값을 초기화합니다.
@@ -1430,18 +1441,20 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
     // MapView를 클릭하면 호출되는 콜백 메서드
     override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {
-//        binding.clCardview.visibility = View.GONE
-//        binding.ibPlus.visibility = View.VISIBLE
-//        binding.ibGps.visibility = View.VISIBLE
-//        binding.ibKm.visibility = View.VISIBLE
-//
+        if (binding.clCardview.visibility == View.VISIBLE) {
+            binding.clCardview.visibility = View.GONE
+            binding.ibPlus.visibility = View.VISIBLE
+            binding.ibGps.visibility = View.VISIBLE
+            binding.ibKm.visibility = View.VISIBLE
+        }
+
 //        // 검색한 값 지우기
 //        binding.etSearch.text = null
 //        // 검색창 없애기
 //        binding.clSearchResult.visibility = View.GONE
 //
 //        isSearchTrue = false
-
+//
 //        val imm = requireContext().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
 //        imm.hideSoftInputFromWindow(binding.etLocationSearch.windowToken, 0)
 
