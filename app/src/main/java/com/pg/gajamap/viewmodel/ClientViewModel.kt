@@ -21,6 +21,10 @@ class ClientViewModel(private val tmp: String): ViewModel() {
     val putClient : LiveData<Client>
     get() = _putClient
 
+    private val _putErrorClient = MutableLiveData<String>()
+    val putErrorClient : LiveData<String>
+        get() = _putErrorClient
+
     private val _deleteClient = MutableLiveData<BaseResponse>()
     val deleteClient : LiveData<BaseResponse>
     get() = _deleteClient
@@ -85,7 +89,6 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                 _putClient.postValue(response.body())
                 Log.d("putClientSuccess", "${response.body()}")
             }else {
-                Log.d("putClientError", "putClient : ${response.errorBody()?.string()}")
                 try {
                     if (response.code() == 400) {
                         val errorBodyString = response.errorBody()?.string()
@@ -98,11 +101,11 @@ class ClientViewModel(private val tmp: String): ViewModel() {
                                 val errorMessage = firstError.getString("message")
 
                                 // 추출한 오류 메시지를 LiveData에 postValue로 보냅니다.
-                                _postErrorClient.postValue(errorMessage)
+                                _putErrorClient.postValue(errorMessage)
                             }
                         }
                     } else {
-                        _postErrorClient.postValue("${response.code()}: ${response.message()}")
+                        _putErrorClient.postValue("${response.code()}: ${response.message()}")
                     }
                 } catch (e: JSONException) {
                     e.printStackTrace()

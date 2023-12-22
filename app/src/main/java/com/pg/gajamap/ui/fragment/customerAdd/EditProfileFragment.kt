@@ -164,7 +164,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
     }
 
     // 이미지 실제 경로 반환
-    fun getRealPathFromURI(uri: Uri): String {
+    private fun getRealPathFromURI(uri: Uri): String {
         val buildName = Build.MANUFACTURER
         if(buildName.equals("Xiaomi")){
             return uri.path!!
@@ -294,7 +294,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 }
                 Log.d("editlist", clientList.toString())
             })
-            viewModel.postErrorClient.observe(this, Observer {
+            viewModel.putErrorClient.observe(this, Observer {
                 Toast.makeText(requireContext(), it , Toast.LENGTH_SHORT).show()
                 dialogHide()
                 activity?.finish()
@@ -390,7 +390,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding>(R.layout.fr
                 dialogHide()
                 activity?.finish()
             })
-            viewModel.postErrorClient.observe(this, Observer {
+            viewModel.putErrorClient.observe(this, Observer {
                 Toast.makeText(requireContext(), it , Toast.LENGTH_SHORT).show()
                 dialogHide()
                 activity?.finish()

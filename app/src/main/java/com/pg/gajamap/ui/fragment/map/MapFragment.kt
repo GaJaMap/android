@@ -111,6 +111,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     var bottomGPSBtn = false
     var kmBtn = false
     var GPSBtn = false
+    var isSearchTrue = false
     var latitude = 0.0
     var longitude = 0.0
     var address = ""
@@ -265,6 +266,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                         marker.mapPoint.mapPointGeoCoord.longitude.toString(),
                         marker.mapPoint.mapPointGeoCoord.latitude.toString()
                     )
+                    latitude = marker.mapPoint.mapPointGeoCoord.latitude
+                    longitude = marker.mapPoint.mapPointGeoCoord.longitude
                     markerCheck = true
                 } else {
                     // GPS가 꺼져있을 경우
@@ -364,6 +367,9 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 bgShapebtn.setColor(resources.getColor(R.color.white))
                 binding.ibKm.setImageResource(R.drawable.ic_km)
                 binding.clKm.visibility = View.GONE
+
+                binding.clSearchResult.visibility = View.GONE
+                binding.clCardview.visibility = View.GONE
 
                 if (position == 0) {
                     getAllClient()
@@ -628,6 +634,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             // 검색 키워드 받기
             keyword = binding.etLocationSearch.text.toString()
             searchKeyword(keyword)
+            isSearchTrue = true
         }
 
         // edittext 완료 클릭 시 화면 전환되는 것으로 추가 구현
@@ -644,6 +651,7 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
                 // 검색 키워드 받기
                 keyword = binding.etLocationSearch.text.toString()
                 searchKeyword(keyword)
+                isSearchTrue = true
                 true
             }
             false
@@ -662,18 +670,57 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (doubleBackToExitPressedOnce) {
-                        // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
-                        requireActivity().finish()
-                    } else {
-                        doubleBackToExitPressedOnce = true
-                        Toast.makeText(requireContext(), "한번 더 누르면 종료 됩니다.", Toast.LENGTH_SHORT)
-                            .show()
+                    if (isSearchTrue) {
+                        binding.clLocationSearch.visibility = View.GONE
+                        binding.clLocation.visibility = View.VISIBLE
+                        mapView.removeAllPOIItems()
+                        isSearchTrue = false
+                        markerCheck = true
 
-                        // 2초 후에 doubleBackToExitPressedOnce 값을 초기화합니다.
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            doubleBackToExitPressedOnce = false
-                        }, 2000)
+
+                        val centerPoint = mapView.mapCenterPoint //여기 수정하기
+                        marker = MapPOIItem()
+                        mapView.setMapCenterPoint(centerPoint, true)
+                        marker.itemName = "마커"
+                        marker.isShowCalloutBalloonOnTouch = false
+                        marker.mapPoint = MapPoint.mapPointWithGeoCoord(
+                            mapView.mapCenterPoint.mapPointGeoCoord.latitude,
+                            mapView.mapCenterPoint.mapPointGeoCoord.longitude
+                        )
+                        latitude = mapView.mapCenterPoint.mapPointGeoCoord.latitude
+                        longitude = mapView.mapCenterPoint.mapPointGeoCoord.longitude
+                        marker.markerType = MapPOIItem.MarkerType.RedPin
+                        mapView.addPOIItem(marker)
+
+                        if (markerCheck) {
+                            reverseGeoCoderFoundAddress(
+                                marker.mapPoint.mapPointGeoCoord.longitude.toString(),
+                                marker.mapPoint.mapPointGeoCoord.latitude.toString()
+                            )
+                        }
+                    } else {
+                        if (plusBtn) {
+                            plusBtnInactivation()
+                            clientMarker()
+                        } else {
+                            if (doubleBackToExitPressedOnce) {
+                                // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
+                                requireActivity().finish()
+                            } else {
+                                doubleBackToExitPressedOnce = true
+                                Toast.makeText(
+                                    requireContext(),
+                                    "한번 더 누르면 종료 됩니다.",
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+
+                                // 2초 후에 doubleBackToExitPressedOnce 값을 초기화합니다.
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    doubleBackToExitPressedOnce = false
+                                }, 2000)
+                            }
+                        }
                     }
                 }
             })
@@ -900,6 +947,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         plusBtnInactivation()
         clientMarker()
 
+        isSearchTrue = false
+
         kmBtn = false
         threeCheck = false
         fiveCheck = false
@@ -926,18 +975,12 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         // 저장된 지도 타일 캐쉬 데이터를 모두 삭제
         // MapView가 동작 중인 상태에서도 사용 가능
         clearMapTilePersistentCache()
-//`        binding.kakaoMapContainer.removeView(mapView)`
     }
 
     override fun onPause() {
         super.onPause()
         binding.kakaoMapContainer.removeView(mapView)
     }
-
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//        binding.kakaoMapContainer.removeView(mapView)
-//    }
 
     // ViewPager에 들어갈 아이템
     private fun getClientList(userObject: Any) {
@@ -1340,6 +1383,8 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
         plusBtnInactivation()
         clientMarker()
 
+        isSearchTrue = false
+
         binding.clSearchResult.visibility = View.GONE
 
         // 그룹 더보기 및 검색창 그룹 이름, 현재 선택된 이름으로 변경
@@ -1396,23 +1441,27 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
 
     // MapView를 클릭하면 호출되는 콜백 메서드
     override fun onMapViewSingleTapped(p0: MapView?, p1: MapPoint?) {
-        binding.clCardview.visibility = View.GONE
-        binding.ibPlus.visibility = View.VISIBLE
-        binding.ibGps.visibility = View.VISIBLE
-        binding.ibKm.visibility = View.VISIBLE
-
-        // 검색한 값 지우기
-        binding.etSearch.text = null
-        // 검색창 없애기
-        binding.clSearchResult.visibility = View.GONE
-
-        val imm = requireContext().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(binding.etLocationSearch.windowToken, 0)
-
-        if (plusBtn) {
-            plusBtnInactivation()
-            clientMarker()
+        if (binding.clCardview.visibility == View.VISIBLE) {
+            binding.clCardview.visibility = View.GONE
+            binding.ibPlus.visibility = View.VISIBLE
+            binding.ibGps.visibility = View.VISIBLE
+            binding.ibKm.visibility = View.VISIBLE
         }
+
+//        // 검색한 값 지우기
+//        binding.etSearch.text = null
+//        // 검색창 없애기
+//        binding.clSearchResult.visibility = View.GONE
+//
+//        isSearchTrue = false
+//
+//        val imm = requireContext().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+//        imm.hideSoftInputFromWindow(binding.etLocationSearch.windowToken, 0)
+
+//        if (plusBtn) {
+//            plusBtnInactivation()
+//            clientMarker()
+//        }
     }
 
     override fun onMapViewDoubleTapped(p0: MapView?, p1: MapPoint?) {

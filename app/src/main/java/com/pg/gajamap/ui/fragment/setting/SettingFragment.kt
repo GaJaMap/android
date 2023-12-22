@@ -6,6 +6,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import android.view.KeyEvent
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.viewModels
@@ -133,23 +134,26 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
             alertDialog.show()
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (doubleBackToExitPressedOnce) {
-                    // 2초 내에 다시 뒤로가기 버튼을 누르면 앱을 종료합니다.
-                    requireActivity().finish()
-                } else {
-                    doubleBackToExitPressedOnce = true
-                    Toast.makeText(requireContext(), "한번 더 누르면 종료 됩니다.", Toast.LENGTH_SHORT).show()
-
-                    // 2초 후에 doubleBackToExitPressedOnce 값을 초기화합니다.
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        doubleBackToExitPressedOnce = false
-                    }, 2000)
-                }
+        view?.isFocusableInTouchMode = true
+        view?.requestFocus()
+        view?.setOnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+                handleOnBackPressed()
+                return@setOnKeyListener true
             }
-        })
+            false
+        }
     }
+    private fun handleOnBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            requireActivity().finish()
+        } else {
+            doubleBackToExitPressedOnce = true
+            Toast.makeText(requireContext(), "한번 더 누르면 종료 됩니다.", Toast.LENGTH_SHORT).show()
 
-
+            Handler(Looper.getMainLooper()).postDelayed({
+                doubleBackToExitPressedOnce = false
+            }, 2000)
+        }
+    }
 }
