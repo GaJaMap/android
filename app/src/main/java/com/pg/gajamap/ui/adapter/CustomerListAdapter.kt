@@ -1,5 +1,7 @@
 package com.pg.gajamap.ui.adapter
 
+import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -49,28 +51,64 @@ class CustomerListAdapter(private var dataList: List<Client>, private val contex
             }
 
             binding.itemProfileCarBtn.setOnClickListener {
+                val items = arrayOf("카카오 내비", "네이버 내비")
+
+                val adapter = CustomerDialogAdapter(context, items)
+
                 val position = absoluteAdapterPosition
-                if (NaviClient.instance.isKakaoNaviInstalled(context)) {
-                    context.startActivity(
-                        NaviClient.instance.navigateIntent(
-                            //위도 경도를 장소이름으로 바꿔주기
-                            Location(
-                                dataList[position].clientName,
-                                dataList[position].location.longitude.toString(),
-                                dataList[position].location.latitude.toString()
-                            ),
-                            NaviOption(coordType = CoordType.WGS84)
-                        )
-                    )
-                } else {
-                    // 카카오내비 설치 페이지로 이동
-                    context.startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(Constants.WEB_NAVI_INSTALL)
-                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    )
+
+                val dialogBuilder = AlertDialog.Builder(context)
+                dialogBuilder.setTitle("내비게이션 선택")
+                dialogBuilder.setAdapter(adapter) { _, which ->
+                    when (which) {
+                        0 -> {
+
+                            if (NaviClient.instance.isKakaoNaviInstalled(context)) {
+                                context.startActivity(
+                                    NaviClient.instance.navigateIntent(
+                                        //위도 경도를 장소이름으로 바꿔주기
+                                        Location(
+                                            dataList[position].clientName,
+                                            dataList[position].location.longitude.toString(),
+                                            dataList[position].location.latitude.toString()
+                                        ),
+                                        NaviOption(coordType = CoordType.WGS84)
+                                    )
+                                )
+                            } else {
+                                // 카카오내비 설치 페이지로 이동
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse(Constants.WEB_NAVI_INSTALL)
+                                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                )
+                            }
+                        }
+
+                        1 -> {
+                            try {
+                                val url =
+                                    "nmap://navigation?dlat=" + dataList[position].location.latitude.toString() + "&dlng=" + dataList[position].location.longitude.toString() + "&dname=" + dataList[position].clientName + "&appname=com.pg.gajamap"
+
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                intent.addCategory(Intent.CATEGORY_BROWSABLE)
+
+                                context.startActivity(intent)
+                            } catch (e: ActivityNotFoundException) {
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse("market://details?id=com.nhn.android.nmap")
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
+
+                val dialog = dialogBuilder.create()
+                dialog.show()
             }
         }
 

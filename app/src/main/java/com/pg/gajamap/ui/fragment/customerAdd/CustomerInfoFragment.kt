@@ -1,6 +1,7 @@
 package com.pg.gajamap.ui.fragment.customerAdd
 
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -25,6 +26,7 @@ import com.pg.gajamap.base.BaseFragment
 import com.pg.gajamap.base.UserData
 import com.pg.gajamap.data.model.Client
 import com.pg.gajamap.databinding.FragmentCustomerInfoBinding
+import com.pg.gajamap.ui.adapter.CustomerDialogAdapter
 import com.pg.gajamap.ui.view.CustomerInfoActivity
 import com.pg.gajamap.viewmodel.GetClientViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -137,26 +139,55 @@ class CustomerInfoFragment: BaseFragment<FragmentCustomerInfoBinding>(R.layout.f
             if(longitude == 0.0) {
                 longitude = null
             }
-            //카카오내비
-            // 카카오내비 앱으로 길 안내
-            if (NaviClient.instance.isKakaoNaviInstalled(requireContext())) {
-                // 카카오내비 앱으로 길 안내 - WGS84
-                startActivity(
-                    NaviClient.instance.navigateIntent(
-                        //위도 경도를 장소이름으로 바꿔주기
-                        Location(binding.infoProfileNameTv.text.toString(), longitude.toString(), latitude.toString()),
-                        NaviOption(coordType = CoordType.WGS84)
-                    )
-                )
-            } else {
-                // 카카오내비 설치 페이지로 이동
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse(Constants.WEB_NAVI_INSTALL)
-                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                )
+
+            val items = arrayOf("카카오 내비", "네이버 내비")
+
+            val adapter = CustomerDialogAdapter(requireContext(), items)
+
+            val dialogBuilder = AlertDialog.Builder(context)
+            dialogBuilder.setTitle("내비게이션 선택")
+            dialogBuilder.setAdapter(adapter) { _, which ->
+                when (which) {
+                    0 -> {
+                        if (NaviClient.instance.isKakaoNaviInstalled(requireContext())) {
+                            startActivity(
+                                NaviClient.instance.navigateIntent(
+                                    Location(binding.infoProfileNameTv.text.toString(), longitude.toString(), latitude.toString()),
+                                    NaviOption(coordType = CoordType.WGS84)
+                                )
+                            )
+                        } else {
+                            startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse(Constants.WEB_NAVI_INSTALL)
+                                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            )
+                        }
+                    }
+                    1 -> {
+                        try {
+                            val url =
+                                "nmap://navigation?dlat=" + latitude.toString() + "&dlng=" + longitude.toString() + "&dname=" + binding.infoProfileNameTv.text.toString() + "&appname=com.pg.gajamap"
+
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            intent.addCategory(Intent.CATEGORY_BROWSABLE)
+
+                            context?.startActivity(intent)
+                        } catch (e: ActivityNotFoundException) {
+                            context?.startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("market://details?id=com.nhn.android.nmap")
+                                )
+                            )
+                        }
+                    }
+                }
             }
+
+            val dialog = dialogBuilder.create()
+            dialog.show()
         }
     }
 
