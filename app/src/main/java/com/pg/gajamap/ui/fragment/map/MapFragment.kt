@@ -138,11 +138,17 @@ class MapFragment : BaseFragment<FragmentMapBinding>(R.layout.fragment_map),
     override fun onCreateAction() {
         mapView = MapView(context)
         binding.kakaoMapContainer.addView(mapView)
-        val mapPoint = MapPoint.mapPointWithGeoCoord(
-            GajaMapApplication.prefs.getString("mapLatitude", "37.7").toDouble(),
-            GajaMapApplication.prefs.getString("mapLongitude", "127").toDouble()
-        )
-        mapView.setMapCenterPoint(mapPoint, true)
+
+        val savedLatitude = GajaMapApplication.prefs.getString("mapLatitude", null)
+        val savedLongitude = GajaMapApplication.prefs.getString("mapLongitude", null)
+
+        val mapLatitude = savedLatitude.toDoubleOrNull()
+        val mapLongitude = savedLongitude.toDoubleOrNull()
+
+        if (mapLatitude != null && mapLongitude != null) {
+            val mapPoint = MapPoint.mapPointWithGeoCoord(mapLatitude, mapLongitude)
+            mapView.setMapCenterPoint(mapPoint, true)
+        }
 
         locationSearchAdapter = LocationSearchAdapter(requireContext(), locationSearchList)
         // 지도 타일 이미지 Persistent Cache 기능 : 네트워크를 통해 다운로드한 지도 이미지 데이터를 단말의 영구(persistent) 캐쉬 영역에 저장하는 기능
