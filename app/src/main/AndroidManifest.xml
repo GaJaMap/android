@@ -34,7 +34,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
         <activity
             android:name=".ui.view.TermsActivity"
@@ -60,9 +59,7 @@
 
         <activity
             android:name=".ui.view.LoginActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="true"></activity>
         <activity
             android:name=".ui.view.EditListActivity"
             android:exported="false">

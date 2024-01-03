@@ -36,6 +36,7 @@
         <item name="android:height">30dp</item>
 
     </style>
+
     <style name="SpinnerItem" parent="Widget.AppCompat.TextView.SpinnerItem">
         <item name="android:textColor">@color/black</item>
     </style>
@@ -62,6 +63,11 @@
         <!-- Set the theme of the Activity that directly follows your splash screen. -->
         <!-- Required -->
         <item name="postSplashScreenTheme">@style/Theme.GaJaMap</item>
+    </style>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.GaJaMap" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
 </resources>
