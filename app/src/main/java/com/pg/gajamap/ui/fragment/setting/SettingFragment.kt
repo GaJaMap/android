@@ -8,16 +8,15 @@ import android.os.Handler
 import android.os.Looper
 import android.view.KeyEvent
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.pg.gajamap.BR
 import com.pg.gajamap.R
 import com.pg.gajamap.base.BaseFragment
 import com.pg.gajamap.base.GajaMapApplication
 import com.pg.gajamap.databinding.FragmentSettingBinding
-import com.pg.gajamap.ui.fragment.map.MapFragment
 import com.pg.gajamap.ui.view.LoginActivity
 import com.pg.gajamap.ui.view.TermsActivity
 import com.pg.gajamap.viewmodel.ClientViewModel
@@ -91,6 +90,11 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
         //카카오 프로필
         binding.settingKakaoTv.setOnClickListener {
             parentFragmentManager.beginTransaction().replace(R.id.nav_fl, KakaoProfileFragment()).addToBackStack(null).commit()
+        }
+
+        //오픈소스 라이선스
+        binding.settingOpenSourceTv.setOnClickListener {
+            startActivity(Intent(requireContext(), OssLicensesMenuActivity::class.java))
         }
 
         binding.settingPersonalInfoTv.setOnClickListener {

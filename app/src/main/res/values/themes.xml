@@ -1,13 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.GaJaMap" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- 타이틀바, 상태바 없애기 -->
-        <item name="windowNoTitle">true</item>
-        <!-- Transparent statusbar -->
-        <item name="android:windowTranslucentStatus">true</item>
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimaryVariant">@color/gray</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>
@@ -36,6 +32,7 @@
         <item name="android:height">30dp</item>
 
     </style>
+
     <style name="SpinnerItem" parent="Widget.AppCompat.TextView.SpinnerItem">
         <item name="android:textColor">@color/black</item>
     </style>
@@ -62,6 +59,11 @@
         <!-- Set the theme of the Activity that directly follows your splash screen. -->
         <!-- Required -->
         <item name="postSplashScreenTheme">@style/Theme.GaJaMap</item>
+    </style>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.GaJaMap" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
 </resources>

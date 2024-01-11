@@ -1,5 +1,7 @@
 package com.pg.gajamap.ui.adapter
 
+import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -19,22 +21,28 @@ import com.pg.gajamap.data.model.ViewPagerData
 import com.pg.gajamap.databinding.ItemViewpagerBinding
 import com.pg.gajamap.ui.view.CustomerInfoActivity
 
-class ViewPagerAdapter (private val itemList: ArrayList<ViewPagerData>, private val context: Context): RecyclerView.Adapter<ViewPagerAdapter.PagerViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : PagerViewHolder{
-        val binding=ItemViewpagerBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+class ViewPagerAdapter(
+    private val itemList: ArrayList<ViewPagerData>,
+    private val context: Context
+) : RecyclerView.Adapter<ViewPagerAdapter.PagerViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PagerViewHolder {
+        val binding =
+            ItemViewpagerBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return PagerViewHolder(binding)
     }
 
     override fun getItemCount(): Int = itemList.size
 
-    override fun onBindViewHolder(holder: PagerViewHolder, position: Int){
+    override fun onBindViewHolder(holder: PagerViewHolder, position: Int) {
         holder.bind(itemList[position])
     }
 
-    inner class PagerViewHolder(private val binding: ItemViewpagerBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class PagerViewHolder(private val binding: ItemViewpagerBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: ViewPagerData){
+        fun bind(item: ViewPagerData) {
 
             binding.clCardPhoneBtn.setOnClickListener {
                 val intent = Intent(Intent.ACTION_DIAL)
@@ -43,31 +51,64 @@ class ViewPagerAdapter (private val itemList: ArrayList<ViewPagerData>, private 
             }
 
             binding.clCardCarBtn.setOnClickListener {
-                if (NaviClient.instance.isKakaoNaviInstalled(context)) {
-                    // 카카오내비 앱으로 길 안내 - WGS84
-                    Log.d("latilongti",item.longitude.toString())
-                    context.startActivity(
-                        NaviClient.instance.navigateIntent(
-                            //위도 경도를 장소이름으로 바꿔주기
-                            Location(item.name, item.longitude.toString(), item.latitude.toString()),
-                            NaviOption(coordType = CoordType.WGS84)
-                        )
-                    )
-                } else {
-                    // 카카오내비 설치 페이지로 이동
-                    context.startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(Constants.WEB_NAVI_INSTALL)
-                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    )
+                val items = arrayOf("카카오 내비", "네이버 내비")
+
+                val adapter = CustomerDialogAdapter(context, items)
+
+                val dialogBuilder = AlertDialog.Builder(context)
+                dialogBuilder.setTitle("내비게이션 선택")
+                dialogBuilder.setAdapter(adapter) { _, which ->
+                    when (which) {
+                        0 -> {
+                            if (NaviClient.instance.isKakaoNaviInstalled(context)) {
+                                Log.d("latilongti", item.longitude.toString())
+                                context.startActivity(
+                                    NaviClient.instance.navigateIntent(
+                                        Location(
+                                            item.name,
+                                            item.longitude.toString(),
+                                            item.latitude.toString()
+                                        ),
+                                        NaviOption(coordType = CoordType.WGS84)
+                                    )
+                                )
+                            } else {
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse(Constants.WEB_NAVI_INSTALL)
+                                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                )
+                            }
+                        }
+                        1 -> {
+                            try {
+                                val url =
+                                    "nmap://navigation?dlat=" + item.latitude.toString() + "&dlng=" + item.longitude.toString() + "&dname=" + item.name + "&appname=com.pg.gajamap"
+
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                intent.addCategory(Intent.CATEGORY_BROWSABLE)
+
+                                context.startActivity(intent)
+                            } catch (e: ActivityNotFoundException) {
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse("market://details?id=com.nhn.android.nmap")
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
+
+                val dialog = dialogBuilder.create()
+                dialog.show()
             }
 
-            if(item.profileImg == "null"){
+            if (item.profileImg == "null") {
                 Glide.with(itemView).load(R.drawable.profile_img_origin).into(binding.ivCardProfile)
-            }
-            else{
+            } else {
                 Glide.with(itemView).load(item.profileImg).into(binding.ivCardProfile)
             }
             binding.tvCardName.text = item.name
@@ -77,10 +118,9 @@ class ViewPagerAdapter (private val itemList: ArrayList<ViewPagerData>, private 
             binding.itemViewpager.setOnClickListener {
                 intentToData(position)
             }
-            if(item.distance == null) {
+            if (item.distance == null) {
                 binding.tvCardDistance.text = "- "
-            }
-            else {
+            } else {
                 binding.tvCardDistance.text = String.format("%.1f ", item.distance?.times(0.001))
             }
         }
